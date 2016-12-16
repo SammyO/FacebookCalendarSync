@@ -6,6 +6,7 @@ public final class Constants {
     public static final String ACCOUNT_NAME = "FacebookCalendarSync";
 
     // Permissions
+    public static final int REQUEST_ACCOUNTS_PERMISSION = 952;
     public static final int REQUEST_READ_WRITE_CALENDAR_PERMISSION = 9583;
     public static final int REQUEST_APP_SETTINGS = 1563;
 

@@ -1,7 +1,14 @@
 package com.oddhov.facebookcalendarsync;
 
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -16,11 +23,13 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.utils.AccountManagerUtils;
 
 import java.util.Arrays;
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener, FacebookCallback<LoginResult> {
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener,
+        DialogInterface.OnClickListener, FacebookCallback<LoginResult> {
     // region Fields
     private Button btnLoginFacebook;
     private Button btnRetrieveToken;
@@ -69,8 +78,22 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (mCallbackManager.onActivityResult(requestCode, resultCode, data)) {
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        if (grantResults.length == 0) {
             return;
+        }
+        if (requestCode == Constants.REQUEST_ACCOUNTS_PERMISSION) {
+            for (int grantResult : grantResults) {
+                if (grantResult == PackageManager.PERMISSION_DENIED) {
+                    if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.GET_ACCOUNTS)) {
+                        showRequestPermissionRationale();
+                    }
+                }
+            }
         }
     }
     //endregion
@@ -80,14 +103,30 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnRetrieveToken:
-                // TODO add permission check
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.GET_ACCOUNTS},
+                            Constants.REQUEST_ACCOUNTS_PERMISSION);
+                    return;
+                }
+
                 String token = AccountManagerUtils.retrieveTokenFromAuthManager(this);
                 Log.e("LoginActivity", "Facebook access token: " + token);
                 break;
             case R.id.btnLoginFacebook:
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.GET_ACCOUNTS},
+                            Constants.REQUEST_ACCOUNTS_PERMISSION);
+                    return;
+                }
+
                 LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email", "public_profile", "user_events"));
                 break;
         }
+    }
+
+    @Override
+    public void onClick(DialogInterface dialogInterface, int i) {
+        startSettingsActivity();
     }
     //endregion
 
@@ -111,6 +150,16 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onError(FacebookException error) {
 
+    }
+    //endregion
+
+    //region UI Helper methods
+    private void showRequestPermissionRationale() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.request_permissions_title)
+                .setMessage(R.string.request_accounts_permissions_description)
+                .setPositiveButton(R.string.word_app_info, this)
+                .show();
     }
     //endregion
 
@@ -159,6 +208,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
+    }
+
+    private void startSettingsActivity() {
+        Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.parse("package:" + getPackageName()));
+        myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
+        myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivityForResult(myAppSettings, Constants.REQUEST_APP_SETTINGS);
     }
     //endregion
 }
