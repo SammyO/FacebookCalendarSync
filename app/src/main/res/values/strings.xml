@@ -3,10 +3,14 @@
     <string name="facebook_app_id">450856338387391</string>
     <string name="fb_login_protocol_scheme">fb450856338387391</string>
 
+    <string name="btnLogOut">Log out from Facebook</string>
     <string name="btnSyncAll">Sync all events now</string>
     <string name="btnSyncUpcoming">Sync only upcoming events now</string>
     <string name="tvSyncNow">You\'ve successfully signed in with Facebook. Click the button below
     to sync your Facebook eventsResponse with your local calendar now.</string>
+
+
+    <string name="login_again">Something went wrong, please try logging in again.</string>
 
     <string name="request_permissions_title">We need your permission</string>
     <string name="request_permissions_description">In order to sync your Facebook events with your local
