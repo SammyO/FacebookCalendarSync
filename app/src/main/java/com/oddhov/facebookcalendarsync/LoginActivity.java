@@ -1,6 +1,5 @@
 package com.oddhov.facebookcalendarsync;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -17,12 +16,13 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
-import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.utils.AccountManagerUtils;
+
+import java.util.Arrays;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, FacebookCallback<LoginResult> {
     // region Fields
+    private Button btnLoginFacebook;
     private Button btnRetrieveToken;
 
     private CallbackManager mCallbackManager;
@@ -33,6 +33,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e("LoginActivity", "onCreate()");
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_main);
 
@@ -77,9 +78,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     //region OnClickListeners
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.btnRetrieveToken) {
-            String token = AccountManagerUtils.retrieveTokenFromAuthManager(this);
-            Log.e("MainActivity", "Facebook access token: " + token);
+        switch (view.getId()) {
+            case R.id.btnRetrieveToken:
+                // TODO add permission check
+                String token = AccountManagerUtils.retrieveTokenFromAuthManager(this);
+                Log.e("LoginActivity", "Facebook access token: " + token);
+                break;
+            case R.id.btnLoginFacebook:
+                LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email", "public_profile", "user_events"));
+                break;
         }
     }
     //endregion
@@ -107,9 +114,24 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
     //endregion
 
+    // region AccessToken Helper Methods
+    private boolean verifyAccessTokenPresentAndValid() {
+        if (AccessToken.getCurrentAccessToken() == null || AccessToken.getCurrentAccessToken().isExpired()) {
+            LoginManager.getInstance().logOut();
+            // TODO add permissions check
+            AccountManagerUtils.removeFromAuthManager(this);
+            return false;
+        }
+        return true;
+    }
+    //endregion
+
     //region View Helper Methods
     private void setupViews() {
         setContentView(R.layout.activity_login);
+
+        btnLoginFacebook = (Button) findViewById(R.id.btnLoginFacebook);
+        btnLoginFacebook.setOnClickListener(this);
 
         btnRetrieveToken = (Button) findViewById(R.id.btnRetrieveToken);
         btnRetrieveToken.setOnClickListener(this);
@@ -117,8 +139,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void setupFacebook() {
         mCallbackManager = CallbackManager.Factory.create();
-        LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
-        loginButton.registerCallback(mCallbackManager, this);
+
+        LoginManager.getInstance().registerCallback(mCallbackManager, this);
 
         mAccessTokenTracker = new AccessTokenTracker() {
             @Override
@@ -134,24 +156,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void startMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
-    }
-    //endregion
-
-    // region AccessToken Helper Methods
-
-    //endregion
-
-    // region AccessToken Helper Methods
-    private boolean verifyAccessTokenPresentAndValid() {
-        if (AccessToken.getCurrentAccessToken() == null || AccessToken.getCurrentAccessToken().isExpired()) {
-            LoginManager.getInstance().logOut();
-            // TODO add permissions check
-            AccountManagerUtils.removeFromAuthManager(this);
-            return false;
-        }
-        return true;
     }
     //endregion
 }

@@ -3,6 +3,7 @@
     <string name="facebook_app_id">450856338387391</string>
     <string name="fb_login_protocol_scheme">fb450856338387391</string>
 
+    <string name="btnLoginFacebook">Log in with Facebook</string>
     <string name="btnLogOut">Log out from Facebook</string>
     <string name="btnSyncAll">Sync all events now</string>
     <string name="btnSyncUpcoming">Sync only upcoming events now</string>

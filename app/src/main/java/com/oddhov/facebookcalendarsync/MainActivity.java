@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void startLoginActivity() {
         Intent intent = new Intent(this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
     }
