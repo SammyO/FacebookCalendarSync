@@ -1,3 +1,17 @@
 <resources>
-    <string name="app_name">FacebookCalendarSync</string>
+    <string name="app_name">Facebook calendar sync</string>
+    <string name="facebook_app_id">450856338387391</string>
+    <string name="fb_login_protocol_scheme">fb450856338387391</string>
+
+    <string name="btnSyncAll">Sync all events now</string>
+    <string name="btnSyncUpcoming">Sync only upcoming events now</string>
+    <string name="tvSyncNow">You\'ve successfully signed in with Facebook. Click the button below
+    to sync your Facebook eventsResponse with your local calendar now.</string>
+
+    <string name="request_permissions_title">We need your permission</string>
+    <string name="request_permissions_description">In order to sync your Facebook events with your local
+    calendar, we need permission to access your calendar. You can set these permissions in your app
+    info.</string>
+    <string name="word_cancel">Cancel</string>
+    <string name="word_app_info">App info</string>
 </resources>
