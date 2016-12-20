@@ -87,11 +87,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             return;
         }
         if (requestCode == Constants.REQUEST_ACCOUNTS_PERMISSION) {
-            for (int grantResult : grantResults) {
-                if (grantResult == PackageManager.PERMISSION_DENIED) {
-                    if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.GET_ACCOUNTS)) {
-                        showRequestPermissionRationale();
-                    }
+            if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.GET_ACCOUNTS)) {
+                    showRequestPermissionRationale();
                 }
             }
         }
