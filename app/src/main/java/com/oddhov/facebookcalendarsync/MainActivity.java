@@ -1,14 +1,19 @@
 package com.oddhov.facebookcalendarsync;
 
 import android.Manifest;
+import android.accounts.Account;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.CalendarContract;
+import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -26,6 +31,9 @@ import com.facebook.login.LoginManager;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.utils.AccountManagerUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         AccessToken.AccessTokenRefreshCallback, DialogInterface.OnClickListener {
     //region Fields
@@ -34,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnSyncUpcoming;
     private Button btnRetrieveToken;
     private Button btnRevokeToken;
+
+    private boolean mSyncOnlyUpcomingEvents = false;
 
     private AccessTokenTracker mAccessTokenTracker;
     //endregion
@@ -88,9 +98,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
         if (requestCode == Constants.REQUEST_ACCOUNTS_PERMISSION) {
-            if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.GET_ACCOUNTS)) {
-                    showRequestPermissionRationale();
+            for (int grantResult : grantResults) {
+                if (grantResult == PackageManager.PERMISSION_DENIED) {
+                    if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.GET_ACCOUNTS)) {
+                        showRequestPermissionRationale(R.string.request_accounts_permission_description);
+                        return;
+                    }
+                }
+            }
+        } else if (requestCode == Constants.REQUEST_READ_WRITE_CALENDAR_PERMISSION) {
+            for (int grantResult : grantResults) {
+                if (grantResult == PackageManager.PERMISSION_DENIED) {
+                    if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_CALENDAR)) {
+                        showRequestPermissionRationale(R.string.request_calendar_permission_description);
+                        return;
+                    }
                 }
             }
         }
@@ -113,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void OnTokenRefreshFailed(FacebookException exception) {
         setStateToLoggedOut();
+        startLoginActivity();
     }
     //endregion
 
@@ -127,7 +150,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return;
                 }
                 String token = AccountManagerUtils.retrieveTokenFromAuthManager(this);
-                Log.e("MainActivity", "Facebook access token: " + AccessToken.getCurrentAccessToken().getToken());
+                Log.e("MainActivity", "Facebook access token: " + token);
+
                 break;
             case R.id.btnLogOut:
                 // TODO move this to settings
@@ -140,6 +164,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btnRevokeToken:
                 revokeFacebookToken();
+                break;
+            case R.id.btnSynAll:
+                mSyncOnlyUpcomingEvents = false;
+                checkPermissionsAndStartSyncAdapter();
+                break;
+            case R.id.btnSyncUpcoming:
+                mSyncOnlyUpcomingEvents = true;
+                checkPermissionsAndStartSyncAdapter();
+                break;
         }
     }
     //endregion
@@ -168,11 +201,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //endregion
 
     //region UI Helper methods
-    private void showRequestPermissionRationale() {
+    private void showRequestPermissionRationale(int message) {
         new AlertDialog.Builder(this)
                 .setTitle(R.string.request_permissions_title)
-                .setMessage(R.string.request_accounts_permissions_description)
+                .setMessage(message)
                 .setPositiveButton(R.string.word_app_info, this)
+                .setCancelable(true)
                 .show();
     }
 
@@ -242,6 +276,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     }
                 }).executeAsync();
+    }
+
+    private void checkPermissionsAndStartSyncAdapter() {
+        int readCalendarPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR);
+        int writeCalendarPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR);
+
+        if (readCalendarPermission == PackageManager.PERMISSION_GRANTED &&
+                writeCalendarPermission == PackageManager.PERMISSION_GRANTED) {
+            startSyncAdapter(mSyncOnlyUpcomingEvents);
+        } else {
+            List<String> permissionsNeeded = new ArrayList<>();
+            if (readCalendarPermission == PackageManager.PERMISSION_DENIED) {
+                permissionsNeeded.add(Manifest.permission.READ_CALENDAR);
+            }
+            if (writeCalendarPermission == PackageManager.PERMISSION_DENIED) {
+                permissionsNeeded.add(Manifest.permission.WRITE_CALENDAR);
+            }
+            ActivityCompat.requestPermissions(this, permissionsNeeded.toArray(new String[permissionsNeeded.size()]),
+                    Constants.REQUEST_READ_WRITE_CALENDAR_PERMISSION);
+        }
+    }
+
+    private void startSyncAdapter(boolean onlyUpcomingEvents) {
+        // Pass the settings flags by inserting them in a bundle
+        Bundle settingsBundle = new Bundle();
+        settingsBundle.putBoolean(
+                ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        settingsBundle.putBoolean(
+                ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        /*
+         * Request the sync for the default account, authority, and
+         * manual sync settings
+         */
+        Account account = new Account(Constants.ACCOUNT_NAME, Constants.ACCOUNT_TYPE);
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(Constants.SYNC_ONLY_UPCOMING_EVENTS, onlyUpcomingEvents);
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        ContentResolver.requestSync(account, CalendarContract.AUTHORITY, bundle);
+        ContentResolver.setSyncAutomatically(account, ContactsContract.AUTHORITY, true);
     }
     //endregion
 }

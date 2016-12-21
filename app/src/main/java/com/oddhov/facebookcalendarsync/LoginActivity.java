@@ -160,7 +160,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void showRequestPermissionRationale() {
         new AlertDialog.Builder(this)
                 .setTitle(R.string.request_permissions_title)
-                .setMessage(R.string.request_accounts_permissions_description)
+                .setMessage(R.string.request_accounts_permission_description)
                 .setPositiveButton(R.string.word_app_info, this)
                 .show();
     }

@@ -14,10 +14,10 @@
     <string name="login_again">Something went wrong, please try logging in again.</string>
 
     <string name="request_permissions_title">We need your permission</string>
-    <string name="request_accounts_permissions_description">In order to sync your Facebook events with your local
+    <string name="request_accounts_permission_description">In order to sync your Facebook events with your local
     calendar, we need permission to access your accounts and contacts. You can set these permissions in your app
     info.</string>
-    <string name="request_calendar_permissions_description">In order to sync your Facebook events with your local
+    <string name="request_calendar_permission_description">In order to sync your Facebook events with your local
     calendar, we need permission to access your calendar. You can set these permissions in your app
     info.</string>
     <string name="word_cancel">Cancel</string>
