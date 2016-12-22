@@ -5,41 +5,35 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncResult;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.widget.Toast;
 
-import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
-import com.facebook.Profile;
-import com.oddhov.facebookcalendarsync.data.Constants;
+import com.oddhov.facebookcalendarsync.R;
+import com.oddhov.facebookcalendarsync.utils.AccountManagerUtils;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Callback {
-    private Context mContext;
-    private AccountManager mAccountManager;
-
     private static final String[] EVENT_PROJECTION = new String[]{
             CalendarContract.Calendars._ID,                           // 0
             CalendarContract.Calendars.ACCOUNT_NAME,                  // 1
             CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,         // 2
             CalendarContract.Calendars.OWNER_ACCOUNT                  // 3
     };
-
     private static final int PROJECTION_ID_INDEX = 0;
     private static final int PROJECTION_ACCOUNT_NAME_INDEX = 1;
     private static final int PROJECTION_DISPLAY_NAME_INDEX = 2;
     private static final int PROJECTION_OWNER_ACCOUNT_INDEX = 3;
+    private Context mContext;
+    private AccountManager mAccountManager;
 
     public SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -74,23 +68,27 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphReq
     //region Helper methods Facebook
     private void fetchAllEvents() {
         // TODO move this to Authenticator
+
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
+            Toast toast = Toast.makeText(mContext, R.string.login_again, Toast.LENGTH_SHORT);
+            toast.show();
+            return;
+        }
+
         FacebookSdk.sdkInitialize(mContext);
 
-        if (Profile.getCurrentProfile() != null) {
+        String accessToken = AccountManagerUtils.retrieveTokenFromAuthManager(mContext);
+        Bundle parameters = new Bundle();
+        parameters.putString("access_token", accessToken);
+//        parameters.putString("since", Long.toString(System.currentTimeMillis() / 1000)); //1476703915
+        new GraphRequest(
+                null,
+                "me/events",
+                parameters,
+                HttpMethod.GET,
+                this)
+                .executeAsync();
 
-            Bundle parameters = new Bundle();
-            new GraphRequest(
-                    AccessToken.getCurrentAccessToken(),
-                    "/" + Profile.getCurrentProfile().getId() + "/events",
-                    parameters,
-                    HttpMethod.GET,
-                    this)
-                    .executeAsync();
-
-        } else {
-            Log.e("SyncAdapter", "Facebook profile not loaded.");
-            // TODO notify user that new login is required
-        }
     }
     //endregion
 }

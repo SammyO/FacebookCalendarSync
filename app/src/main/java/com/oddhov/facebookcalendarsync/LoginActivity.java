@@ -65,7 +65,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             AccessToken.refreshCurrentAccessTokenAsync(this);
         } else {
             btnRetrieveToken.setVisibility(View.VISIBLE);
-//            startMainActivity();
+            startMainActivity();
         }
     }
 
@@ -162,6 +162,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 .setTitle(R.string.request_permissions_title)
                 .setMessage(R.string.request_accounts_permission_description)
                 .setPositiveButton(R.string.word_app_info, this)
+                .setNegativeButton(R.string.word_cancel, this)
                 .show();
     }
     //endregion

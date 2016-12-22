@@ -32,7 +32,9 @@ import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.utils.AccountManagerUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         AccessToken.AccessTokenRefreshCallback, DialogInterface.OnClickListener {
@@ -107,13 +109,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         } else if (requestCode == Constants.REQUEST_READ_WRITE_CALENDAR_PERMISSION) {
-            for (int grantResult : grantResults) {
-                if (grantResult == PackageManager.PERMISSION_DENIED) {
-                    if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_CALENDAR)) {
-                        showRequestPermissionRationale(R.string.request_calendar_permission_description);
-                        return;
-                    }
-                }
+            Map<String, Integer> permissionResults = new HashMap<>();
+            permissionResults.put(Manifest.permission.WRITE_CALENDAR, PackageManager.PERMISSION_GRANTED);
+            permissionResults.put(Manifest.permission.GET_ACCOUNTS, PackageManager.PERMISSION_GRANTED);
+            for (int i = 0; i < permissions.length; i++) {
+                permissionResults.put(permissions[i], grantResults[i]);
+            }
+            if (permissionResults.get(Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED
+                && permissionResults.get(Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED) {
+                startSyncAdapter(mSyncOnlyUpcomingEvents);
+                return;
+            }
+
+            if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_CALENDAR)
+                    || !ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.GET_ACCOUNTS)) {
+                showRequestPermissionRationale(R.string.request_account_and_calendar_permission_description);
             }
         }
     }
@@ -206,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setTitle(R.string.request_permissions_title)
                 .setMessage(message)
                 .setPositiveButton(R.string.word_app_info, this)
-                .setCancelable(true)
+                .setNegativeButton(R.string.word_cancel, null)
                 .show();
     }
 
@@ -279,11 +289,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void checkPermissionsAndStartSyncAdapter() {
+
         int readCalendarPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR);
         int writeCalendarPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR);
+        int accountsPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS);
 
         if (readCalendarPermission == PackageManager.PERMISSION_GRANTED &&
-                writeCalendarPermission == PackageManager.PERMISSION_GRANTED) {
+                writeCalendarPermission == PackageManager.PERMISSION_GRANTED &&
+                accountsPermission == PackageManager.PERMISSION_GRANTED) {
             startSyncAdapter(mSyncOnlyUpcomingEvents);
         } else {
             List<String> permissionsNeeded = new ArrayList<>();
@@ -292,6 +305,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             if (writeCalendarPermission == PackageManager.PERMISSION_DENIED) {
                 permissionsNeeded.add(Manifest.permission.WRITE_CALENDAR);
+            }
+            if (accountsPermission == PackageManager.PERMISSION_DENIED) {
+                permissionsNeeded.add(Manifest.permission.GET_ACCOUNTS);
             }
             ActivityCompat.requestPermissions(this, permissionsNeeded.toArray(new String[permissionsNeeded.size()]),
                     Constants.REQUEST_READ_WRITE_CALENDAR_PERMISSION);
