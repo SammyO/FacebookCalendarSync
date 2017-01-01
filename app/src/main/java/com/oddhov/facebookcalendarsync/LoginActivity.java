@@ -35,6 +35,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Button btnRetrieveToken;
 
     private CallbackManager mCallbackManager;
+    private AccountManagerUtils mAccountManagerUtils;
     //endregion
 
     //region Lifecycle Methods
@@ -46,6 +47,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         setupViews();
         setupFacebook();
+
+        mAccountManagerUtils = new AccountManagerUtils(this);
     }
 
     @Override
@@ -112,7 +115,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
         switch (view.getId()) {
             case R.id.btnRetrieveToken:
-                String token = AccountManagerUtils.retrieveTokenFromAuthManager(this);
+                String token = mAccountManagerUtils.retrieveTokenFromAuthManager();
                 Log.e("LoginActivity", "Facebook access token: " + token);
                 break;
             case R.id.btnLoginFacebook:
@@ -177,15 +180,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             setStateToLoggedOut();
             return;
         }
-        AccountManagerUtils.updateAuthManager(LoginActivity.this, accessToken);
+        mAccountManagerUtils.updateAuthManager(accessToken);
     }
 
     private void removeTokenFromAccountManagerIfPresent() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        if (AccountManagerUtils.retrieveTokenFromAuthManager(this) != null) {
-            AccountManagerUtils.removeFromAuthManager(this);
+        if (mAccountManagerUtils.retrieveTokenFromAuthManager() != null) {
+            mAccountManagerUtils.removeFromAuthManager();
         }
     }
     //endregion

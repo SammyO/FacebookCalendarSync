@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean mSyncOnlyUpcomingEvents = false;
 
     private AccessTokenTracker mAccessTokenTracker;
+    private AccountManagerUtils mAccountManagerUtils;
     //endregion
 
     //region Lifecycle Methods
@@ -59,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         setupViews();
         setupFacebook();
+
+        mAccountManagerUtils = new AccountManagerUtils(this);
     }
 
     @Override
@@ -159,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Constants.REQUEST_ACCOUNTS_PERMISSION);
                     return;
                 }
-                String token = AccountManagerUtils.retrieveTokenFromAuthManager(this);
+                String token = mAccountManagerUtils.retrieveTokenFromAuthManager();
                 Log.e("MainActivity", "Facebook access token: " + token);
 
                 break;
@@ -168,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // TODO proceed with "Are you sure?" alert
                 LoginManager.getInstance().logOut();
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED) {
-                    AccountManagerUtils.removeFromAuthManager(this);
+                    mAccountManagerUtils.removeFromAuthManager();
                 }
                 startLoginActivity();
                 break;
@@ -197,15 +200,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             setStateToLoggedOut();
             return;
         }
-        AccountManagerUtils.updateAuthManager(MainActivity.this, accessToken);
+        mAccountManagerUtils.updateAuthManager(accessToken);
     }
 
     private void removeTokenFromAccountManagerIfPresent() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        if (AccountManagerUtils.retrieveTokenFromAuthManager(this) != null) {
-            AccountManagerUtils.removeFromAuthManager(this);
+        if (mAccountManagerUtils.retrieveTokenFromAuthManager() != null) {
+            mAccountManagerUtils.removeFromAuthManager();
         }
     }
     //endregion
