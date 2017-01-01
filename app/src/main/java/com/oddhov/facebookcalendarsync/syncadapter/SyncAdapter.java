@@ -87,13 +87,14 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                     } else {
                         // TODO this should never happen. Show notification
                         Log.e("Syncadapter", "No calendar exists for this account");
+                        return;
                     }
                 } else {
                     //TODO
                     Log.e("Syncadapter", "No primary account specified on phone");
+                    return;
                 }
-
-//                parseAndRequestNextPage(response);
+                mNetworkUtils.requestNextPage(response, this);
             } else {
                 Log.e("Syncadapter", "Facebook response contained no events");
             }
