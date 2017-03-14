@@ -41,6 +41,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
         // TODO check for network
         // TODO check for login status
 
+        Log.e("SyncAdapter", "onPerformSync");
 
         String ownerAccount = mAccountManagerUtils.getPrimaryAccount();
 
@@ -56,7 +57,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
             }
 
             if (extras != null) {
-                if (extras.getBoolean(Constants.SYNC_ONLY_UPCOMING_EVENTS, false)) {
+                if (extras.getBoolean(Constants.SYNC_ONLY_UPCOMING_EVENTS, true)) {
                     mNetworkUtils.fetchUpcomingEvents(this);
                 } else {
                     mNetworkUtils.fetchAllEvents(this);

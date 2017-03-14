@@ -3,6 +3,12 @@ package com.oddhov.facebookcalendarsync.data;
 import android.provider.CalendarContract;
 
 public final class Constants {
+    // Sync interval
+    public static final long SYNC_INTERVAL = 3600L;
+
+    // Authorities
+    public static final String CALENDAR_AUTHORITY = "com.android.calendar";
+
     // Accounts
     public static final String ACCOUNT_TYPE = "com.oddhov.facebookcalendarsync";
     public static final String ACCOUNT_NAME = "FacebookCalendarSync";

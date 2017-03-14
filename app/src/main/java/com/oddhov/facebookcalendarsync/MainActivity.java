@@ -333,8 +333,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bundle.putBoolean(Constants.SYNC_ONLY_UPCOMING_EVENTS, onlyUpcomingEvents);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        ContentResolver.setIsSyncable(account, Constants.CALENDAR_AUTHORITY, 1);
+        ContentResolver.addPeriodicSync(account, Constants.CALENDAR_AUTHORITY, Bundle.EMPTY, Constants.SYNC_INTERVAL);
+        ContentResolver.setSyncAutomatically(account, Constants.CALENDAR_AUTHORITY, true);
         ContentResolver.requestSync(account, CalendarContract.AUTHORITY, bundle);
-        ContentResolver.setSyncAutomatically(account, ContactsContract.AUTHORITY, true);
     }
     //endregion
 }
