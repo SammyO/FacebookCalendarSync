@@ -12,6 +12,24 @@ import android.support.v7.app.AppCompatActivity;
 import com.facebook.AccessToken;
 import com.oddhov.facebookcalendarsync.utils.AccountManagerUtils;
 
+/*
+ * General TODO:
+ * Use throwing exceptions to handle edge cases
+ * Missing permissions should invoke notification
+ * Move logout to settings
+ * In settings, provide option to enable sync all, or sync future events (and store in SharedPreferences)
+ * In settings, provide option to set account?
+ * In main screen show time of last sync (if possible)
+ * In main screen show button to sync now
+ * Presenters
+ * Butterknife
+ * Realm? (just for fun)
+ * Eventbus? (just for fun)
+ * RxJava? (just for fun)
+ * Gradle check code scripts
+ * Unit tests
+ */
+
 public class MainActivity extends AppCompatActivity {
 
     private AccountManagerUtils mAccountManagerUtils;

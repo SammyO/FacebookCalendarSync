@@ -26,8 +26,6 @@
     <!--Sync Fragment-->
     <string name="button_sync_all">Sync all events now</string>
     <string name="button_sync_upcoming">Sync only upcoming events now</string>
-    <string name="sync_now_description">You\'ve successfully signed in with Facebook. Click the button below
-    to sync your Facebook eventsResponse with your local calendar now.</string>
 
     <!--Settings -->
     <string name="btnLogOut">Log out from Facebook</string>

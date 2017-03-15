@@ -32,9 +32,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".LoginActivity">
-        </activity>
-
         <service
             android:name="com.oddhov.facebookcalendarsync.authenticator.AuthenticatorService">
             <intent-filter>
