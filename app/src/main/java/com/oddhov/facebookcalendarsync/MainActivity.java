@@ -32,15 +32,11 @@ import com.oddhov.facebookcalendarsync.utils.AccountManagerUtils;
 
 public class MainActivity extends AppCompatActivity {
 
-    private AccountManagerUtils mAccountManagerUtils;
-
     //region Lifecycle Methods
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        mAccountManagerUtils = new AccountManagerUtils(this);
     }
 
     @Override
