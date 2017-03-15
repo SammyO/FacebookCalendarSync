@@ -11,7 +11,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -32,7 +31,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         DialogInterface.OnClickListener, FacebookCallback<LoginResult>, AccessToken.AccessTokenRefreshCallback {
     // region Fields
     private Button btnLoginFacebook;
-    private Button btnRetrieveToken;
 
     private CallbackManager mCallbackManager;
     private AccountManagerUtils mAccountManagerUtils;
@@ -60,14 +58,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onResume() {
         super.onResume();
         if (verifyAccessTokenNotPresentOrInvalid(AccessToken.getCurrentAccessToken())) {
-            // If we don't have permissions to update the token, set the state to logged out
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
-                setStateToLoggedOut();
-                return;
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED) {
+                mAccountManagerUtils.removeFromAuthManager();
             }
-            AccessToken.refreshCurrentAccessTokenAsync(this);
         } else {
-            btnRetrieveToken.setVisibility(View.VISIBLE);
             startMainActivity();
         }
     }
@@ -114,10 +108,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             return;
         }
         switch (view.getId()) {
-            case R.id.btnRetrieveToken:
-                String token = mAccountManagerUtils.retrieveTokenFromAuthManager();
-                Log.e("LoginActivity", "Facebook access token: " + token);
-                break;
             case R.id.btnLoginFacebook:
                 LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email", "public_profile", "user_events"));
                 break;
@@ -168,6 +158,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 .setNegativeButton(R.string.word_cancel, this)
                 .show();
     }
+
+    private void setupViews() {
+        setContentView(R.layout.activity_login);
+
+        btnLoginFacebook = (Button) findViewById(R.id.btnLoginFacebook);
+        btnLoginFacebook.setOnClickListener(this);
+    }
     //endregion
 
     // region AccessToken Helper Methods
@@ -197,19 +194,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void setStateToLoggedOut() {
         LoginManager.getInstance().logOut();
         removeTokenFromAccountManagerIfPresent();
-        btnRetrieveToken.setVisibility(View.GONE);
         Toast toast = Toast.makeText(this, R.string.login_again, Toast.LENGTH_SHORT);
         toast.show();
-    }
-
-    private void setupViews() {
-        setContentView(R.layout.activity_login);
-
-        btnLoginFacebook = (Button) findViewById(R.id.btnLoginFacebook);
-        btnLoginFacebook.setOnClickListener(this);
-
-        btnRetrieveToken = (Button) findViewById(R.id.btnRetrieveToken);
-        btnRetrieveToken.setOnClickListener(this);
     }
 
     private void setupFacebook() {
@@ -219,7 +205,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void startMainActivity() {
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, MainActivityOld.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();

@@ -3,16 +3,14 @@
     <string name="facebook_app_id">450856338387391</string>
     <string name="fb_login_protocol_scheme">fb450856338387391</string>
 
-    <string name="btnLoginFacebook">Log in with Facebook</string>
-    <string name="btnLogOut">Log out from Facebook</string>
-    <string name="btnSyncAll">Sync all events now</string>
-    <string name="btnSyncUpcoming">Sync only upcoming events now</string>
-    <string name="tvSyncNow">You\'ve successfully signed in with Facebook. Click the button below
-    to sync your Facebook eventsResponse with your local calendar now.</string>
-
-
+    <!--Login Fragment-->
+    <string name="button_login_facebook">Log in with Facebook</string>
     <string name="login_again">Something went wrong, please try logging in again.</string>
-    <string name="missing_permissions">Missing permissions</string>
+
+    <!--Permissions Fragment-->
+    <string name="missing_permissions_title">Missing permissions.</string>
+    <string name="missing_permissions_description">This app can only be used when account and calendar permissions are given.</string>
+    <string name="button_grant_permission">Grant permission</string>
 
     <string name="request_permissions_title">We need your permission</string>
     <string name="request_accounts_permission_description">In order to sync your Facebook events with your local
@@ -25,6 +23,16 @@
     calendar, we need permission to access your calendar and your accounts. You can enable these permissions in your app
     info.</string>
 
+    <!--Sync Fragment-->
+    <string name="button_sync_all">Sync all events now</string>
+    <string name="button_sync_upcoming">Sync only upcoming events now</string>
+    <string name="sync_now_description">You\'ve successfully signed in with Facebook. Click the button below
+    to sync your Facebook eventsResponse with your local calendar now.</string>
+
+    <!--Settings -->
+    <string name="btnLogOut">Log out from Facebook</string>
+
+    <!--Words-->
     <string name="word_cancel">Cancel</string>
     <string name="word_app_info">App info</string>
 </resources>

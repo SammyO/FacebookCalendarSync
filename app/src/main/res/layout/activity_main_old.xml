@@ -11,12 +11,24 @@
     tools:context="com.oddhov.facebookcalendarsync.MainActivityOld">
 
     <Button
-        android:id="@+id/btnLoginFacebook"
+        android:id="@+id/btnLogOut"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="30dp"
         android:layout_gravity="center_horizontal"
-        android:text="@string/button_login_facebook"/>
+        android:text="@string/btnLogOut" />
+
+    <Button
+        android:id="@+id/btnSynAll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/button_sync_all" />
+
+    <Button
+        android:id="@+id/btnSyncUpcoming"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/button_sync_upcoming" />
 
 </LinearLayout>
