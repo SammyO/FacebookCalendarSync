@@ -1,42 +1,30 @@
 package com.oddhov.facebookcalendarsync;
 
-
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 
 import com.facebook.AccessToken;
-import com.oddhov.facebookcalendarsync.utils.AccountManagerUtils;
-
-/*
- * General TODO:
- * Use throwing exceptions to handle edge cases
- * Missing permissions should invoke notification
- * Move logout to settings
- * In settings, provide option to enable sync all, or sync future events (and store in SharedPreferences)
- * In settings, provide option to set account?
- * In main screen show time of last sync (if possible)
- * In main screen show button to sync now
- * Presenters
- * Butterknife
- * Realm? (just for fun)
- * Eventbus? (just for fun)
- * RxJava? (just for fun)
- * Gradle check code scripts
- * Unit tests
- */
 
 public class MainActivity extends AppCompatActivity {
-
     //region Lifecycle Methods
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);
     }
 
     @Override
@@ -60,8 +48,24 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
     }
-
     //endregion
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     // region Helper methods UI
     private void navigate() {
@@ -104,3 +108,4 @@ public class MainActivity extends AppCompatActivity {
     }
     // endregion
 }
+
