@@ -268,7 +268,6 @@ public class MainActivityOld extends AppCompatActivity implements View.OnClickLi
     }
 
     private void checkPermissionsAndStartSyncAdapter() {
-
         int readCalendarPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR);
         int writeCalendarPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR);
         int accountsPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS);
@@ -294,15 +293,14 @@ public class MainActivityOld extends AppCompatActivity implements View.OnClickLi
     }
 
     private void startSyncAdapter(boolean onlyUpcomingEvents) {
-        Log.e("MainActivityOld", "startSyncAdapter");
         Account account = new Account(Constants.ACCOUNT_NAME, Constants.ACCOUNT_TYPE);
         Bundle bundle = new Bundle();
         bundle.putBoolean(Constants.SYNC_ONLY_UPCOMING_EVENTS, onlyUpcomingEvents);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-//        ContentResolver.setIsSyncable(account, Constants.CALENDAR_AUTHORITY, 1);
-//        ContentResolver.addPeriodicSync(account, Constants.CALENDAR_AUTHORITY, Bundle.EMPTY, Constants.SYNC_INTERVAL);
-//        ContentResolver.setSyncAutomatically(account, Constants.CALENDAR_AUTHORITY, true);
+        ContentResolver.setIsSyncable(account, Constants.CALENDAR_AUTHORITY, 1);
+        ContentResolver.addPeriodicSync(account, Constants.CALENDAR_AUTHORITY, Bundle.EMPTY, Constants.SYNC_INTERVAL);
+        ContentResolver.setSyncAutomatically(account, Constants.CALENDAR_AUTHORITY, true);
         ContentResolver.requestSync(account, CalendarContract.AUTHORITY, bundle);
     }
     //endregion
