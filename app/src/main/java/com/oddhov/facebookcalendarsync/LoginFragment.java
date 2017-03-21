@@ -130,7 +130,11 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
 
     private boolean hasEmptyOrExpiredAccessToken() {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        return accessToken == null || accessToken.isExpired();
+        if (accessToken == null || accessToken.isExpired()) {
+            mAccountManagerUtils.removeFromAuthManager();
+            return true;
+        }
+        return false;
     }
     //endregion
 }

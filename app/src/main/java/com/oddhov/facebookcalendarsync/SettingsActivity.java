@@ -1,0 +1,97 @@
+package com.oddhov.facebookcalendarsync;
+
+
+import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.oddhov.facebookcalendarsync.utils.SharedPreferencesUtils;
+
+public class SettingsActivity extends AppCompatActivity implements View.OnClickListener, DialogInterface.OnClickListener {
+
+    private TextView tvSyncEventsValue;
+    private Button btnChangeSyncPreference;
+
+    private SharedPreferencesUtils mSharedPreferencesUtils;
+
+    public static void start(Activity activity) {
+        Intent intent = new Intent(activity, SettingsActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        activity.startActivity(intent);
+    }
+
+    //region Lifecycle Methods
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_settings);
+
+        mSharedPreferencesUtils = new SharedPreferencesUtils(this);
+
+        setupViews();
+    }
+
+    // region Interface View.OnClickListener
+    @Override
+    public void onClick(View view) {
+        if (view.getId() == R.id.btnSyncEvents) {
+            CharSequence colors[] = new CharSequence[] {getString(R.string.sync_all_description),
+                                                    getString(R.string.sync_upcoming_description)};
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.sync_preference_dialog_title);
+            builder.setItems(colors, this);
+            builder.show();
+        }
+    }
+    // endregion
+
+    // region interface DialogInterface.OnClickListener
+    @Override
+    public void onClick(DialogInterface dialogInterface, int option) {
+        switch (option) {
+            case 0:
+                mSharedPreferencesUtils.setSyncOnlyUpcoming(false);
+                break;
+            case 1:
+                mSharedPreferencesUtils.setSyncOnlyUpcoming(true);
+                break;
+        }
+        setSyncModeValue();
+    }
+    // endregion
+
+    // region Helper methods UI
+    private void setupViews() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        setTitle(R.string.settings_title);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        btnChangeSyncPreference = (Button) findViewById(R.id.btnSyncEvents);
+        btnChangeSyncPreference.setOnClickListener(this);
+        tvSyncEventsValue = (TextView) findViewById(R.id.tvSyncEventsValue);
+        setSyncModeValue();
+    }
+
+    private void setSyncModeValue() {
+        if (mSharedPreferencesUtils.getSyncOnlyUpcoming()) {
+            tvSyncEventsValue.setText(R.string.textview_sync_events_value_upcoming);
+        } else {
+            tvSyncEventsValue.setText(R.string.textview_sync_events_value_all);
+        }
+    }
+}

@@ -16,19 +16,15 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
 
     public static final String TAG = "SyncFragment";
 
-    private Button btnSyncAll;
-    private Button btnSyncUpcoming;
+    private Button btnSyncNow;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.sync_fragment, container, false);
 
-        btnSyncAll = (Button) view.findViewById(R.id.btnSynAll);
-        btnSyncUpcoming = (Button) view.findViewById(R.id.btnSyncUpcoming);
-
-        btnSyncAll.setOnClickListener(this);
-        btnSyncUpcoming.setOnClickListener(this);
+        btnSyncNow = (Button) view.findViewById(R.id.btnSynNow);
+        btnSyncNow.setOnClickListener(this);
 
         return view;
     }
@@ -36,28 +32,22 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
     // region OnClickListeners
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btnSynAll:
-                startSyncAdapter(false);
-                break;
-            case R.id.btnSyncUpcoming:
-                startSyncAdapter(true);
-                break;
+        if (view.getId() == R.id.btnSynNow) {
+            startSyncAdapter();
         }
     }
     // endregion
 
     // region Helper methods
-    private void startSyncAdapter(boolean onlyUpcomingEvents) {
+    private void startSyncAdapter() {
         Account account = new Account(Constants.ACCOUNT_NAME, Constants.ACCOUNT_TYPE);
         Bundle bundle = new Bundle();
-        bundle.putBoolean(Constants.SYNC_ONLY_UPCOMING_EVENTS, onlyUpcomingEvents);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.setIsSyncable(account, Constants.CALENDAR_AUTHORITY, 1);
-        ContentResolver.addPeriodicSync(account, Constants.CALENDAR_AUTHORITY, Bundle.EMPTY, Constants.SYNC_INTERVAL);
-        ContentResolver.setSyncAutomatically(account, Constants.CALENDAR_AUTHORITY, true);
-        ContentResolver.requestSync(account, CalendarContract.AUTHORITY, bundle);
+        ContentResolver.setIsSyncable(account, "com.android.calendar", 1);
+        ContentResolver.addPeriodicSync(account, "com.android.calendar", Bundle.EMPTY, Constants.SYNC_INTERVAL);
+        ContentResolver.setSyncAutomatically(account, "com.android.calendar", true);
+        ContentResolver.requestSync(account, "com.android.calendar", bundle);
     }
     // endregion
 }

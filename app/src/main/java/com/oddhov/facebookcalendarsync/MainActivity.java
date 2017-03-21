@@ -1,6 +1,7 @@
 package com.oddhov.facebookcalendarsync;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -8,15 +9,22 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.facebook.AccessToken;
+import com.facebook.login.LoginManager;
+import com.oddhov.facebookcalendarsync.utils.AccountManagerUtils;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DialogInterface.OnClickListener {
+
+    private AccountManagerUtils mAccountManagerUtils;
+
     //region Lifecycle Methods
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +32,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        setSupportActionBar(toolbar);
+
+        mAccountManagerUtils = new AccountManagerUtils(this);
     }
 
     @Override
@@ -48,7 +57,6 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
     }
-    //endregion
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -60,12 +68,33 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.action_logout:
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.dialog_logout_title)
+                        .setMessage(R.string.dialog_logout_description)
+                        .setPositiveButton(android.R.string.ok, this)
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show();
+                return true;
+            case R.id.action_settings:
+                SettingsActivity.start(this);
+                return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
+    // endregion
+
+    // region DialogInterface.OnClickListener
+    @Override
+    public void onClick(DialogInterface dialogInterface, int i) {
+        if (i == DialogInterface.BUTTON_POSITIVE) {
+            mAccountManagerUtils.removeFromAuthManager();
+            LoginManager.getInstance().logOut();
+            navigate();
+        }
+    }
+    //endregion
 
     // region Helper methods UI
     private void navigate() {
@@ -104,7 +133,11 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean hasEmptyOrExpiredAccessToken() {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        return accessToken == null || accessToken.isExpired();
+        if (accessToken == null || accessToken.isExpired()) {
+            mAccountManagerUtils.removeFromAuthManager();
+            return true;
+        }
+        return false;
     }
     // endregion
 }

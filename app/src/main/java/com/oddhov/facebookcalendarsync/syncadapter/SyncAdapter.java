@@ -18,6 +18,7 @@ import com.oddhov.facebookcalendarsync.models.EventsResponse;
 import com.oddhov.facebookcalendarsync.utils.AccountManagerUtils;
 import com.oddhov.facebookcalendarsync.utils.CalendarUtils;
 import com.oddhov.facebookcalendarsync.utils.NetworkUtils;
+import com.oddhov.facebookcalendarsync.utils.SharedPreferencesUtils;
 
 
 class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Callback {
@@ -26,6 +27,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
     private NetworkUtils mNetworkUtils;
     private CalendarUtils mCalendarUtils;
     private AccountManagerUtils mAccountManagerUtils;
+    private SharedPreferencesUtils mSharedPreferencesUtils;
 
     SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -33,6 +35,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
         mCalendarUtils = new CalendarUtils(mContext);
         mAccountManagerUtils = new AccountManagerUtils(mContext);
         mNetworkUtils = new NetworkUtils(mContext, mAccountManagerUtils);
+        mSharedPreferencesUtils = new SharedPreferencesUtils(mContext);
     }
 
     @Override
@@ -56,17 +59,18 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                 }
             }
 
-            if (extras != null) {
-                if (extras.getBoolean(Constants.SYNC_ONLY_UPCOMING_EVENTS, true)) {
-                    mNetworkUtils.fetchUpcomingEvents(this);
-                } else {
-                    mNetworkUtils.fetchAllEvents(this);
-                }
+            if (mSharedPreferencesUtils.getSyncOnlyUpcoming()) {
+                mNetworkUtils.fetchUpcomingEvents(this);
+            } else {
+                mNetworkUtils.fetchAllEvents(this);
             }
         } else {
             //TODO
             Log.e("Syncadapter", "No primary account specified on phone");
         }
+
+        // TODO set last sync time in shared preferences (or do it on Facebook response),
+        // or use http://stackoverflow.com/questions/6622316/how-to-know-when-sync-is-finished
     }
 
 

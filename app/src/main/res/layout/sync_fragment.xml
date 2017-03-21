@@ -4,17 +4,10 @@
     android:layout_height="match_parent">
 
     <Button
-        android:id="@+id/btnSynAll"
+        android:id="@+id/btnSynNow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="@string/button_sync_all" />
-
-    <Button
-        android:id="@+id/btnSyncUpcoming"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/button_sync_upcoming" />
+        android:text="@string/button_sync_now" />
 
 </LinearLayout>

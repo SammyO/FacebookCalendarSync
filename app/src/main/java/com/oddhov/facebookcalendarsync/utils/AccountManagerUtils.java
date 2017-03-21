@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Patterns;
 
 import com.facebook.AccessToken;
@@ -26,6 +27,7 @@ public class AccountManagerUtils {
 
     public void updateAuthManager(AccessToken accessToken) {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
+            Log.e("AccountManagerUtils", "No GET_ACCOUNTS permission");
             // TODO
             return;
         }
@@ -43,6 +45,7 @@ public class AccountManagerUtils {
 
     public String retrieveTokenFromAuthManager() {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
+            Log.e("AccountManagerUtils", "No GET_ACCOUNTS permission");
             // TODO
             return null;
         }
@@ -58,6 +61,7 @@ public class AccountManagerUtils {
 
     public void removeFromAuthManager() {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
+            Log.e("AccountManagerUtils", "No GET_ACCOUNTS permission");
             // TODO
             return;
         }
@@ -72,6 +76,7 @@ public class AccountManagerUtils {
 
     public String getPrimaryAccount() {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
+            Log.e("AccountManagerUtils", "No GET_ACCOUNTS permission");
             // TODO
             return null;
         }
