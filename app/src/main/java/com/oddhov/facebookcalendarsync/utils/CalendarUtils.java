@@ -28,15 +28,13 @@ public class CalendarUtils {
         this.mContext = context;
     }
 
-    public Integer checkDoesCalendarExistAndGetCalId(String ownerAccount) {
+    public Integer checkDoesCalendarExistAndGetCalId() {
         Cursor cur;
         ContentResolver cr = mContext.getContentResolver();
         Uri uri = CalendarContract.Calendars.CONTENT_URI;
         String selection = "((" + CalendarContract.Calendars.ACCOUNT_NAME + " = ?) AND ("
-                + CalendarContract.Calendars.ACCOUNT_TYPE + " = ?) AND ("
-                + CalendarContract.Calendars.OWNER_ACCOUNT + " = ?))";
-        String[] selectionArgs = new String[]{Constants.ACCOUNT_NAME, CalendarContract.ACCOUNT_TYPE_LOCAL, // TODO look into this
-                ownerAccount};
+                + CalendarContract.Calendars.ACCOUNT_TYPE + " = ?))";
+        String[] selectionArgs = new String[]{Constants.ACCOUNT_NAME, CalendarContract.ACCOUNT_TYPE_LOCAL};
 
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
             // TODO
@@ -56,7 +54,6 @@ public class CalendarUtils {
                 calID = cur.getInt(Constants.PROJECTION_ID_INDEX);
                 displayName = cur.getString(Constants.PROJECTION_DISPLAY_NAME_INDEX);
                 accountName = cur.getString(Constants.PROJECTION_ACCOUNT_NAME_INDEX);
-                ownerName = cur.getString(Constants.PROJECTION_OWNER_ACCOUNT_INDEX);
                 cur.close();
                 return calID;
             }
@@ -100,7 +97,7 @@ public class CalendarUtils {
         }
     }
 
-    public Uri createCalendar(String ownerAccount) {
+    public Uri createCalendar() {
         Uri calendarUri = Uri.parse(CalendarContract.Calendars.CONTENT_URI.toString());
         calendarUri = calendarUri.buildUpon().appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
                 .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, Constants.ACCOUNT_NAME)
@@ -114,7 +111,6 @@ public class CalendarUtils {
         vals.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, Constants.ACCOUNT_NAME);
         vals.put(CalendarContract.Calendars.CALENDAR_COLOR, 0xffff0000);
         vals.put(CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL, CalendarContract.Calendars.CAL_ACCESS_OWNER);
-        vals.put(CalendarContract.Calendars.OWNER_ACCOUNT, ownerAccount);
         vals.put(CalendarContract.Calendars.SYNC_EVENTS, 1);
 
         return mContext.getContentResolver().insert(calendarUri, vals);

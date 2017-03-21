@@ -45,28 +45,20 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
         // TODO check for login status
 
         Log.e("SyncAdapter", "onPerformSync");
-
-        String ownerAccount = mAccountManagerUtils.getPrimaryAccount();
-
-        if (ownerAccount != null) {
-            Integer calId = mCalendarUtils.checkDoesCalendarExistAndGetCalId(ownerAccount);
-            if (calId == null) {
-                Uri uri = mCalendarUtils.createCalendar(ownerAccount);
-                // TODO do a check on the Uri
-                if (mCalendarUtils.createCalendar(ownerAccount) == null) {
-                    // TODO
-                    Log.e("SyncAdapter", "Error creating calendar");
-                }
+        Integer calId = mCalendarUtils.checkDoesCalendarExistAndGetCalId();
+        if (calId == null) {
+            Uri uri = mCalendarUtils.createCalendar();
+            // TODO do a check on the Uri
+            if (uri == null) {
+                // TODO
+                Log.e("SyncAdapter", "Error creating calendar");
             }
+        }
 
-            if (mSharedPreferencesUtils.getSyncOnlyUpcoming()) {
-                mNetworkUtils.fetchUpcomingEvents(this);
-            } else {
-                mNetworkUtils.fetchAllEvents(this);
-            }
+        if (mSharedPreferencesUtils.getSyncOnlyUpcoming()) {
+            mNetworkUtils.fetchUpcomingEvents(this);
         } else {
-            //TODO
-            Log.e("Syncadapter", "No primary account specified on phone");
+            mNetworkUtils.fetchAllEvents(this);
         }
 
         // TODO set last sync time in shared preferences (or do it on Facebook response),
@@ -83,20 +75,13 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
             Log.e("SyncAdapter", response.getJSONObject().toString());
             EventsResponse eventsResponse = parseAndValidateFacebookResponse(response);
             if (eventsResponse.getEvents().size() != 0) {
-                String ownerAccount = mAccountManagerUtils.getPrimaryAccount();
-                if (ownerAccount != null) {
-                    Integer calId = mCalendarUtils.checkDoesCalendarExistAndGetCalId(ownerAccount);
-                    if (calId != null) {
-                        mCalendarUtils.removeEventsFromCalendar(calId); // TODO optimise this
-                        mCalendarUtils.addEventsToCalendar(eventsResponse, calId);
-                    } else {
-                        // TODO this should never happen. Show notification
-                        Log.e("Syncadapter", "No calendar exists for this account");
-                        return;
-                    }
+                Integer calId = mCalendarUtils.checkDoesCalendarExistAndGetCalId();
+                if (calId != null) {
+                    mCalendarUtils.removeEventsFromCalendar(calId); // TODO optimise this
+                    mCalendarUtils.addEventsToCalendar(eventsResponse, calId);
                 } else {
-                    //TODO
-                    Log.e("Syncadapter", "No primary account specified on phone");
+                    // TODO this should never happen. Show notification
+                    Log.e("Syncadapter", "No calendar exists for this account");
                     return;
                 }
                 mNetworkUtils.requestNextPage(response, this);
