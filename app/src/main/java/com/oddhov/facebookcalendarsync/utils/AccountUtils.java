@@ -33,9 +33,7 @@ public class AccountUtils {
         mNotificationUtils.sendNotification(
                 R.string.notification_syncing_problem_title,
                 R.string.notification_missing_permissions_message_short,
-                R.string.notification_missing_permissions_message_long,
-                R.drawable.ic_sync,
-                PermissionsFragment.class);
+                R.string.notification_missing_permissions_message_long);
 
         Log.e("CalendarUtils", "No account permissions granted");
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
@@ -58,9 +56,7 @@ public class AccountUtils {
             mNotificationUtils.sendNotification(
                     R.string.notification_syncing_problem_title,
                     R.string.notification_missing_permissions_message_short,
-                    R.string.notification_missing_permissions_message_long,
-                    R.drawable.ic_sync,
-                    PermissionsFragment.class);
+                    R.string.notification_missing_permissions_message_long);
 
             Log.e("CalendarUtils", "No account permissions granted");
             return null;
@@ -80,9 +76,7 @@ public class AccountUtils {
             mNotificationUtils.sendNotification(
                     R.string.notification_syncing_problem_title,
                     R.string.notification_missing_permissions_message_short,
-                    R.string.notification_missing_permissions_message_long,
-                    R.drawable.ic_sync,
-                    PermissionsFragment.class);
+                    R.string.notification_missing_permissions_message_long);
 
             Log.e("CalendarUtils", "No account permissions granted");
             return;

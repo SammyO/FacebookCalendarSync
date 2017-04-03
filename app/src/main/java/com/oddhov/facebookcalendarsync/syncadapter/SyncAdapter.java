@@ -9,11 +9,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.oddhov.facebookcalendarsync.LoginFragment;
+import com.oddhov.facebookcalendarsync.MainActivity;
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.events.FacebookGetUserWithEventsResponse;
 import com.oddhov.facebookcalendarsync.models.EventsResponse;
@@ -52,9 +52,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
             mNotificationUtils.sendNotification(
                     R.string.notification_syncing_problem_title,
                     R.string.notification_facebook_problem_message_short,
-                    R.string.notification_facebook_problem_message_long,
-                    R.drawable.ic_sync,
-                    LoginFragment.class);
+                    R.string.notification_facebook_problem_message_long);
         } else {
             Log.e("SyncAdapter", "onPerformSync");
 
@@ -88,9 +86,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
             mNotificationUtils.sendNotification(
                     R.string.notification_syncing_problem_title,
                     R.string.notification_facebook_problem_message_short,
-                    R.string.notification_facebook_problem_message_long,
-                    R.drawable.ic_sync,
-                    LoginFragment.class);
+                    R.string.notification_facebook_problem_message_long);
 
             Log.e("SyncAdapter", "Facebook response error: " + response.getError().getErrorMessage());
         } else {

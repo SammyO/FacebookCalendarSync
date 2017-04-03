@@ -44,9 +44,7 @@ public class CalendarUtils {
             mNotificationUtils.sendNotification(
                     R.string.notification_syncing_problem_title,
                     R.string.notification_missing_permissions_message_short,
-                    R.string.notification_missing_permissions_message_long,
-                    R.drawable.ic_sync,
-                    PermissionsFragment.class);
+                    R.string.notification_missing_permissions_message_long);
 
             Log.e("CalendarUtils", "No calendar permissions granted");
             return null;

@@ -5,7 +5,10 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.NotificationCompat;
 
+import com.oddhov.facebookcalendarsync.MainActivity;
+import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -19,18 +22,26 @@ public class NotificationUtils {
         this.mContext = context;
     }
 
-    public void sendNotification(int title, int shortMessage, int longMessage, int icon, Class targetClass) {
-        Intent intent = new Intent(mContext, targetClass);
+    public void sendNotification(int title, int shortMessage, int longMessage) {
+        Intent intent = new Intent(mContext, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, REQUEST_CODE, intent, 0);
         // TODO update notification
 
-        Notification notification = new Notification.Builder(mContext)
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mContext)
                 .setContentTitle(mContext.getString(title))
                 .setContentText(mContext.getString(shortMessage))
-                .setSmallIcon(icon)
+                .setSmallIcon(R.drawable.ic_sync)
                 .setContentIntent(pendingIntent)
-                .setAutoCancel(true)
-                .build();
+                .setAutoCancel(true);
+
+
+        NotificationCompat.BigTextStyle style =
+                new NotificationCompat.BigTextStyle();
+        style.setBigContentTitle(mContext.getString(title));
+        style.bigText(mContext.getString(longMessage));
+
+        mBuilder.setStyle(style);
+        Notification notification = mBuilder.build();
 
         NotificationManager notificationManager =
                 (NotificationManager) mContext.getSystemService(NOTIFICATION_SERVICE);
