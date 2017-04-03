@@ -48,5 +48,14 @@
     <string name="word_app_info">App info</string>
     <string name="title_activity_main2">Main2Activity</string>
 
-    <!-- SharedPrefences -->
+    <!-- Notifications -->
+    <string name="notification_syncing_problem_title">Syncing problem</string>
+    <string name="notification_facebook_problem_message_short">There was a problem syncing your calendar</string>
+    <string name="notification_facebook_problem_message_long">We couldn\'t sync your Facebook events with
+    your calendar. Please log in again.</string>
+
+    <string name="notification_missing_permissions_message_short">There was a problem syncing your calendar
+    because of missing permissions</string>
+    <string name="notification_missing_permissions_message_long">We couldn\'t sync your Facebook events with
+    your calendar, because some permissions aren\'t granted.</string>
 </resources>

@@ -38,4 +38,7 @@ public final class Constants {
     public static final int PROJECTION_ACCOUNT_NAME_INDEX = 1;
     public static final int PROJECTION_DISPLAY_NAME_INDEX = 2;
     public static final int PROJECTION_OWNER_ACCOUNT_INDEX = 3;
+
+    // Notification ID
+    public static final int NOTIFICATION_ID = 176;
 }

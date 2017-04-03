@@ -13,25 +13,36 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.facebook.Profile;
+import com.oddhov.facebookcalendarsync.PermissionsFragment;
+import com.oddhov.facebookcalendarsync.R;
 
 public class NetworkUtils {
     private Context mContext;
-    private AccountManagerUtils mAccountManagerUtils;
+    private AccountUtils mAccountUtils;
+    private NotificationUtils mNotificationUtils;
 
-    public NetworkUtils(Context context, AccountManagerUtils accountManagerUtils) {
-        mContext = context;
-        mAccountManagerUtils = accountManagerUtils;
+    public NetworkUtils(Context context, AccountUtils accountUtils,
+                        NotificationUtils notificationUtils) {
+        this.mContext = context;
+        this.mAccountUtils = accountUtils;
+        this.mNotificationUtils = notificationUtils;
     }
 
     public void fetchUpcomingEvents(GraphRequest.Callback callback) {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
+            mNotificationUtils.sendNotification(
+                    R.string.notification_syncing_problem_title,
+                    R.string.notification_missing_permissions_message_short,
+                    R.string.notification_missing_permissions_message_long,
+                    R.drawable.ic_sync,
+                    PermissionsFragment.class);
             Log.e("CalendarUtils", "No account permissions granted");
             return;
         }
 
         FacebookSdk.sdkInitialize(mContext);
 
-        String accessToken = mAccountManagerUtils.retrieveTokenFromAuthManager();
+        String accessToken = mAccountUtils.retrieveTokenFromAccountManager();
         Bundle parameters = new Bundle();
         parameters.putString("access_token", accessToken);
         parameters.putString("limit", "25");
@@ -48,13 +59,19 @@ public class NetworkUtils {
 
     public void fetchAllEvents(GraphRequest.Callback callback) {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
+            mNotificationUtils.sendNotification(
+                    R.string.notification_syncing_problem_title,
+                    R.string.notification_missing_permissions_message_short,
+                    R.string.notification_missing_permissions_message_long,
+                    R.drawable.ic_sync,
+                    PermissionsFragment.class);
             Log.e("CalendarUtils", "No account permissions granted");
             return;
         }
 
         FacebookSdk.sdkInitialize(mContext);
 
-        String accessToken = mAccountManagerUtils.retrieveTokenFromAuthManager();
+        String accessToken = mAccountUtils.retrieveTokenFromAccountManager();
         Bundle parameters = new Bundle();
         parameters.putString("access_token", accessToken);
         parameters.putString("limit", "25");

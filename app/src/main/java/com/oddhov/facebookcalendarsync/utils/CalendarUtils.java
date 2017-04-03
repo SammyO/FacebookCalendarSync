@@ -15,6 +15,8 @@ import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.oddhov.facebookcalendarsync.PermissionsFragment;
+import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.models.Event;
 import com.oddhov.facebookcalendarsync.models.EventsResponse;
@@ -23,9 +25,11 @@ import java.util.ArrayList;
 
 public class CalendarUtils {
     private Context mContext;
+    private NotificationUtils mNotificationUtils;
 
-    public CalendarUtils(Context context) {
+    public CalendarUtils(Context context, NotificationUtils notificationUtils) {
         this.mContext = context;
+        this.mNotificationUtils = notificationUtils;
     }
 
     public Integer checkDoesCalendarExistAndGetCalId() {
@@ -37,7 +41,13 @@ public class CalendarUtils {
         String[] selectionArgs = new String[]{Constants.ACCOUNT_NAME, CalendarContract.ACCOUNT_TYPE_LOCAL};
 
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-            // TODO
+            mNotificationUtils.sendNotification(
+                    R.string.notification_syncing_problem_title,
+                    R.string.notification_missing_permissions_message_short,
+                    R.string.notification_missing_permissions_message_long,
+                    R.drawable.ic_sync,
+                    PermissionsFragment.class);
+
             Log.e("CalendarUtils", "No calendar permissions granted");
             return null;
         }

@@ -19,7 +19,8 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.oddhov.facebookcalendarsync.utils.AccountManagerUtils;
+import com.oddhov.facebookcalendarsync.utils.AccountUtils;
+import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
 
 import java.util.Arrays;
 
@@ -29,7 +30,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
 
     private Button btnLoginFacebook;
     private CallbackManager mCallbackManager;
-    private AccountManagerUtils mAccountManagerUtils;
+    private AccountUtils mAccountUtils;
+    private NotificationUtils mNotificationUtils;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -38,7 +40,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
         btnLoginFacebook = (Button) view.findViewById(R.id.btnLoginFacebook);
         btnLoginFacebook.setOnClickListener(this);
 
-        mAccountManagerUtils = new AccountManagerUtils(getActivity());
+        mNotificationUtils = new NotificationUtils(getContext());
+        mAccountUtils = new AccountUtils(getActivity(), mNotificationUtils);
 
         setupFacebook();
 
@@ -69,7 +72,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
     // region Facebook Listener methods
     @Override
     public void onSuccess(LoginResult loginResult) {
-        mAccountManagerUtils.updateAuthManager(loginResult.getAccessToken());
+        mAccountUtils.updateAccountManager(loginResult.getAccessToken());
         navigate();
     }
 
@@ -131,7 +134,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
     private boolean hasEmptyOrExpiredAccessToken() {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         if (accessToken == null || accessToken.isExpired()) {
-            mAccountManagerUtils.removeFromAuthManager();
+            mAccountUtils.removeTokenFromAccountManager();
             return true;
         }
         return false;

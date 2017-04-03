@@ -11,24 +11,34 @@ import android.util.Log;
 import android.util.Patterns;
 
 import com.facebook.AccessToken;
+import com.oddhov.facebookcalendarsync.PermissionsFragment;
+import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
 
 import java.util.regex.Pattern;
 
 import static android.content.Context.ACCOUNT_SERVICE;
 
-public class AccountManagerUtils {
+public class AccountUtils {
 
     private Context mContext;
+    private NotificationUtils mNotificationUtils;
 
-    public AccountManagerUtils(Context mContext) {
+    public AccountUtils(Context mContext, NotificationUtils notificationUtils) {
         this.mContext = mContext;
+        this.mNotificationUtils = notificationUtils;
     }
 
-    public void updateAuthManager(AccessToken accessToken) {
+    public void updateAccountManager(AccessToken accessToken) {
+        mNotificationUtils.sendNotification(
+                R.string.notification_syncing_problem_title,
+                R.string.notification_missing_permissions_message_short,
+                R.string.notification_missing_permissions_message_long,
+                R.drawable.ic_sync,
+                PermissionsFragment.class);
+
+        Log.e("CalendarUtils", "No account permissions granted");
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
-            Log.e("AccountManagerUtils", "No GET_ACCOUNTS permission");
-            // TODO
             return;
         }
         AccountManager accountManager = (AccountManager) mContext.getSystemService(ACCOUNT_SERVICE);
@@ -43,10 +53,16 @@ public class AccountManagerUtils {
         }
     }
 
-    public String retrieveTokenFromAuthManager() {
+    String retrieveTokenFromAccountManager() {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
-            Log.e("AccountManagerUtils", "No GET_ACCOUNTS permission");
-            // TODO
+            mNotificationUtils.sendNotification(
+                    R.string.notification_syncing_problem_title,
+                    R.string.notification_missing_permissions_message_short,
+                    R.string.notification_missing_permissions_message_long,
+                    R.drawable.ic_sync,
+                    PermissionsFragment.class);
+
+            Log.e("CalendarUtils", "No account permissions granted");
             return null;
         }
         AccountManager accountManager = (AccountManager) mContext.getSystemService(ACCOUNT_SERVICE);
@@ -59,10 +75,16 @@ public class AccountManagerUtils {
         return null;
     }
 
-    public void removeFromAuthManager() {
+    public void removeTokenFromAccountManager() {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
-            Log.e("AccountManagerUtils", "No GET_ACCOUNTS permission");
-            // TODO
+            mNotificationUtils.sendNotification(
+                    R.string.notification_syncing_problem_title,
+                    R.string.notification_missing_permissions_message_short,
+                    R.string.notification_missing_permissions_message_long,
+                    R.drawable.ic_sync,
+                    PermissionsFragment.class);
+
+            Log.e("CalendarUtils", "No account permissions granted");
             return;
         }
         AccountManager accountManager = (AccountManager) mContext.getSystemService(ACCOUNT_SERVICE);
@@ -74,20 +96,12 @@ public class AccountManagerUtils {
         }
     }
 
-    public String getPrimaryAccount() {
-        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
-            Log.e("AccountManagerUtils", "No GET_ACCOUNTS permission");
-            // TODO
-            return null;
+    public boolean hasEmptyOrExpiredAccessToken() {
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        if (accessToken == null || accessToken.isExpired()) {
+            removeTokenFromAccountManager();
+            return true;
         }
-        Pattern emailPattern = Patterns.EMAIL_ADDRESS;
-        Account[] accounts = AccountManager.get(mContext).getAccounts();
-        for (Account account : accounts) {
-            if (emailPattern.matcher(account.name).matches() && !TextUtils.isEmpty(account.type)
-                    && account.type.equals("com.google")) {
-                return account.name;
-            }
-        }
-        return null;
+        return false;
     }
 }

@@ -21,7 +21,8 @@ import android.widget.Button;
 
 import com.facebook.AccessToken;
 import com.oddhov.facebookcalendarsync.data.Constants;
-import com.oddhov.facebookcalendarsync.utils.AccountManagerUtils;
+import com.oddhov.facebookcalendarsync.utils.AccountUtils;
+import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,8 +34,9 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
 
     public static final String TAG = "PermissionsFragment";
 
-    private AccountManagerUtils mAccountManagerUtils;
     private Button btnGrantPermissions;
+    private AccountUtils mAccountUtils;
+    private NotificationUtils mNotificationUtils;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -43,7 +45,8 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
         btnGrantPermissions = (Button) view.findViewById(R.id.btnGrantPermissions);
         btnGrantPermissions.setOnClickListener(this);
 
-        mAccountManagerUtils = new AccountManagerUtils(getActivity());
+        mNotificationUtils = new NotificationUtils(getContext());
+        mAccountUtils = new AccountUtils(getActivity(), mNotificationUtils);
 
         return view;
     }
@@ -195,7 +198,7 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
     private boolean hasEmptyOrExpiredAccessToken() {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         if (accessToken == null || accessToken.isExpired()) {
-            mAccountManagerUtils.removeFromAuthManager();
+            mAccountUtils.removeTokenFromAccountManager();
             return true;
         }
         return false;

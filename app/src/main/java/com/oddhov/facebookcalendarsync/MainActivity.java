@@ -4,26 +4,23 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
-import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
-import com.oddhov.facebookcalendarsync.utils.AccountManagerUtils;
+import com.oddhov.facebookcalendarsync.utils.AccountUtils;
+import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
 
 public class MainActivity extends AppCompatActivity implements DialogInterface.OnClickListener {
 
-    private AccountManagerUtils mAccountManagerUtils;
+    private AccountUtils mAccountUtils;
+    private NotificationUtils mNotificationUtils;
 
     //region Lifecycle Methods
     @Override
@@ -33,7 +30,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mAccountManagerUtils = new AccountManagerUtils(this);
+        mNotificationUtils = new NotificationUtils(this);
+        mAccountUtils = new AccountUtils(this, mNotificationUtils);
     }
 
     @Override
@@ -89,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     @Override
     public void onClick(DialogInterface dialogInterface, int i) {
         if (i == DialogInterface.BUTTON_POSITIVE) {
-            mAccountManagerUtils.removeFromAuthManager();
+            mAccountUtils.removeTokenFromAccountManager();
             LoginManager.getInstance().logOut();
             navigate();
         }
@@ -100,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     private void navigate() {
         if (needsPermissions()) {
             replaceFragment(R.id.fragment_container, new PermissionsFragment(), PermissionsFragment.TAG);
-        } else if (hasEmptyOrExpiredAccessToken()) {
+        } else if (mAccountUtils.hasEmptyOrExpiredAccessToken()) {
             replaceFragment(R.id.fragment_container, new LoginFragment(), LoginFragment.TAG);
         } else {
             replaceFragment(R.id.fragment_container, new SyncFragment(), SyncFragment.TAG);
@@ -129,15 +127,6 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         } else {
             return true;
         }
-    }
-
-    private boolean hasEmptyOrExpiredAccessToken() {
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        if (accessToken == null || accessToken.isExpired()) {
-            mAccountManagerUtils.removeFromAuthManager();
-            return true;
-        }
-        return false;
     }
     // endregion
 }
