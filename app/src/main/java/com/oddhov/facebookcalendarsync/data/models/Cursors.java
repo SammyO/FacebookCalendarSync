@@ -1,29 +1,29 @@
 
-package com.oddhov.facebookcalendarsync.models;
+package com.oddhov.facebookcalendarsync.data.models;
 
 import java.util.HashMap;
 import java.util.Map;
 
-class Paging {
+class Cursors {
 
-    private Cursors cursors;
-    private String next;
+    private String before;
+    private String after;
     private Map<String, Object> additionalProperties = new HashMap<>();
 
-    public Cursors getCursors() {
-        return cursors;
+    public String getBefore() {
+        return before;
     }
 
-    public void setCursors(Cursors cursors) {
-        this.cursors = cursors;
+    public void setBefore(String before) {
+        this.before = before;
     }
 
-    public String getNext() {
-        return next;
+    public String getAfter() {
+        return after;
     }
 
-    public void setNext(String next) {
-        this.next = next;
+    public void setAfter(String after) {
+        this.after = after;
     }
 
     public Map<String, Object> getAdditionalProperties() {

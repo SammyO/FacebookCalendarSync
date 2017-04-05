@@ -1,5 +1,5 @@
 
-package com.oddhov.facebookcalendarsync.models;
+package com.oddhov.facebookcalendarsync.data.models;
 
 import java.util.HashMap;
 import java.util.Map;

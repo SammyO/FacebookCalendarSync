@@ -3,7 +3,7 @@ package com.oddhov.facebookcalendarsync.events;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.oddhov.facebookcalendarsync.models.EventsResponse;
+import com.oddhov.facebookcalendarsync.data.models.EventsResponse;
 
 public class FacebookGetUserWithEventsResponse {
 

@@ -1,5 +1,5 @@
 
-package com.oddhov.facebookcalendarsync.models;
+package com.oddhov.facebookcalendarsync.data.models;
 
 import com.google.gson.annotations.SerializedName;
 

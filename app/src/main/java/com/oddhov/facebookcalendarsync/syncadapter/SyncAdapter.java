@@ -12,13 +12,12 @@ import android.util.Log;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
-import com.oddhov.facebookcalendarsync.LoginFragment;
-import com.oddhov.facebookcalendarsync.MainActivity;
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.events.FacebookGetUserWithEventsResponse;
-import com.oddhov.facebookcalendarsync.models.EventsResponse;
+import com.oddhov.facebookcalendarsync.data.models.EventsResponse;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.CalendarUtils;
+import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.NetworkUtils;
 import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
 import com.oddhov.facebookcalendarsync.utils.SharedPreferencesUtils;
@@ -32,6 +31,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
     private AccountUtils mAccountUtils;
     private SharedPreferencesUtils mSharedPreferencesUtils;
     private NotificationUtils mNotificationUtils;
+    private DatabaseUtils mDatabaseUtils;
 
     SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -40,7 +40,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
         mSharedPreferencesUtils = new SharedPreferencesUtils(mContext);
         mNotificationUtils = new NotificationUtils(mContext);
         mAccountUtils = new AccountUtils(mContext, mNotificationUtils);
-        mNetworkUtils = new NetworkUtils(mContext, mAccountUtils, mNotificationUtils);
+        mDatabaseUtils = new DatabaseUtils(mContext);
+        mNetworkUtils = new NetworkUtils(mContext, mAccountUtils, mNotificationUtils, mDatabaseUtils);
     }
 
     @Override
@@ -93,15 +94,17 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
             Log.e("SyncAdapter", response.getJSONObject().toString());
             EventsResponse eventsResponse = parseAndValidateFacebookResponse(response);
             if (eventsResponse.getEvents().size() != 0) {
-                Integer calId = mCalendarUtils.checkDoesCalendarExistAndGetCalId();
-                if (calId != null) {
-                    mCalendarUtils.removeEventsFromCalendar(calId); // TODO optimise this
-                    mCalendarUtils.addEventsToCalendar(eventsResponse, calId);
-                } else {
-                    // TODO Crashlytics
-                    Log.e("Syncadapter", "No calendar exists for this account");
-                    return;
-                }
+                mDatabaseUtils.insertAndUpdateCalendarEvents(mDatabaseUtils.convertCalendarEvents(eventsResponse.getEvents()));
+
+//                Integer calId = mCalendarUtils.checkDoesCalendarExistAndGetCalId();
+//                if (calId != null) {
+//                    mCalendarUtils.removeEventsFromCalendar(calId); // TODO optimise this
+//                    mCalendarUtils.addEventsToCalendar(eventsResponse, calId);
+//                } else {
+//                    // TODO Crashlytics
+//                    Log.e("Syncadapter", "No calendar exists for this account");
+//                    return;
+//                }
                 mNetworkUtils.requestNextPage(response, this);
             } else {
                 Log.e("Syncadapter", "Facebook response contained no events");

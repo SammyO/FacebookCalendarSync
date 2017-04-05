@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
@@ -20,12 +21,14 @@ public class NetworkUtils {
     private Context mContext;
     private AccountUtils mAccountUtils;
     private NotificationUtils mNotificationUtils;
+    private DatabaseUtils mDatabaseUtils;
 
     public NetworkUtils(Context context, AccountUtils accountUtils,
-                        NotificationUtils notificationUtils) {
+                        NotificationUtils notificationUtils, DatabaseUtils databaseUtils) {
         this.mContext = context;
         this.mAccountUtils = accountUtils;
         this.mNotificationUtils = notificationUtils;
+        this.mDatabaseUtils = databaseUtils;
     }
 
     public void fetchUpcomingEvents(GraphRequest.Callback callback) {
@@ -88,6 +91,8 @@ public class NetworkUtils {
             nextRequest.setParameters(parameters);
             nextRequest.setCallback(callback);
             nextRequest.executeAsync();
+        } else {
+            Log.e("Fetching events done", "Size of Realm: " + mDatabaseUtils.getEventsSize());
         }
     }
 }

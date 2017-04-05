@@ -15,11 +15,10 @@ import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.oddhov.facebookcalendarsync.PermissionsFragment;
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
-import com.oddhov.facebookcalendarsync.models.Event;
-import com.oddhov.facebookcalendarsync.models.EventsResponse;
+import com.oddhov.facebookcalendarsync.data.models.Event;
+import com.oddhov.facebookcalendarsync.data.models.EventsResponse;
 
 import java.util.ArrayList;
 
