@@ -19,14 +19,11 @@ import com.oddhov.facebookcalendarsync.R;
 
 public class NetworkUtils {
     private Context mContext;
-    private AccountUtils mAccountUtils;
     private NotificationUtils mNotificationUtils;
     private DatabaseUtils mDatabaseUtils;
 
-    public NetworkUtils(Context context, AccountUtils accountUtils,
-                        NotificationUtils notificationUtils, DatabaseUtils databaseUtils) {
+    public NetworkUtils(Context context, NotificationUtils notificationUtils, DatabaseUtils databaseUtils) {
         this.mContext = context;
-        this.mAccountUtils = accountUtils;
         this.mNotificationUtils = notificationUtils;
         this.mDatabaseUtils = databaseUtils;
     }
@@ -43,7 +40,7 @@ public class NetworkUtils {
 
         FacebookSdk.sdkInitialize(mContext);
 
-        String accessToken = mAccountUtils.retrieveTokenFromAccountManager();
+        String accessToken = AccessToken.getCurrentAccessToken().getToken();
         Bundle parameters = new Bundle();
         parameters.putString("access_token", accessToken);
         parameters.putString("limit", "25");
@@ -70,7 +67,7 @@ public class NetworkUtils {
 
         FacebookSdk.sdkInitialize(mContext);
 
-        String accessToken = mAccountUtils.retrieveTokenFromAccountManager();
+        String accessToken = AccessToken.getCurrentAccessToken().getToken();
         Bundle parameters = new Bundle();
         parameters.putString("access_token", accessToken);
         parameters.putString("limit", "25");

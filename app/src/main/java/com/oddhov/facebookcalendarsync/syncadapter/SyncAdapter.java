@@ -28,7 +28,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
     private Context mContext;
     private NetworkUtils mNetworkUtils;
     private CalendarUtils mCalendarUtils;
-    private AccountUtils mAccountUtils;
     private SharedPreferencesUtils mSharedPreferencesUtils;
     private NotificationUtils mNotificationUtils;
     private DatabaseUtils mDatabaseUtils;
@@ -39,9 +38,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
         mCalendarUtils = new CalendarUtils(mContext, mNotificationUtils);
         mSharedPreferencesUtils = new SharedPreferencesUtils(mContext);
         mNotificationUtils = new NotificationUtils(mContext);
-        mAccountUtils = new AccountUtils(mContext, mNotificationUtils);
         mDatabaseUtils = new DatabaseUtils(mContext);
-        mNetworkUtils = new NetworkUtils(mContext, mAccountUtils, mNotificationUtils, mDatabaseUtils);
+        mNetworkUtils = new NetworkUtils(mContext, mNotificationUtils, mDatabaseUtils);
     }
 
     @Override
@@ -49,7 +47,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                               ContentProviderClient provider, SyncResult syncResult) {
         // TODO check for network
 
-        if (mAccountUtils.hasEmptyOrExpiredAccessToken()) {
+        if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
             mNotificationUtils.sendNotification(
                     R.string.notification_syncing_problem_title,
                     R.string.notification_facebook_problem_message_short,
@@ -82,7 +80,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
     @Override
     public void onCompleted(GraphResponse response) {
         if (response.getError() != null) {
-            mAccountUtils.removeTokenFromAccountManager();
             LoginManager.getInstance().logOut();
             mNotificationUtils.sendNotification(
                     R.string.notification_syncing_problem_title,

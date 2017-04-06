@@ -30,8 +30,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
 
     private Button btnLoginFacebook;
     private CallbackManager mCallbackManager;
-    private AccountUtils mAccountUtils;
-    private NotificationUtils mNotificationUtils;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -39,9 +37,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
         View view = inflater.inflate(R.layout.login_fragment, container, false);
         btnLoginFacebook = (Button) view.findViewById(R.id.btnLoginFacebook);
         btnLoginFacebook.setOnClickListener(this);
-
-        mNotificationUtils = new NotificationUtils(getContext());
-        mAccountUtils = new AccountUtils(getActivity(), mNotificationUtils);
 
         setupFacebook();
 
@@ -72,7 +67,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
     // region Facebook Listener methods
     @Override
     public void onSuccess(LoginResult loginResult) {
-        mAccountUtils.updateAccountManager(loginResult.getAccessToken());
         navigate();
     }
 
@@ -102,7 +96,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
     private void navigate() {
         if (needsPermissions()) {
             replaceFragment(R.id.fragment_container, new PermissionsFragment(), PermissionsFragment.TAG);
-        } else if (hasEmptyOrExpiredAccessToken()) {
+        } else if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
             replaceFragment(R.id.fragment_container, new LoginFragment(), LoginFragment.TAG);
         } else {
             replaceFragment(R.id.fragment_container, new SyncFragment(), SyncFragment.TAG);
@@ -129,15 +123,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
         } else {
             return true;
         }
-    }
-
-    private boolean hasEmptyOrExpiredAccessToken() {
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        if (accessToken == null || accessToken.isExpired()) {
-            mAccountUtils.removeTokenFromAccountManager();
-            return true;
-        }
-        return false;
     }
     //endregion
 }

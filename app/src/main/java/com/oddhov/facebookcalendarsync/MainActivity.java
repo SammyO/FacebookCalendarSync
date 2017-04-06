@@ -18,10 +18,6 @@ import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
 
 public class MainActivity extends AppCompatActivity implements DialogInterface.OnClickListener {
-
-    private AccountUtils mAccountUtils;
-    private NotificationUtils mNotificationUtils;
-
     //region Lifecycle Methods
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,9 +25,6 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        mNotificationUtils = new NotificationUtils(this);
-        mAccountUtils = new AccountUtils(this, mNotificationUtils);
     }
 
     @Override
@@ -87,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     @Override
     public void onClick(DialogInterface dialogInterface, int i) {
         if (i == DialogInterface.BUTTON_POSITIVE) {
-            mAccountUtils.removeTokenFromAccountManager();
             LoginManager.getInstance().logOut();
             navigate();
         }
@@ -98,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     private void navigate() {
         if (needsPermissions()) {
             replaceFragment(R.id.fragment_container, new PermissionsFragment(), PermissionsFragment.TAG);
-        } else if (mAccountUtils.hasEmptyOrExpiredAccessToken()) {
+        } else if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
             replaceFragment(R.id.fragment_container, new LoginFragment(), LoginFragment.TAG);
         } else {
             replaceFragment(R.id.fragment_container, new SyncFragment(), SyncFragment.TAG);

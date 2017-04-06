@@ -35,8 +35,6 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
     public static final String TAG = "PermissionsFragment";
 
     private Button btnGrantPermissions;
-    private AccountUtils mAccountUtils;
-    private NotificationUtils mNotificationUtils;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,10 +42,6 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
         View view = inflater.inflate(R.layout.permissions_fragment, container, false);
         btnGrantPermissions = (Button) view.findViewById(R.id.btnGrantPermissions);
         btnGrantPermissions.setOnClickListener(this);
-
-        mNotificationUtils = new NotificationUtils(getContext());
-        mAccountUtils = new AccountUtils(getActivity(), mNotificationUtils);
-
         return view;
     }
 
@@ -110,7 +104,7 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
     private void navigate() {
         if (needsPermissions()) {
             replaceFragment(R.id.fragment_container, new PermissionsFragment(), PermissionsFragment.TAG);
-        } else if (hasEmptyOrExpiredAccessToken()) {
+        } else if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
             replaceFragment(R.id.fragment_container, new LoginFragment(), LoginFragment.TAG);
         } else {
             replaceFragment(R.id.fragment_container, new SyncFragment(), SyncFragment.TAG);
@@ -193,15 +187,6 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
         return !ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.READ_CALENDAR)
                 || !ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_CALENDAR)
                 || !ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.GET_ACCOUNTS);
-    }
-
-    private boolean hasEmptyOrExpiredAccessToken() {
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        if (accessToken == null || accessToken.isExpired()) {
-            mAccountUtils.removeTokenFromAccountManager();
-            return true;
-        }
-        return false;
     }
     // endregion
 }
