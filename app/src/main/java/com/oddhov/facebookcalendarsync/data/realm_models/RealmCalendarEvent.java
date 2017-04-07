@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class CalendarEvent extends RealmObject {
+public class RealmCalendarEvent extends RealmObject {
     @PrimaryKey
     private String id;
     private String name;
@@ -15,10 +15,10 @@ public class CalendarEvent extends RealmObject {
     private String endTime;
     private String rsvpStatus;
 
-    public CalendarEvent() {
+    public RealmCalendarEvent() {
     }
 
-    public CalendarEvent(String id, String name, String description, String startTime, String endTime, String rsvpStatus) {
+    public RealmCalendarEvent(String id, String name, String description, String startTime, String endTime, String rsvpStatus) {
         this.id = id;
         this.name = name;
         this.description = description;

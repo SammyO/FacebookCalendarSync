@@ -81,15 +81,17 @@ public class NetworkUtils {
                 .executeAsync();
     }
 
-    public void requestNextPage(GraphResponse response, GraphRequest.Callback callback) {
+    public boolean requestNextPage(GraphResponse response, GraphRequest.Callback callback) {
         GraphRequest nextRequest = response.getRequestForPagedResults(GraphResponse.PagingDirection.NEXT);
         if (nextRequest != null) {
             Bundle parameters = new Bundle();
             nextRequest.setParameters(parameters);
             nextRequest.setCallback(callback);
             nextRequest.executeAsync();
+            return true;
         } else {
             Log.e("Fetching events done", "Size of Realm: " + mDatabaseUtils.getEventsSize());
+            return false;
         }
     }
 }

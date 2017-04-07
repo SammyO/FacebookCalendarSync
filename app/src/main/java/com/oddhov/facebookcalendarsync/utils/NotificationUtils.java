@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.oddhov.facebookcalendarsync.MainActivity;
 import com.oddhov.facebookcalendarsync.R;
@@ -23,6 +24,8 @@ public class NotificationUtils {
     }
 
     public void sendNotification(int title, int shortMessage, int longMessage) {
+        Log.e("NotificationUtils", "sendNotification");
+
         Intent intent = new Intent(mContext, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, REQUEST_CODE, intent, 0);
         // TODO update notification

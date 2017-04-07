@@ -1,15 +1,12 @@
 package com.oddhov.facebookcalendarsync.utils;
 
 import android.Manifest;
-import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.OperationApplicationException;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.RemoteException;
 import android.provider.CalendarContract;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
@@ -17,10 +14,10 @@ import android.util.Log;
 
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
-import com.oddhov.facebookcalendarsync.data.models.Event;
-import com.oddhov.facebookcalendarsync.data.models.EventsResponse;
+import com.oddhov.facebookcalendarsync.data.realm_models.RealmCalendarEvent;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CalendarUtils {
     private Context mContext;
@@ -31,7 +28,7 @@ public class CalendarUtils {
         this.mNotificationUtils = notificationUtils;
     }
 
-    public Integer checkDoesCalendarExistAndGetCalId() {
+    public Integer checkDoesCalendarExistAndGetCalendarId() {
         Cursor cur;
         ContentResolver cr = mContext.getContentResolver();
         Uri uri = CalendarContract.Calendars.CONTENT_URI;
@@ -69,39 +66,44 @@ public class CalendarUtils {
         return null;
     }
 
-    public void addEventsToCalendar(EventsResponse eventsResponse, int calId) {
-        String eventTitle;
-        Long eventDtStart; // The time the event starts in UTC millis since epoch. Column name. Type: INTEGER (long; millis since epoch)
-        Long eventDtEnd; // The time the event ends in UTC millis since epoch. Column name. Type: INTEGER (long; millis since epoch)
-        String eventTimeZone; // The timezone for the event. Column name. Type: TEXT
-        String eventCalID; // The _ID of the calendar the event belongs to. Column name. Type: INTEGER
+    public void addEventsToCalendar(int calendarId, List<RealmCalendarEvent> realmCalendarEventsList) {
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+            mNotificationUtils.sendNotification(
+                    R.string.notification_syncing_problem_title,
+                    R.string.notification_missing_permissions_message_short,
+                    R.string.notification_missing_permissions_message_long);
+            return;
+        }
 
-        ArrayList<ContentProviderOperation> ops = new ArrayList<>();
-        for (Event event : eventsResponse.getEvents()) {
+        ArrayList<ContentValues> contentValuesList = new ArrayList<>();
+        ContentValues[] bulkToInsert;
+        for (int i = 0; i < realmCalendarEventsList.size(); i++) {
+            RealmCalendarEvent event = realmCalendarEventsList.get(i);
             if (TextUtils.isEmpty(event.getName()) || event.getStartTime() == null
                     || event.getEndTime() == null) {
                 // TODO improve this
                 continue;
             }
-            eventTitle = event.getName();
-            eventDtStart = EventUtils.convertDateToEpochFormat(event.getStartTime());
-            eventDtEnd = EventUtils.convertDateToEpochFormat(event.getEndTime());
 
-            ops.add(
-                    ContentProviderOperation.newInsert(CalendarContract.Events.CONTENT_URI)
-                            .withValue(CalendarContract.Events.TITLE, eventTitle)
-                            .withValue(CalendarContract.Events.DTSTART, eventDtStart)
-                            .withValue(CalendarContract.Events.DTEND, eventDtEnd)
-                            .withValue(CalendarContract.Events.EVENT_TIMEZONE, "NL") // TODO
-                            .withValue(CalendarContract.Events.CALENDAR_ID, calId)
-                            .withYieldAllowed(true)
-                            .build());
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(CalendarContract.Events._ID, event.getId());
+            contentValues.put(CalendarContract.Events.TITLE, event.getName());
+            contentValues.put(CalendarContract.Events.DTSTART, EventUtils.convertDateToEpochFormat(event.getStartTime()));
+            contentValues.put(CalendarContract.Events.DTEND, EventUtils.convertDateToEpochFormat(event.getEndTime()));
+            contentValues.put(CalendarContract.Events.EVENT_TIMEZONE, "NL");
+            contentValues.put(CalendarContract.Events.CALENDAR_ID, calendarId);
+            contentValuesList.add(contentValues);
+
+            if (contentValuesList.size() >= 10) {
+                bulkToInsert = new ContentValues[contentValuesList.size()];
+                contentValuesList.toArray(bulkToInsert);
+                mContext.getContentResolver().bulkInsert(CalendarContract.Events.CONTENT_URI, bulkToInsert);
+                contentValuesList.clear();
+            }
         }
-        try {
-            mContext.getContentResolver().applyBatch(CalendarContract.AUTHORITY, ops);
-        } catch (RemoteException | OperationApplicationException e) {
-            e.printStackTrace();
-        }
+        bulkToInsert = new ContentValues[contentValuesList.size()];
+        contentValuesList.toArray(bulkToInsert);
+        mContext.getContentResolver().bulkInsert(CalendarContract.Events.CONTENT_URI, bulkToInsert);
     }
 
     public Uri createCalendar() {
@@ -110,10 +112,9 @@ public class CalendarUtils {
                 .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, Constants.ACCOUNT_NAME)
                 .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_TYPE, Constants.ACCOUNT_TYPE).build();
 
-
         ContentValues vals = new ContentValues();
         vals.put(CalendarContract.Calendars.ACCOUNT_NAME, Constants.ACCOUNT_NAME);
-        vals.put(CalendarContract.Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL); // TODO look into this
+        vals.put(CalendarContract.Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
         vals.put(CalendarContract.Calendars.NAME, Constants.ACCOUNT_NAME);
         vals.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, Constants.ACCOUNT_NAME);
         vals.put(CalendarContract.Calendars.CALENDAR_COLOR, 0xffff0000);

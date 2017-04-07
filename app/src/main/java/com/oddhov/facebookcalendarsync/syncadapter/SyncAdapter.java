@@ -13,8 +13,8 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.oddhov.facebookcalendarsync.R;
-import com.oddhov.facebookcalendarsync.events.FacebookGetUserWithEventsResponse;
 import com.oddhov.facebookcalendarsync.data.models.EventsResponse;
+import com.oddhov.facebookcalendarsync.events.FacebookGetUserWithEventsResponse;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.CalendarUtils;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
@@ -46,6 +46,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
     public void onPerformSync(Account account, Bundle extras, String authority,
                               ContentProviderClient provider, SyncResult syncResult) {
         // TODO check for network
+        Log.e("SyncAdapter", "onPerformSync");
 
         if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
             mNotificationUtils.sendNotification(
@@ -53,9 +54,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                     R.string.notification_facebook_problem_message_short,
                     R.string.notification_facebook_problem_message_long);
         } else {
-            Log.e("SyncAdapter", "onPerformSync");
 
-            Integer calId = mCalendarUtils.checkDoesCalendarExistAndGetCalId();
+            Integer calId = mCalendarUtils.checkDoesCalendarExistAndGetCalendarId();
             if (calId == null) {
                 Uri uri = mCalendarUtils.createCalendar();
                 // TODO do a check on the Uri
@@ -91,18 +91,19 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
             Log.e("SyncAdapter", response.getJSONObject().toString());
             EventsResponse eventsResponse = parseAndValidateFacebookResponse(response);
             if (eventsResponse.getEvents().size() != 0) {
-                mDatabaseUtils.insertAndUpdateCalendarEvents(mDatabaseUtils.convertCalendarEvents(eventsResponse.getEvents()));
+                mDatabaseUtils.insertAndUpdateCalendarEvents(mDatabaseUtils.convertToRealmCalendarEvents(eventsResponse.getEvents()));
+                Integer calendarId = mCalendarUtils.checkDoesCalendarExistAndGetCalendarId();
+                mCalendarUtils.removeEventsFromCalendar(calendarId); // TODO optimise this
+                mCalendarUtils.addEventsToCalendar(calendarId, mDatabaseUtils.getCalendarEvents());
 
-//                Integer calId = mCalendarUtils.checkDoesCalendarExistAndGetCalId();
-//                if (calId != null) {
-//                    mCalendarUtils.removeEventsFromCalendar(calId); // TODO optimise this
-//                    mCalendarUtils.addEventsToCalendar(eventsResponse, calId);
-//                } else {
-//                    // TODO Crashlytics
-//                    Log.e("Syncadapter", "No calendar exists for this account");
-//                    return;
+//                boolean hasNextPage = mNetworkUtils.requestNextPage(response, this);
+//
+//                // This was the last page th  at was fetched; write to calendar now
+//                if (!hasNextPage) {
+//                    Integer calendarId = mCalendarUtils.checkDoesCalendarExistAndGetCalendarId();
+//                    mCalendarUtils.removeEventsFromCalendar(calendarId); // TODO optimise this
+//                    mCalendarUtils.addEventsToCalendar(calendarId, mDatabaseUtils.getCalendarEvents());
 //                }
-                mNetworkUtils.requestNextPage(response, this);
             } else {
                 Log.e("Syncadapter", "Facebook response contained no events");
             }

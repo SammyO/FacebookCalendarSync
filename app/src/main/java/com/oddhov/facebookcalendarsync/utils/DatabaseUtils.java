@@ -3,17 +3,17 @@ package com.oddhov.facebookcalendarsync.utils;
 import android.content.Context;
 
 import com.oddhov.facebookcalendarsync.data.models.Event;
-import com.oddhov.facebookcalendarsync.data.realm_models.CalendarEvent;
+import com.oddhov.facebookcalendarsync.data.realm_models.RealmCalendarEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.Sort;
 
 public class DatabaseUtils {
     private Context mContext;
-    private Realm mRealm;
     private RealmConfiguration mRealmConfiguration;
 
     public DatabaseUtils(Context context) {
@@ -21,7 +21,7 @@ public class DatabaseUtils {
     }
 
     public void initializeRealmConfig(Context appContext) {
-        if(mRealmConfiguration == null) {
+        if (mRealmConfiguration == null) {
             Realm.init(mContext);
             mRealmConfiguration = new RealmConfiguration.Builder()
                     .deleteRealmIfMigrationNeeded() // TODO
@@ -30,28 +30,27 @@ public class DatabaseUtils {
         }
     }
 
-    public void insertAndUpdateCalendarEvents(final List<CalendarEvent> calendarEventsList) {
-        if (calendarEventsList.isEmpty()) {
+    public void insertAndUpdateCalendarEvents(final List<RealmCalendarEvent> realmCalendarEventsList) {
+        if (realmCalendarEventsList.isEmpty()) {
             return;
         }
-
-        mRealm.executeTransactionAsync(new Realm.Transaction() {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                realm.delete(CalendarEvent.class);
-                realm.insertOrUpdate(calendarEventsList);
-                // TODO optimise this
+                realm.insertOrUpdate(realmCalendarEventsList);
+                // TODO no longer existing events should be removed
             }
         });
-        mRealm.close();
+        realm.close();
     }
 
-    public List<CalendarEvent> convertCalendarEvents(List<Event> events) {
-        ArrayList<CalendarEvent> calendarEvents = new ArrayList<>();
+    public List<RealmCalendarEvent> convertToRealmCalendarEvents(List<Event> events) {
+        ArrayList<RealmCalendarEvent> realmCalendarEvents = new ArrayList<>();
 
         if (events != null && events.size() != 0) {
             for (Event event : events) {
-                CalendarEvent calendarEvent = new CalendarEvent(
+                RealmCalendarEvent realmCalendarEvent = new RealmCalendarEvent(
                         event.getId(),
                         event.getName(),
                         event.getDescription(),
@@ -59,13 +58,21 @@ public class DatabaseUtils {
                         event.getEndTime(),
                         event.getRsvpStatus()
                 );
-                calendarEvents.add(calendarEvent);
+                realmCalendarEvents.add(realmCalendarEvent);
             }
         }
-        return calendarEvents;
+        return realmCalendarEvents;
     }
 
     public long getEventsSize() {
-        return mRealm.where(CalendarEvent.class).count();
+        Realm realm = Realm.getDefaultInstance();
+        long size = realm.where(RealmCalendarEvent.class).count();
+        realm.close();
+        return size;
+    }
+
+    public List<RealmCalendarEvent> getCalendarEvents() {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(RealmCalendarEvent.class).findAll();
     }
 }
