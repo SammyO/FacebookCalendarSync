@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
@@ -14,7 +13,6 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.facebook.Profile;
-import com.oddhov.facebookcalendarsync.PermissionsFragment;
 import com.oddhov.facebookcalendarsync.R;
 
 public class NetworkUtils {
@@ -89,9 +87,7 @@ public class NetworkUtils {
             nextRequest.setCallback(callback);
             nextRequest.executeAsync();
             return true;
-        } else {
-            Log.e("Fetching events done", "Size of Realm: " + mDatabaseUtils.getEventsSize());
-            return false;
         }
+        return false;
     }
 }

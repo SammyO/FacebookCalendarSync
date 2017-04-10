@@ -41,7 +41,6 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
 
     // region Helper methods
     private void startSyncAdapter() {
-        Log.e("SyncFragment", "startSyncAdapter");
         Account account = new Account(Constants.ACCOUNT_NAME, Constants.ACCOUNT_TYPE);
         Bundle bundle = new Bundle();
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);

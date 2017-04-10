@@ -2,6 +2,7 @@ package com.oddhov.facebookcalendarsync.utils;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -28,14 +29,16 @@ public class CalendarUtils {
         this.mNotificationUtils = notificationUtils;
     }
 
-    public Integer checkDoesCalendarExistAndGetCalendarId() {
-        Cursor cur;
-        ContentResolver cr = mContext.getContentResolver();
-        Uri uri = CalendarContract.Calendars.CONTENT_URI;
-        String selection = "((" + CalendarContract.Calendars.ACCOUNT_NAME + " = ?) AND ("
-                + CalendarContract.Calendars.ACCOUNT_TYPE + " = ?))";
-        String[] selectionArgs = new String[]{Constants.ACCOUNT_NAME, CalendarContract.ACCOUNT_TYPE_LOCAL};
+    public long ensureCalendarExists() {
+        long calendarId = getCalendarId();
+        if (calendarId == 0) {
+            calendarId = createCalendar();
+        }
 
+        return calendarId;
+    }
+
+    public long getCalendarId() {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
             mNotificationUtils.sendNotification(
                     R.string.notification_syncing_problem_title,
@@ -43,30 +46,34 @@ public class CalendarUtils {
                     R.string.notification_missing_permissions_message_long);
 
             Log.e("CalendarUtils", "No calendar permissions granted");
-            return null;
+            return 0;
         }
-        cur = cr.query(uri, Constants.EVENT_PROJECTION, selection, selectionArgs, null);
 
-        if (cur != null) {
-            if (cur.moveToNext()) {
-                int calID = 0;
-                String displayName = null;
-                String accountName = null;
-                String ownerName = null;
+        ContentResolver contentResolver = mContext.getContentResolver();
+        Uri uri = CalendarContract.Calendars.CONTENT_URI;
+        String selection = "((" +
+                CalendarContract.Calendars.ACCOUNT_NAME + " = ?)" +
+                " AND (" +
+                CalendarContract.Calendars.ACCOUNT_TYPE + " = ?)" +
+                ")";
 
+        String[] selectionArgs = new String[]{Constants.ACCOUNT_NAME, CalendarContract.ACCOUNT_TYPE_LOCAL};
+
+        Cursor cursor = contentResolver.query(uri, Constants.GET_CALENDAR_PROJECTION, selection, selectionArgs, null);
+
+        if (cursor != null) {
+            if (cursor.moveToNext()) {
                 // Get the field values
-                calID = cur.getInt(Constants.PROJECTION_ID_INDEX);
-                displayName = cur.getString(Constants.PROJECTION_DISPLAY_NAME_INDEX);
-                accountName = cur.getString(Constants.PROJECTION_ACCOUNT_NAME_INDEX);
-                cur.close();
+                int calID = cursor.getInt(Constants.GET_CALENDAR_PROJECTION_ID_INDEX);
+                cursor.close();
                 return calID;
             }
-            cur.close();
+            cursor.close();
         }
-        return null;
+        return 0;
     }
 
-    public void addEventsToCalendar(int calendarId, List<RealmCalendarEvent> realmCalendarEventsList) {
+    public void updateCalendarEvents(long calendarId, List<RealmCalendarEvent> realmCalendarEventsList) {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
             mNotificationUtils.sendNotification(
                     R.string.notification_syncing_problem_title,
@@ -85,20 +92,29 @@ public class CalendarUtils {
                 continue;
             }
 
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(CalendarContract.Events._ID, event.getId());
-            contentValues.put(CalendarContract.Events.TITLE, event.getName());
-            contentValues.put(CalendarContract.Events.DTSTART, EventUtils.convertDateToEpochFormat(event.getStartTime()));
-            contentValues.put(CalendarContract.Events.DTEND, EventUtils.convertDateToEpochFormat(event.getEndTime()));
-            contentValues.put(CalendarContract.Events.EVENT_TIMEZONE, "NL");
-            contentValues.put(CalendarContract.Events.CALENDAR_ID, calendarId);
-            contentValuesList.add(contentValues);
+            boolean eventExists = doesEventExist(event.getId(), String.valueOf(calendarId));
+            if (eventExists) {
+                Log.i("CalendarUtils", "Updating event: " + event.getName());
+                updateEvent(event);
+            } else {
+                Log.i("CalendarUtils", "Adding event: " + event.getName());
 
-            if (contentValuesList.size() >= 10) {
-                bulkToInsert = new ContentValues[contentValuesList.size()];
-                contentValuesList.toArray(bulkToInsert);
-                mContext.getContentResolver().bulkInsert(CalendarContract.Events.CONTENT_URI, bulkToInsert);
-                contentValuesList.clear();
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(CalendarContract.Events._ID, event.getId());
+                contentValues.put(CalendarContract.Events.TITLE, event.getName());
+                contentValues.put(CalendarContract.Events.DESCRIPTION, event.getDescription());
+                contentValues.put(CalendarContract.Events.DTSTART, EventUtils.convertDateToEpochFormat(event.getStartTime()));
+                contentValues.put(CalendarContract.Events.DTEND, EventUtils.convertDateToEpochFormat(event.getEndTime()));
+                contentValues.put(CalendarContract.Events.EVENT_TIMEZONE, "NL");
+                contentValues.put(CalendarContract.Events.CALENDAR_ID, calendarId);
+                contentValuesList.add(contentValues);
+
+                if (contentValuesList.size() >= 10) {
+                    bulkToInsert = new ContentValues[contentValuesList.size()];
+                    contentValuesList.toArray(bulkToInsert);
+                    mContext.getContentResolver().bulkInsert(CalendarContract.Events.CONTENT_URI, bulkToInsert);
+                    contentValuesList.clear();
+                }
             }
         }
         bulkToInsert = new ContentValues[contentValuesList.size()];
@@ -106,7 +122,7 @@ public class CalendarUtils {
         mContext.getContentResolver().bulkInsert(CalendarContract.Events.CONTENT_URI, bulkToInsert);
     }
 
-    public Uri createCalendar() {
+    private long createCalendar() {
         Uri calendarUri = Uri.parse(CalendarContract.Calendars.CONTENT_URI.toString());
         calendarUri = calendarUri.buildUpon().appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
                 .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, Constants.ACCOUNT_NAME)
@@ -121,7 +137,8 @@ public class CalendarUtils {
         vals.put(CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL, CalendarContract.Calendars.CAL_ACCESS_OWNER);
         vals.put(CalendarContract.Calendars.SYNC_EVENTS, 1);
 
-        return mContext.getContentResolver().insert(calendarUri, vals);
+        Uri newCalendarUri = mContext.getContentResolver().insert(calendarUri, vals);
+        return ContentUris.parseId(newCalendarUri);
     }
 
     public void removeEventsFromCalendar(int calId) {
@@ -129,5 +146,61 @@ public class CalendarUtils {
         String where = "calendar_id=?";
         String[] selectionArgs = new String[]{Integer.toString(calId)};
         mContext.getContentResolver().delete(eventsContentUri, where, selectionArgs);
+    }
+
+    private boolean doesEventExist(String eventId, String calendarId) {
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+            mNotificationUtils.sendNotification(
+                    R.string.notification_syncing_problem_title,
+                    R.string.notification_missing_permissions_message_short,
+                    R.string.notification_missing_permissions_message_long);
+
+            Log.e("CalendarUtils", "No calendar permissions granted");
+            return false;
+        }
+
+        Uri uri = CalendarContract.Events.CONTENT_URI;
+        String selection = "((" +
+                CalendarContract.Events._ID + " = ?)" +
+                " AND (" +
+                CalendarContract.Events.CALENDAR_ID + " = ?)" +
+                ")";
+        String[] selectionArgs = new String[]{eventId, calendarId};
+        String[] projection = new String[]{CalendarContract.Events._ID};
+        ContentResolver contentResolver = mContext.getContentResolver();
+        Cursor cursor = contentResolver.query(uri, projection, selection, selectionArgs, null);
+        if (cursor != null) {
+            if (cursor.moveToNext()) {
+                cursor.close();
+                return true;
+            }
+            cursor.close();
+        }
+        return false;
+    }
+
+    private void updateEvent(RealmCalendarEvent event) {
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+            mNotificationUtils.sendNotification(
+                    R.string.notification_syncing_problem_title,
+                    R.string.notification_missing_permissions_message_short,
+                    R.string.notification_missing_permissions_message_long);
+
+            Log.e("CalendarUtils", "No calendar permissions granted");
+            return;
+        }
+
+        Uri uri = CalendarContract.Events.CONTENT_URI;
+        String selection = "(" + CalendarContract.Events._ID + " = ?)";
+        String[] selectionArgs = new String[]{event.getId()};
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(CalendarContract.Events.TITLE, event.getName());
+        contentValues.put(CalendarContract.Events.DESCRIPTION, event.getDescription());
+        contentValues.put(CalendarContract.Events.DTSTART, EventUtils.convertDateToEpochFormat(event.getStartTime()));
+        contentValues.put(CalendarContract.Events.DTEND, EventUtils.convertDateToEpochFormat(event.getEndTime()));
+        contentValues.put(CalendarContract.Events.EVENT_TIMEZONE, "NL"); // TODO
+
+        ContentResolver contentResolver = mContext.getContentResolver();
+        contentResolver.update(uri, contentValues, selection, selectionArgs);
     }
 }

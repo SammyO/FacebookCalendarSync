@@ -1,6 +1,7 @@
 package com.oddhov.facebookcalendarsync.utils;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 import com.oddhov.facebookcalendarsync.data.models.Event;
 import com.oddhov.facebookcalendarsync.data.realm_models.RealmCalendarEvent;
@@ -30,19 +31,20 @@ public class DatabaseUtils {
         }
     }
 
-    public void insertAndUpdateCalendarEvents(final List<RealmCalendarEvent> realmCalendarEventsList) {
+    @Nullable
+    public List<RealmCalendarEvent> insertAndUpdateCalendarEvents(final List<RealmCalendarEvent> realmCalendarEventsList) {
         if (realmCalendarEventsList.isEmpty()) {
-            return;
+            return null;
         }
         Realm realm = Realm.getDefaultInstance();
-        realm.executeTransactionAsync(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                realm.insertOrUpdate(realmCalendarEventsList);
-                // TODO no longer existing events should be removed
-            }
-        });
-        realm.close();
+        realm.beginTransaction();
+        List<RealmCalendarEvent> updatedEvents = realm.copyToRealmOrUpdate(realmCalendarEventsList);
+        realm.commitTransaction();
+//        realm.close(); //TODO
+        if (!updatedEvents.isEmpty()) {
+            return updatedEvents;
+        }
+        return null;
     }
 
     public List<RealmCalendarEvent> convertToRealmCalendarEvents(List<Event> events) {

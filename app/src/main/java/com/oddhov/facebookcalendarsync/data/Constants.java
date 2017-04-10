@@ -28,16 +28,17 @@ public final class Constants {
     public static final String AUTHTOKEN_TYPE = "com.oddhov.facebookcalendarsynctoken";
 
     // Calendar related constants
-    public static final String[] EVENT_PROJECTION = new String[]{
-            CalendarContract.Calendars._ID,                           // 0
-            CalendarContract.Calendars.ACCOUNT_NAME,                  // 1
-            CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,         // 2
-            CalendarContract.Calendars.OWNER_ACCOUNT                  // 3
+    public static final String[] GET_CALENDAR_PROJECTION = new String[]{
+            CalendarContract.Calendars._ID,
     };
-    public static final int PROJECTION_ID_INDEX = 0;
-    public static final int PROJECTION_ACCOUNT_NAME_INDEX = 1;
-    public static final int PROJECTION_DISPLAY_NAME_INDEX = 2;
-    public static final int PROJECTION_OWNER_ACCOUNT_INDEX = 3;
+    public static final int GET_CALENDAR_PROJECTION_ID_INDEX = 0;
+    public static final String[] GET_EVENT_PROJECTION = new String[]{
+            CalendarContract.Events._ID,
+            CalendarContract.Events.CALENDAR_ID,
+            CalendarContract.Events.TITLE
+
+    };
+    public static final int GET_EVENT_PROJECTION_ID_INDEX = 0;
 
     // Notification ID
     public static final int NOTIFICATION_ID = 176;
