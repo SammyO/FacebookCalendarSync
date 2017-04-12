@@ -15,13 +15,19 @@ import android.view.MenuItem;
 
 import com.facebook.login.LoginManager;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
-import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
+import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 
 public class MainActivity extends AppCompatActivity implements DialogInterface.OnClickListener {
+    //region Fields
+    DatabaseUtils mDatabaseUtils;
+    //endregion
+
     //region Lifecycle Methods
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mDatabaseUtils = new DatabaseUtils(this);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -35,7 +41,6 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     @Override
     public void onResume() {
         super.onResume();
-
         navigate();
     }
 

@@ -30,6 +30,7 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
         return view;
     }
 
+
     // region OnClickListeners
     @Override
     public void onClick(View view) {

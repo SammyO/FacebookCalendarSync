@@ -3,19 +3,26 @@ package com.oddhov.facebookcalendarsync;
 import android.app.Application;
 
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
-import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
+
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 public class FacebookCalendarSyncApplication extends Application {
     //region Fields
-    DatabaseUtils mDatabaseUtils;
-    AccountUtils mAccountUtils;
+    private AccountUtils mAccountUtils;
+    private RealmConfiguration mRealmConfiguration;
     //endregion
 
     @Override
     public void onCreate() {
         super.onCreate();
-        mDatabaseUtils = new DatabaseUtils(this);
-        mDatabaseUtils.initializeRealmConfig(this);
+        if (mRealmConfiguration == null) {
+            Realm.init(this);
+            mRealmConfiguration = new RealmConfiguration.Builder()
+                    .deleteRealmIfMigrationNeeded() // TODO
+                    .build();
+            Realm.setDefaultConfiguration(mRealmConfiguration);
+        }
 
         mAccountUtils = new AccountUtils(this);
         mAccountUtils.ensureAccountExists();

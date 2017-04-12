@@ -37,10 +37,10 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
     SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
         mContext = context;
-        mCalendarUtils = new CalendarUtils(mContext, mNotificationUtils);
-        mSharedPreferencesUtils = new SharedPreferencesUtils(mContext);
-        mNotificationUtils = new NotificationUtils(mContext);
         mDatabaseUtils = new DatabaseUtils(mContext);
+        mNotificationUtils = new NotificationUtils(mContext);
+        mSharedPreferencesUtils = new SharedPreferencesUtils(mContext);
+        mCalendarUtils = new CalendarUtils(mContext, mNotificationUtils, mDatabaseUtils);
         mNetworkUtils = new NetworkUtils(mContext, mNotificationUtils, mDatabaseUtils);
     }
 
@@ -97,10 +97,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
             }
         }
     }
-    //endregion
-
-    //region Helper methods
-
     //endregion
 
     //region Validation Helper Methods

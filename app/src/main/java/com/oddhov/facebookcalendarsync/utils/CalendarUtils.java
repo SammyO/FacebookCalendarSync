@@ -23,10 +23,12 @@ import java.util.List;
 public class CalendarUtils {
     private Context mContext;
     private NotificationUtils mNotificationUtils;
+    private DatabaseUtils mDatabaseUtils;
 
-    public CalendarUtils(Context context, NotificationUtils notificationUtils) {
+    public CalendarUtils(Context context, NotificationUtils notificationUtils, DatabaseUtils databaseUtils) {
         this.mContext = context;
         this.mNotificationUtils = notificationUtils;
+        this.mDatabaseUtils = databaseUtils;
     }
 
     public long ensureCalendarExists() {
