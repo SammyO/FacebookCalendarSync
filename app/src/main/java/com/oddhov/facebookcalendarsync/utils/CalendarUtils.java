@@ -17,7 +17,9 @@ import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.realm_models.RealmCalendarEvent;
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class CalendarUtils {
@@ -31,16 +33,16 @@ public class CalendarUtils {
         this.mDatabaseUtils = databaseUtils;
     }
 
-    public long ensureCalendarExists() {
-        long calendarId = getCalendarId();
-        if (calendarId == 0) {
+    public String ensureCalendarExists() {
+        String calendarId = getCalendarId();
+        if (calendarId.equals("")) {
             calendarId = createCalendar();
         }
 
         return calendarId;
     }
 
-    public long getCalendarId() {
+    public String getCalendarId() {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
             mNotificationUtils.sendNotification(
                     R.string.notification_syncing_problem_title,
@@ -48,7 +50,7 @@ public class CalendarUtils {
                     R.string.notification_missing_permissions_message_long);
 
             Log.e("CalendarUtils", "No calendar permissions granted");
-            return 0;
+            return "";
         }
 
         ContentResolver contentResolver = mContext.getContentResolver();
@@ -66,16 +68,20 @@ public class CalendarUtils {
         if (cursor != null) {
             if (cursor.moveToNext()) {
                 // Get the field values
-                int calID = cursor.getInt(Constants.GET_CALENDAR_PROJECTION_ID_INDEX);
+                String id = cursor.getString(Constants.GET_CALENDAR_PROJECTION_ID_INDEX);
                 cursor.close();
-                return calID;
+                return id;
             }
             cursor.close();
         }
-        return 0;
+        return "";
     }
 
-    public void updateCalendarEvents(long calendarId, List<RealmCalendarEvent> realmCalendarEventsList) {
+    public void insertOrUpdateCalendarEvents(String calendarId, List<RealmCalendarEvent> realmCalendarEventsList) {
+        if (realmCalendarEventsList.size() == 0) {
+            return;
+        }
+
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
             mNotificationUtils.sendNotification(
                     R.string.notification_syncing_problem_title,
@@ -88,19 +94,22 @@ public class CalendarUtils {
         ContentValues[] bulkToInsert;
         for (int i = 0; i < realmCalendarEventsList.size(); i++) {
             RealmCalendarEvent event = realmCalendarEventsList.get(i);
-            if (TextUtils.isEmpty(event.getName()) || event.getStartTime() == null
-                    || event.getEndTime() == null) {
-                // TODO improve this
+                if (TextUtils.isEmpty(event.getName()) || event.getStartTime() == null) {
                 continue;
             }
 
-            boolean eventExists = doesEventExist(event.getId(), String.valueOf(calendarId));
+            if (event.getEndTime() == null) {
+                try {
+                    mDatabaseUtils.setEventEndTime(event, EventUtils.addOneHourToTimeStamp(event.getStartTime()));
+                } catch (ParseException e) {
+                    continue;
+                }
+            }
+
+            boolean eventExists = doesEventExist(event.getId(), calendarId);
             if (eventExists) {
-                Log.i("CalendarUtils", "Updating event: " + event.getName());
                 updateEvent(event);
             } else {
-                Log.i("CalendarUtils", "Adding event: " + event.getName());
-
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(CalendarContract.Events._ID, event.getId());
                 contentValues.put(CalendarContract.Events.TITLE, event.getName());
@@ -124,7 +133,25 @@ public class CalendarUtils {
         mContext.getContentResolver().bulkInsert(CalendarContract.Events.CONTENT_URI, bulkToInsert);
     }
 
-    private long createCalendar() {
+    public void deleteMissingCalendarEvents(String calendarId, List<RealmCalendarEvent> serverEvents) {
+        if (serverEvents.size() == 0) {
+            return;
+        }
+
+        final HashSet<String> serverEventIds = new HashSet<>();
+        for (RealmCalendarEvent calendarEvent : serverEvents) {
+            serverEventIds.add(calendarEvent.getId());
+        }
+
+        List<String> localEvents = getCalendarEventIds(calendarId);
+        for (String localId : localEvents) {
+            if (!serverEventIds.contains(localId)) {
+                removeEventFromCalendar(calendarId, localId);
+            }
+        }
+    }
+
+    private String createCalendar() {
         Uri calendarUri = Uri.parse(CalendarContract.Calendars.CONTENT_URI.toString());
         calendarUri = calendarUri.buildUpon().appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
                 .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, Constants.ACCOUNT_NAME)
@@ -140,14 +167,31 @@ public class CalendarUtils {
         vals.put(CalendarContract.Calendars.SYNC_EVENTS, 1);
 
         Uri newCalendarUri = mContext.getContentResolver().insert(calendarUri, vals);
-        return ContentUris.parseId(newCalendarUri);
+        return String.valueOf(ContentUris.parseId(newCalendarUri));
     }
 
-    public void removeEventsFromCalendar(int calId) {
-        Uri eventsContentUri = Uri.parse("content://com.android.calendar/events");
-        String where = "calendar_id=?";
-        String[] selectionArgs = new String[]{Integer.toString(calId)};
-        mContext.getContentResolver().delete(eventsContentUri, where, selectionArgs);
+    private int removeEventFromCalendar(String calendarId, String eventId) {
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+            mNotificationUtils.sendNotification(
+                    R.string.notification_syncing_problem_title,
+                    R.string.notification_missing_permissions_message_short,
+                    R.string.notification_missing_permissions_message_long);
+
+            Log.e("CalendarUtils", "No calendar permissions granted");
+            return 0;
+        }
+
+        Uri uri = CalendarContract.Events.CONTENT_URI;
+        String selection = "((" +
+                CalendarContract.Events._ID + " = ?)" +
+                " AND (" +
+                CalendarContract.Events.CALENDAR_ID + " = ?)" +
+                ")";
+        String[] selectionArgs = new String[]{eventId, calendarId};
+        String[] projection = new String[]{CalendarContract.Events._ID};
+        ContentResolver contentResolver = mContext.getContentResolver();
+        int result = contentResolver.delete(uri, selection, selectionArgs);
+        return result;
     }
 
     private boolean doesEventExist(String eventId, String calendarId) {
@@ -204,5 +248,35 @@ public class CalendarUtils {
 
         ContentResolver contentResolver = mContext.getContentResolver();
         contentResolver.update(uri, contentValues, selection, selectionArgs);
+    }
+
+    private List<String> getCalendarEventIds(String calendarId) {
+        List<String> eventIds = new ArrayList<>();
+
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+            mNotificationUtils.sendNotification(
+                    R.string.notification_syncing_problem_title,
+                    R.string.notification_missing_permissions_message_short,
+                    R.string.notification_missing_permissions_message_long);
+
+            Log.e("CalendarUtils", "No calendar permissions granted");
+            return eventIds;
+        }
+
+        Uri uri = CalendarContract.Events.CONTENT_URI;
+        String selection = "(" + CalendarContract.Events.CALENDAR_ID + " = ?)";
+        String[] selectionArgs = new String[]{calendarId};
+        String[] projection = new String[]{CalendarContract.Events._ID, CalendarContract.Events.TITLE};
+        ContentResolver contentResolver = mContext.getContentResolver();
+        Cursor cursor = contentResolver.query(uri, projection, selection, selectionArgs, null);
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                eventIds.add(cursor.getString(0));
+                String id = cursor.getString(0);
+                String title = cursor.getString(1);
+            }
+            cursor.close();
+        }
+        return eventIds;
     }
 }

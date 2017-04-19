@@ -36,10 +36,11 @@ public class DatabaseUtils {
     }
 
     @Nullable
-    public List<RealmCalendarEvent> insertAndUpdateCalendarEvents(final List<RealmCalendarEvent> realmCalendarEventsList) {
+    public List<RealmCalendarEvent> updateCalendarEvents(List<RealmCalendarEvent> realmCalendarEventsList) {
         if (realmCalendarEventsList.isEmpty()) {
             return null;
         }
+
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         List<RealmCalendarEvent> updatedEvents = realm.copyToRealmOrUpdate(realmCalendarEventsList);
@@ -68,6 +69,17 @@ public class DatabaseUtils {
             }
         }
         return realmCalendarEvents;
+    }
+
+    public void setEventEndTime(final RealmCalendarEvent event, final String endTime) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                event.setEndTime(endTime);
+            }
+        });
+        realm.close();
     }
 
     public long getEventsSize() {

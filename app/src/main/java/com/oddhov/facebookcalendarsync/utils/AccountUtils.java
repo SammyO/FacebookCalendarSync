@@ -35,6 +35,7 @@ public class AccountUtils {
         Account account = new Account(Constants.ACCOUNT_NAME, Constants.ACCOUNT_TYPE);
         AccountManager accountManager = (AccountManager) mContext.getSystemService(ACCOUNT_SERVICE);
         if (!accountManager.addAccountExplicitly(account, null, null)) {
+            // TODO
             Log.e("AccountUtils", "Error creating account");
         }
     }

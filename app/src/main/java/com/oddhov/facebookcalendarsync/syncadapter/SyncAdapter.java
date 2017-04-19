@@ -22,6 +22,7 @@ import com.oddhov.facebookcalendarsync.utils.NetworkUtils;
 import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
 import com.oddhov.facebookcalendarsync.utils.SharedPreferencesUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -33,6 +34,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
     private SharedPreferencesUtils mSharedPreferencesUtils;
     private NotificationUtils mNotificationUtils;
     private DatabaseUtils mDatabaseUtils;
+    private List<RealmCalendarEvent> mUpdatedEvents;
 
     SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -57,6 +59,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                     R.string.notification_facebook_problem_message_long);
         } else {
             mCalendarUtils.ensureCalendarExists();
+            mUpdatedEvents = new ArrayList<>();
 
             if (mSharedPreferencesUtils.getSyncOnlyUpcoming()) {
                 mNetworkUtils.fetchUpcomingEvents(this);
@@ -83,15 +86,21 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
         } else {
             EventsResponse eventsResponse = parseAndValidateFacebookResponse(response);
             if (eventsResponse.getEvents().size() != 0) {
-                List<RealmCalendarEvent> updatedEvents = mDatabaseUtils.insertAndUpdateCalendarEvents(
+                 List<RealmCalendarEvent> updatedEvents = mDatabaseUtils.updateCalendarEvents(
                         mDatabaseUtils.convertToRealmCalendarEvents(eventsResponse.getEvents()));
 
                 if (updatedEvents != null) {
-                    mCalendarUtils.updateCalendarEvents(mCalendarUtils.getCalendarId(), updatedEvents);
-                    Log.i(getContext().getString(R.string.app_name), updatedEvents.size() + " events updated in database");
+                    mUpdatedEvents.addAll(updatedEvents);
                 }
 
-                mNetworkUtils.requestNextPage(response, this);
+                if (!mNetworkUtils.requestNextPage(response, this)) {
+                    /*
+                     * This was the last page of events, so we can continue with updating the calendar
+                     */
+                    mCalendarUtils.insertOrUpdateCalendarEvents(mCalendarUtils.getCalendarId(), mUpdatedEvents);
+                    mCalendarUtils.deleteMissingCalendarEvents(mCalendarUtils.getCalendarId(), mUpdatedEvents);
+                    Log.i(getContext().getString(R.string.app_name), "Updating events finished");
+                }
             } else {
                 Log.e("Syncadapter", "Facebook response contained no events");
             }
