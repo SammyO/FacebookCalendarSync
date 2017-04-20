@@ -34,11 +34,14 @@ public class AccountUtils {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        Account account = new Account(Constants.ACCOUNT_NAME, Constants.ACCOUNT_TYPE);
         AccountManager accountManager = (AccountManager) mContext.getSystemService(ACCOUNT_SERVICE);
-        if (!accountManager.addAccountExplicitly(account, null, null)) {
-            Log.e("AccountUtils", "Error creating account");
-            Crashlytics.logException(new UnexpectedException("AccountUtils", "Error creating account"));
+        Account[] accounts = accountManager.getAccountsByType(Constants.ACCOUNT_TYPE);
+        if (accounts.length == 0) {
+            Account account = new Account(Constants.ACCOUNT_NAME, Constants.ACCOUNT_TYPE);
+            if (!accountManager.addAccountExplicitly(account, null, null)) {
+                Log.e("AccountUtils", "Error creating account");
+                Crashlytics.logException(new UnexpectedException("AccountUtils", "Error creating account"));
+            }
         }
     }
 }
