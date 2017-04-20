@@ -1,13 +1,11 @@
 package com.oddhov.facebookcalendarsync.utils;
 
-import android.util.Log;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-class EventUtils {
+public class EventUtils {
 
     static Long convertDateToEpochFormat(String dateAndTime) {
         //2023-10-28T20:00:00+0200

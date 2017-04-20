@@ -24,7 +24,6 @@ public class NotificationUtils {
     }
 
     public void sendNotification(int title, int shortMessage, int longMessage) {
-        Log.e("NotificationUtils", "sendNotification");
 
         Intent intent = new Intent(mContext, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, REQUEST_CODE, intent, 0);

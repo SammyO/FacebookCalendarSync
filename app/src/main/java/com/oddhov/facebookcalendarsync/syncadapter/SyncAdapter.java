@@ -8,10 +8,12 @@ import android.content.SyncResult;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.oddhov.facebookcalendarsync.R;
+import com.oddhov.facebookcalendarsync.data.exceptions.FacebookException;
 import com.oddhov.facebookcalendarsync.data.models.EventsResponse;
 import com.oddhov.facebookcalendarsync.data.realm_models.RealmCalendarEvent;
 import com.oddhov.facebookcalendarsync.events.FacebookGetUserWithEventsResponse;
@@ -82,7 +84,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                     R.string.notification_facebook_problem_message_short,
                     R.string.notification_facebook_problem_message_long);
 
-            Log.e("SyncAdapter", "Facebook response error: " + response.getError().getErrorMessage());
+            Crashlytics.logException(new FacebookException("SyncAdapter", "Facebook response error: " +
+                    response.getError().getErrorMessage()));
         } else {
             EventsResponse eventsResponse = parseAndValidateFacebookResponse(response);
             if (eventsResponse.getEvents().size() != 0) {
@@ -102,7 +105,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                     Log.i(getContext().getString(R.string.app_name), "Updating events finished");
                 }
             } else {
-                Log.e("Syncadapter", "Facebook response contained no events");
+                Crashlytics.logException(new FacebookException("SyncAdapter", "Facebook response contained" +
+                        " no events"));
             }
         }
     }

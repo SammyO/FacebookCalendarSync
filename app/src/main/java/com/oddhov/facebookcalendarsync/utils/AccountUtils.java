@@ -8,8 +8,10 @@ import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.facebook.AccessToken;
 import com.oddhov.facebookcalendarsync.data.Constants;
+import com.oddhov.facebookcalendarsync.data.exceptions.UnexpectedException;
 
 import static android.content.Context.ACCOUNT_SERVICE;
 
@@ -35,8 +37,8 @@ public class AccountUtils {
         Account account = new Account(Constants.ACCOUNT_NAME, Constants.ACCOUNT_TYPE);
         AccountManager accountManager = (AccountManager) mContext.getSystemService(ACCOUNT_SERVICE);
         if (!accountManager.addAccountExplicitly(account, null, null)) {
-            // TODO
             Log.e("AccountUtils", "Error creating account");
+            Crashlytics.logException(new UnexpectedException("AccountUtils", "Error creating account"));
         }
     }
 }
