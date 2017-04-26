@@ -2,6 +2,7 @@ package com.oddhov.facebookcalendarsync;
 
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,18 +12,17 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.facebook.AccessToken;
+import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.data.Constants;
-import com.oddhov.facebookcalendarsync.utils.AccountUtils;
-import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
+import com.oddhov.facebookcalendarsync.data.exceptions.UnexpectedException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +35,7 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
     public static final String TAG = "PermissionsFragment";
 
     private Button btnGrantPermissions;
+    private NavigationListener mNavigationListenerCallback;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,20 +47,31 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            mNavigationListenerCallback = (NavigationListener) context;
+        } catch (ClassCastException e) {
+            Log.e(TAG, context.toString()
+                    + " must implement LoginNavigationListener");
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!needsPermissions()) {
+            mNavigationListenerCallback.navigate();
+        }
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        Log.e("PermissionsFragment", "onRequestPermissionsResult");
         if (grantResults.length == 0) {
             return;
         }
-        if (requestCode == Constants.REQUEST_ACCOUNTS_PERMISSION) {
-            for (int grantResult : grantResults) {
-                if (grantResult == PackageManager.PERMISSION_DENIED) {
-                    if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.GET_ACCOUNTS)) {
-                        showRequestPermissionRationale(R.string.request_accounts_permission_description);
-                        return;
-                    }
-                }
-            }
-        } else if (requestCode == Constants.REQUEST_READ_WRITE_CALENDAR_PERMISSION) {
+        if (requestCode == Constants.REQUEST_READ_WRITE_CALENDAR_GET_ACCOUNT_PERMISSIONS) {
             Map<String, Integer> permissionResults = new HashMap<>();
             permissionResults.put(Manifest.permission.WRITE_CALENDAR, PackageManager.PERMISSION_GRANTED);
             permissionResults.put(Manifest.permission.GET_ACCOUNTS, PackageManager.PERMISSION_GRANTED);
@@ -68,15 +80,41 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
             }
             if (permissionResults.get(Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED
                     && permissionResults.get(Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED) {
-                navigate();
+                mNavigationListenerCallback.navigate();
                 return;
             }
 
-            if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_CALENDAR)
-                    || !ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.GET_ACCOUNTS)) {
+            if (shouldShowRequestPermissionDialog()) {
                 showRequestPermissionRationale(R.string.request_account_and_calendar_permission_description);
             }
         }
+//        if (requestCode == Constants.REQUEST_ACCOUNTS_PERMISSION) {
+//            for (int grantResult : grantResults) {
+//                if (grantResult == PackageManager.PERMISSION_DENIED) {
+//                    if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.GET_ACCOUNTS)) {
+//                        showRequestPermissionRationale(R.string.request_accounts_permission_description);
+//                        return;
+//                    }
+//                }
+//            }
+//        } else if (requestCode == Constants.REQUEST_READ_WRITE_CALENDAR_GET_ACCOUNT_PERMISSIONS) {
+//            Map<String, Integer> permissionResults = new HashMap<>();
+//            permissionResults.put(Manifest.permission.WRITE_CALENDAR, PackageManager.PERMISSION_GRANTED);
+//            permissionResults.put(Manifest.permission.GET_ACCOUNTS, PackageManager.PERMISSION_GRANTED);
+//            for (int i = 0; i < permissions.length; i++) {
+//                permissionResults.put(permissions[i], grantResults[i]);
+//            }
+//            if (permissionResults.get(Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED
+//                    && permissionResults.get(Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED) {
+//                navigate();
+//                return;
+//            }
+//
+//            if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_CALENDAR)
+//                    || !ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.GET_ACCOUNTS)) {
+//                showRequestPermissionRationale(R.string.request_account_and_calendar_permission_description);
+//            }
+//        }
     }
     //endregion
 
@@ -100,27 +138,9 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
     //endregion
 
     // region Helper methods UI
-    // TODO remove this and the next when EventBus is here
-    private void navigate() {
-        if (needsPermissions()) {
-            replaceFragment(R.id.fragment_container, new PermissionsFragment(), PermissionsFragment.TAG);
-        } else if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
-            replaceFragment(R.id.fragment_container, new LoginFragment(), LoginFragment.TAG);
-        } else {
-            replaceFragment(R.id.fragment_container, new SyncFragment(), SyncFragment.TAG);
-        }
-    }
-
-    private void replaceFragment(int containerId, Fragment fragment, String tag) {
-        if (getFragmentManager() != null) {
-            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-            fragmentTransaction.replace(containerId, fragment, tag);
-            fragmentTransaction.commit();
-        }
-    }
-
     private void showRequestPermissionRationale(int message) {
-        new AlertDialog.Builder(getActivity())
+        Log.e("PermissionsFragment", "showRequestPermissionRationale");
+        new AlertDialog.Builder(getContext())
                 .setTitle(R.string.request_permissions_title)
                 .setMessage(message)
                 .setPositiveButton(R.string.word_app_info, this)
@@ -130,7 +150,7 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
 
     private void startSettingsActivity() {
         Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                Uri.parse("package:" + getActivity().getPackageName()));
+                Uri.parse("package:" + getContext().getPackageName()));
         myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
         myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivityForResult(myAppSettings, Constants.REQUEST_APP_SETTINGS);
@@ -139,7 +159,6 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
 
     // region Helper methods validation
     private void checkPermissionsAndRequest() {
-
         int readCalendarPermission = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CALENDAR);
         int writeCalendarPermission = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_CALENDAR);
         int accountsPermission = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.GET_ACCOUNTS);
@@ -147,13 +166,9 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
         if (readCalendarPermission == PackageManager.PERMISSION_GRANTED &&
                 writeCalendarPermission == PackageManager.PERMISSION_GRANTED &&
                 accountsPermission == PackageManager.PERMISSION_GRANTED) {
-            navigate();
+            // TODO this should never happen
+            Crashlytics.logException(new UnexpectedException("PermissionsFragment", "No permissions needed"));
         } else {
-            if (shouldShowRequestPermissionDialog()) {
-                showRequestPermissionRationale(R.string.request_account_and_calendar_permission_description);
-                return;
-            }
-
             List<String> permissionsNeeded = new ArrayList<>();
             if (readCalendarPermission == PackageManager.PERMISSION_DENIED) {
                 permissionsNeeded.add(Manifest.permission.READ_CALENDAR);
@@ -164,8 +179,8 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
             if (accountsPermission == PackageManager.PERMISSION_DENIED) {
                 permissionsNeeded.add(Manifest.permission.GET_ACCOUNTS);
             }
-            ActivityCompat.requestPermissions(getActivity(), permissionsNeeded.toArray(new String[permissionsNeeded.size()]),
-                    Constants.REQUEST_READ_WRITE_CALENDAR_PERMISSION);
+            requestPermissions(permissionsNeeded.toArray(new String[permissionsNeeded.size()]),
+                    Constants.REQUEST_READ_WRITE_CALENDAR_GET_ACCOUNT_PERMISSIONS);
         }
     }
 

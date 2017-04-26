@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -17,7 +18,8 @@ import com.facebook.login.LoginManager;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 
-public class MainActivity extends AppCompatActivity implements DialogInterface.OnClickListener {
+public class MainActivity extends AppCompatActivity implements DialogInterface.OnClickListener,
+        NavigationListener {
     //region Fields
     DatabaseUtils mDatabaseUtils;
     //endregion
@@ -26,32 +28,14 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e("MainActivity", "onCreate");
+
         mDatabaseUtils = new DatabaseUtils(this);
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
         navigate();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
     }
 
     @Override
@@ -81,6 +65,19 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     }
     // endregion
 
+    // region NavigationListener
+    @Override
+    public void navigate() {
+        if (needsPermissions()) {
+            replaceFragment(R.id.fragment_container, new PermissionsFragment(), PermissionsFragment.TAG);
+        } else if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
+            replaceFragment(R.id.fragment_container, new LoginFragment(), LoginFragment.TAG);
+        } else {
+            replaceFragment(R.id.fragment_container, new SyncFragment(), SyncFragment.TAG);
+        }
+    }
+    // endregion
+
     // region DialogInterface.OnClickListener
     @Override
     public void onClick(DialogInterface dialogInterface, int i) {
@@ -92,16 +89,6 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     //endregion
 
     // region Helper methods UI
-    private void navigate() {
-        if (needsPermissions()) {
-            replaceFragment(R.id.fragment_container, new PermissionsFragment(), PermissionsFragment.TAG);
-        } else if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
-            replaceFragment(R.id.fragment_container, new LoginFragment(), LoginFragment.TAG);
-        } else {
-            replaceFragment(R.id.fragment_container, new SyncFragment(), SyncFragment.TAG);
-        }
-    }
-
     private void replaceFragment(int containerId, Fragment fragment, String tag) {
         if (getSupportFragmentManager() != null) {
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();

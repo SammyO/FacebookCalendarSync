@@ -15,7 +15,7 @@ public final class Constants {
 
     // Permissions
     public static final int REQUEST_ACCOUNTS_PERMISSION = 952;
-    public static final int REQUEST_READ_WRITE_CALENDAR_PERMISSION = 9583;
+    public static final int REQUEST_READ_WRITE_CALENDAR_GET_ACCOUNT_PERMISSIONS = 9583;
     public static final int REQUEST_APP_SETTINGS = 1563;
 
     // Request codes

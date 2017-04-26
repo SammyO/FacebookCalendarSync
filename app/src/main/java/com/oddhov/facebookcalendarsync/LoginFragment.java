@@ -1,26 +1,22 @@
 package com.oddhov.facebookcalendarsync;
 
-import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
-import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
 
 import java.util.Arrays;
 
@@ -30,6 +26,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
 
     private Button btnLoginFacebook;
     private CallbackManager mCallbackManager;
+    private NavigationListener mNavigationListenerCallback;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,8 +41,22 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            mNavigationListenerCallback = (NavigationListener) context;
+        } catch (ClassCastException e) {
+            Log.e(TAG, context.toString()
+                    + " must implement LoginNavigationListener");
+        }
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
+        if (!AccountUtils.hasEmptyOrExpiredAccessToken()) {
+            mNavigationListenerCallback.navigate();
+        }
     }
 
     @Override
@@ -67,7 +78,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
     // region Facebook Listener methods
     @Override
     public void onSuccess(LoginResult loginResult) {
-        navigate();
+        mNavigationListenerCallback.navigate();
     }
 
     @Override
@@ -90,39 +101,4 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
         LoginManager.getInstance().registerCallback(mCallbackManager, this);
     }
     // endregion
-
-    // region Helper methods UI
-    // TODO remove this and the next when EventBus is here
-    private void navigate() {
-        if (needsPermissions()) {
-            replaceFragment(R.id.fragment_container, new PermissionsFragment(), PermissionsFragment.TAG);
-        } else if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
-            replaceFragment(R.id.fragment_container, new LoginFragment(), LoginFragment.TAG);
-        } else {
-            replaceFragment(R.id.fragment_container, new SyncFragment(), SyncFragment.TAG);
-        }
-    }
-
-    private void replaceFragment(int containerId, Fragment fragment, String tag) {
-        if (getFragmentManager() != null) {
-            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-            fragmentTransaction.replace(containerId, fragment, tag);
-            fragmentTransaction.commit();
-        }
-    }
-
-    private boolean needsPermissions() {
-        int readCalendarPermission = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CALENDAR);
-        int writeCalendarPermission = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_CALENDAR);
-        int accountsPermission = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.GET_ACCOUNTS);
-
-        if (readCalendarPermission == PackageManager.PERMISSION_GRANTED &&
-                writeCalendarPermission == PackageManager.PERMISSION_GRANTED &&
-                accountsPermission == PackageManager.PERMISSION_GRANTED) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-    //endregion
 }
