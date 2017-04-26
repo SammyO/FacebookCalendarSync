@@ -10,27 +10,25 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.facebook.login.LoginManager;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
-import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
+import com.oddhov.facebookcalendarsync.utils.PermissionUtils;
 
 public class MainActivity extends AppCompatActivity implements DialogInterface.OnClickListener,
         NavigationListener {
     //region Fields
-    DatabaseUtils mDatabaseUtils;
+    private PermissionUtils mPermissionUtils;
     //endregion
 
     //region Lifecycle Methods
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e("MainActivity", "onCreate");
 
-        mDatabaseUtils = new DatabaseUtils(this);
+        mPermissionUtils = new PermissionUtils(this);
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -68,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     // region NavigationListener
     @Override
     public void navigate() {
-        if (needsPermissions()) {
+        if (mPermissionUtils.needsPermissions()) {
             replaceFragment(R.id.fragment_container, new PermissionsFragment(), PermissionsFragment.TAG);
         } else if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
             replaceFragment(R.id.fragment_container, new LoginFragment(), LoginFragment.TAG);
@@ -97,21 +95,5 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         }
     }
     //endregion
-
-    // region Helper methods validation
-    private boolean needsPermissions() {
-        int readCalendarPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR);
-        int writeCalendarPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR);
-        int accountsPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS);
-
-        if (readCalendarPermission == PackageManager.PERMISSION_GRANTED &&
-                writeCalendarPermission == PackageManager.PERMISSION_GRANTED &&
-                accountsPermission == PackageManager.PERMISSION_GRANTED) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-    // endregion
 }
 
