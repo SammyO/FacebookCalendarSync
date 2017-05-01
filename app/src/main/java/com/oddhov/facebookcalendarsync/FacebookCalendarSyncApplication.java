@@ -14,11 +14,15 @@ import io.realm.RealmConfiguration;
  * EventBus
  * Dagger
  * ButterKnife
+ * RxJava?
  * Show last synced time
  * Wifi only setting
  * Show/hide notifications setting
  * Calendar colour setting
  * Sync all events, or only RSVPed setting
+ * Support functionality + email address
+ * Sonar
+ * Gradle checkstyle tasks
  */
 public class FacebookCalendarSyncApplication extends Application {
     //region Fields
