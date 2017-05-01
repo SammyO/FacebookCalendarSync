@@ -15,14 +15,27 @@ import io.realm.RealmConfiguration;
  * Dagger
  * ButterKnife
  * RxJava?
+ * Navigation drawer with:
+ *     - settings:
+ *          # Facebook event settings (birthdays, show links in event)
+ *          # Local calendar settings (reminders, colours)
+ *          # Sync settings (wifi only, sync frequency, show/hide notifications)
+ *     - stop syncing
+ *     - report a bug
+ *
  * Show last synced time
+ * Sync birthday calendars
  * Wifi only setting
+ * Sync frequency
+ * Reminder feature + settings
  * Show/hide notifications setting
+ * Show Facebook links in events
  * Calendar colour setting
  * Sync all events, or only RSVPed setting
  * Support functionality + email address
  * Sonar
  * Gradle checkstyle tasks
+ * Donate functionality
  */
 public class FacebookCalendarSyncApplication extends Application {
     //region Fields
