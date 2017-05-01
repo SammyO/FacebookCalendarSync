@@ -9,6 +9,17 @@ import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
+/*
+ * TODO:
+ * EventBus
+ * Dagger
+ * ButterKnife
+ * Show last synced time
+ * Wifi only setting
+ * Show/hide notifications setting
+ * Calendar colour setting
+ * Sync all events, or only RSVPed setting
+ */
 public class FacebookCalendarSyncApplication extends Application {
     //region Fields
     private AccountUtils mAccountUtils;
