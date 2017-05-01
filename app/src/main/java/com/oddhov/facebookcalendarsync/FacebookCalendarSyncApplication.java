@@ -36,6 +36,8 @@ import io.realm.RealmConfiguration;
  * Sonar
  * Gradle checkstyle tasks
  * Donate functionality
+ * Events timezone
+ * Rate app
  */
 public class FacebookCalendarSyncApplication extends Application {
     //region Fields

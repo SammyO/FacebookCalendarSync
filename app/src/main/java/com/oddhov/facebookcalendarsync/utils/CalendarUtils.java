@@ -188,10 +188,8 @@ public class CalendarUtils {
                 CalendarContract.Events.CALENDAR_ID + " = ?)" +
                 ")";
         String[] selectionArgs = new String[]{eventId, calendarId};
-        String[] projection = new String[]{CalendarContract.Events._ID};
         ContentResolver contentResolver = mContext.getContentResolver();
-        int result = contentResolver.delete(uri, selection, selectionArgs);
-        return result;
+        return contentResolver.delete(uri, selection, selectionArgs);
     }
 
     private boolean doesEventExist(String eventId, String calendarId) {
@@ -272,8 +270,6 @@ public class CalendarUtils {
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 eventIds.add(cursor.getString(0));
-                String id = cursor.getString(0);
-                String title = cursor.getString(1);
             }
             cursor.close();
         }
