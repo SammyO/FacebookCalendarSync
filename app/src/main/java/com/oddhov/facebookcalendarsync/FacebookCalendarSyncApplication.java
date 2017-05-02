@@ -24,6 +24,7 @@ import io.realm.RealmConfiguration;
  *     - log out from Facebook
  *     - report a bug
  *
+ * Navigation drawer footer with app version, and name etc.
  * Show last synced time
  * Sync birthday calendars
  * Wifi only setting

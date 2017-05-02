@@ -5,4 +5,4 @@
     android:layout_height="wrap_content"
     android:src="@drawable/navigation_header_background"
     android:adjustViewBounds="true"
-    android:scaleType="fitXY"/>
+    android:scaleType="center"/>
