@@ -17,10 +17,11 @@ import io.realm.RealmConfiguration;
  * RxJava?
  * Navigation drawer with:
  *     - settings:
- *          # Facebook event settings (birthdays, show links in event)
+ *          # Facebook event settings (birthdays, show links in event, sync all events/sync upcoming events)
  *          # Local calendar settings (reminders, colours)
  *          # Sync settings (wifi only, sync frequency, show/hide notifications)
  *     - stop syncing
+ *     - log out from Facebook
  *     - report a bug
  *
  * Show last synced time
@@ -38,6 +39,8 @@ import io.realm.RealmConfiguration;
  * Donate functionality
  * Events timezone
  * Rate app
+ * Google Analytics
+ *
  */
 public class FacebookCalendarSyncApplication extends Application {
     //region Fields
