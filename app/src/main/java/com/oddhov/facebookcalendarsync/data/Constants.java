@@ -42,4 +42,12 @@ public final class Constants {
 
     // Notification ID
     public static final int NOTIFICATION_ID = 176;
+
+    // Navigation drawer items
+    public static final int STOP_START_SYNC = 1;
+    public static final int LOG_IN_OUT = 2;
+    public static final int REPORT_BUG = 3;
+    public static final int FACEBOOK_SETTINGS = 4;
+    public static final int LOCAL_CALENDAR_SETTINGS = 5;
+    public static final int SYNC_SETTINGS = 6;
 }

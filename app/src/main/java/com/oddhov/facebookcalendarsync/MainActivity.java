@@ -1,28 +1,41 @@
 package com.oddhov.facebookcalendarsync;
 
+import android.accounts.AccountManager;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
 import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
-import com.mikepenz.materialdrawer.model.ContainerDrawerItem;
-import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.holder.StringHolder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.PermissionUtils;
 
+import java.util.Arrays;
+
 public class MainActivity extends AppCompatActivity implements DialogInterface.OnClickListener,
-        NavigationListener {
+        NavigationListener, Drawer.OnDrawerItemClickListener, FacebookCallback<LoginResult> {
     //region Fields
     private PermissionUtils mPermissionUtils;
+    private Drawer mNavigationDrawer;
+    private CallbackManager mCallbackManager;
     //endregion
 
     //region Lifecycle Methods
@@ -42,29 +55,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        switch (id) {
-            case R.id.action_logout:
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.dialog_logout_title)
-                        .setMessage(R.string.dialog_logout_description)
-                        .setPositiveButton(android.R.string.ok, this)
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .show();
-                return true;
-            case R.id.action_settings:
-                SettingsActivity.start(this);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
     // endregion
 
@@ -86,29 +78,97 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     public void onClick(DialogInterface dialogInterface, int i) {
         if (i == DialogInterface.BUTTON_POSITIVE) {
             LoginManager.getInstance().logOut();
+            mNavigationDrawer.updateName(Constants.LOG_IN_OUT, new StringHolder(getString(R.string.navigation_drawer_log_in)));
             navigate();
         }
     }
-    //endregion
+    // endregion
+
+    // region Facebook Listener methods
+    @Override
+    public void onSuccess(LoginResult loginResult) {
+        mNavigationDrawer.updateName(Constants.LOG_IN_OUT, new StringHolder(getString(R.string.navigation_drawer_log_out)));
+    }
+
+    @Override
+    public void onCancel() {
+        Toast toast = Toast.makeText(this, R.string.login_again, Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
+    @Override
+    public void onError(FacebookException error) {
+        Toast toast = Toast.makeText(this, R.string.login_again, Toast.LENGTH_SHORT);
+        toast.show();
+    }
+    // endregion
+
+    // region Drawer.OnDrawerItemClickListener
+    @Override
+    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+        switch ((int) drawerItem.getIdentifier()) {
+            case Constants.STOP_START_SYNC:
+
+                return true;
+            case Constants.LOG_IN_OUT:
+                if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
+                    mCallbackManager = CallbackManager.Factory.create();
+                    LoginManager.getInstance().registerCallback(mCallbackManager, this);
+                    LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email", "public_profile", "user_events"));
+                } else {
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.dialog_logout_title)
+                            .setMessage(R.string.dialog_logout_description)
+                            .setPositiveButton(android.R.string.ok, this)
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .show();
+                }
+                mNavigationDrawer.closeDrawer();
+                return true;
+            case Constants.REPORT_BUG:
+
+                return true;
+            case Constants.FACEBOOK_SETTINGS:
+
+                return true;
+            case Constants.LOCAL_CALENDAR_SETTINGS:
+
+                return true;
+            case Constants.SYNC_SETTINGS:
+
+                return true;
+            default:
+
+                return false;
+        }
+    }
+    // endregion
 
     // region Helper methods UI
     private void setupNavigationDrawer() {
+        // TODO change state of button based on start/stop state
+        PrimaryDrawerItem startStopSync = new PrimaryDrawerItem().withIdentifier(Constants.STOP_START_SYNC).withName(
+                R.string.navigation_drawer_stop_sync).withIcon(R.drawable.ic_stop);
+        PrimaryDrawerItem logOut;
+        if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
+            logOut = new PrimaryDrawerItem().withIdentifier(Constants.LOG_IN_OUT).withName(
+                    R.string.navigation_drawer_log_in).withIcon(R.drawable.ic_logout);
+        } else {
+            logOut = new PrimaryDrawerItem().withIdentifier(Constants.LOG_IN_OUT).withName(
+                    R.string.navigation_drawer_log_out).withIcon(R.drawable.ic_logout);
+        }
+        PrimaryDrawerItem reportBug = new PrimaryDrawerItem().withIdentifier(Constants.REPORT_BUG).withName(
+                R.string.navigation_drawer_report_a_bug).withIcon(R.drawable.ic_bug_report);
         SectionDrawerItem settingsSection = new SectionDrawerItem()
                 .withName(R.string.navigation_drawer_header_settings);
-        PrimaryDrawerItem facebookSettings = new PrimaryDrawerItem().withIdentifier(1).withName(
+        PrimaryDrawerItem facebookSettings = new PrimaryDrawerItem().withIdentifier(Constants.FACEBOOK_SETTINGS).withName(
                 R.string.navigation_drawer_facebook_settings).withIcon(R.drawable.ic_facebook);
-        PrimaryDrawerItem localCalendarSettings = new PrimaryDrawerItem().withIdentifier(2).withName(
+        PrimaryDrawerItem localCalendarSettings = new PrimaryDrawerItem().withIdentifier(Constants.LOCAL_CALENDAR_SETTINGS).withName(
                 R.string.navigation_drawer_local_calendar_settings).withIcon(R.drawable.ic_calendar);
-        PrimaryDrawerItem syncSettings = new PrimaryDrawerItem().withIdentifier(3).withName(
+        PrimaryDrawerItem syncSettings = new PrimaryDrawerItem().withIdentifier(Constants.SYNC_SETTINGS).withName(
                 R.string.navigation_drawer_sync_settings).withIcon(R.drawable.ic_sync);
-        PrimaryDrawerItem startStopSync = new PrimaryDrawerItem().withIdentifier(4).withName(
-                R.string.navigation_drawer_stop_sync).withIcon(R.drawable.ic_stop);
-        PrimaryDrawerItem logOut = new PrimaryDrawerItem().withIdentifier(5).withName(
-                R.string.navigation_drawer_log_out).withIcon(R.drawable.ic_logout);
-        PrimaryDrawerItem reportBug = new PrimaryDrawerItem().withIdentifier(6).withName(
-                R.string.navigation_drawer_report_a_bug).withIcon(R.drawable.ic_bug_report);
 
-        new DrawerBuilder()
+        mNavigationDrawer = new DrawerBuilder()
                 .withActivity(this)
                 .addDrawerItems(
                         startStopSync,
@@ -122,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 .withHeaderDivider(false)
                 .withHeaderPadding(false)
                 .withSelectedItem(-1)
+                .withOnDrawerItemClickListener(this)
                 .build();
     }
 

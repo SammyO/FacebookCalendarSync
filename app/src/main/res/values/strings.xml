@@ -50,6 +50,7 @@
     <string name="navigation_drawer_stop_sync">Stop sync</string>
     <string name="navigation_drawer_start_sync">Start sync</string>
     <string name="navigation_drawer_log_out">Log out from Facebook</string>
+    <string name="navigation_drawer_log_in">Log in with Facebook</string>
     <string name="navigation_drawer_report_a_bug">Report a bug</string>
 
     <!--Words-->
