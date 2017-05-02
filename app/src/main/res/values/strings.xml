@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Facebook calendar sync</string>
+    <string name="app_name">Facebook Calendar Sync</string>
     <string name="facebook_app_id">450856338387391</string>
     <string name="fb_login_protocol_scheme">fb450856338387391</string>
 

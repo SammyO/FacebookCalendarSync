@@ -1,6 +1,5 @@
 package com.oddhov.facebookcalendarsync;
 
-import android.accounts.AccountManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,7 +8,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -36,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     private PermissionUtils mPermissionUtils;
     private Drawer mNavigationDrawer;
     private CallbackManager mCallbackManager;
+    private Toolbar mToolbar;
     //endregion
 
     //region Lifecycle Methods
@@ -46,8 +45,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         mPermissionUtils = new PermissionUtils(this);
 
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
 
         setupNavigationDrawer();
 
@@ -183,7 +182,14 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 .withHeaderPadding(false)
                 .withSelectedItem(-1)
                 .withOnDrawerItemClickListener(this)
+                .withToolbar(mToolbar)
+                .withActionBarDrawerToggle(true)
                 .build();
+
+        if (getSupportActionBar() !=  null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            mNavigationDrawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(true);
+        }
     }
 
     private void replaceFragment(int containerId, Fragment fragment, String tag) {
