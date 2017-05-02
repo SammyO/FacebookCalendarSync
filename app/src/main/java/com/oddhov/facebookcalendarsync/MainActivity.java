@@ -18,6 +18,7 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.holder.DimenHolder;
 import com.mikepenz.materialdrawer.holder.StringHolder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
@@ -147,25 +148,25 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     private void setupNavigationDrawer() {
         // TODO change state of button based on start/stop state
         PrimaryDrawerItem startStopSync = new PrimaryDrawerItem().withIdentifier(Constants.STOP_START_SYNC).withName(
-                R.string.navigation_drawer_stop_sync).withIcon(R.drawable.ic_stop);
+                R.string.navigation_drawer_stop_sync).withIcon(R.drawable.ic_stop).withSelectable(false);
         PrimaryDrawerItem logOut;
         if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
             logOut = new PrimaryDrawerItem().withIdentifier(Constants.LOG_IN_OUT).withName(
-                    R.string.navigation_drawer_log_in).withIcon(R.drawable.ic_logout);
+                    R.string.navigation_drawer_log_in).withIcon(R.drawable.ic_logout).withSelectable(false);
         } else {
             logOut = new PrimaryDrawerItem().withIdentifier(Constants.LOG_IN_OUT).withName(
-                    R.string.navigation_drawer_log_out).withIcon(R.drawable.ic_logout);
+                    R.string.navigation_drawer_log_out).withIcon(R.drawable.ic_logout).withSelectable(false);
         }
         PrimaryDrawerItem reportBug = new PrimaryDrawerItem().withIdentifier(Constants.REPORT_BUG).withName(
-                R.string.navigation_drawer_report_a_bug).withIcon(R.drawable.ic_bug_report);
+                R.string.navigation_drawer_report_a_bug).withIcon(R.drawable.ic_bug_report).withSelectable(false);
         SectionDrawerItem settingsSection = new SectionDrawerItem()
-                .withName(R.string.navigation_drawer_header_settings);
+                .withName(R.string.navigation_drawer_header_settings).withSelectable(false);
         PrimaryDrawerItem facebookSettings = new PrimaryDrawerItem().withIdentifier(Constants.FACEBOOK_SETTINGS).withName(
-                R.string.navigation_drawer_facebook_settings).withIcon(R.drawable.ic_facebook);
+                R.string.navigation_drawer_facebook_settings).withIcon(R.drawable.ic_facebook).withSelectable(false);
         PrimaryDrawerItem localCalendarSettings = new PrimaryDrawerItem().withIdentifier(Constants.LOCAL_CALENDAR_SETTINGS).withName(
-                R.string.navigation_drawer_local_calendar_settings).withIcon(R.drawable.ic_calendar);
+                R.string.navigation_drawer_local_calendar_settings).withIcon(R.drawable.ic_calendar).withSelectable(false);
         PrimaryDrawerItem syncSettings = new PrimaryDrawerItem().withIdentifier(Constants.SYNC_SETTINGS).withName(
-                R.string.navigation_drawer_sync_settings).withIcon(R.drawable.ic_sync);
+                R.string.navigation_drawer_sync_settings).withIcon(R.drawable.ic_sync).withSelectable(false);
 
         mNavigationDrawer = new DrawerBuilder()
                 .withActivity(this)
@@ -180,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 .withHeader(R.layout.navigation_drawer_header)
                 .withHeaderDivider(false)
                 .withHeaderPadding(false)
+                .withHeaderHeight(DimenHolder.fromDp(200))
                 .withSelectedItem(-1)
                 .withOnDrawerItemClickListener(this)
                 .withToolbar(mToolbar)
