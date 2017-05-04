@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.internal.CallbackManagerImpl;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
@@ -61,7 +62,9 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CallbackManagerImpl.RequestCodeOffset.Login.toRequestCode()) {
+            mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     // region OnClickListeners

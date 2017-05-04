@@ -8,12 +8,14 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.internal.CallbackManagerImpl;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.mikepenz.materialdrawer.Drawer;
@@ -56,7 +58,9 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CallbackManagerImpl.RequestCodeOffset.Login.toRequestCode()) {
+            mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        }
     }
     // endregion
 

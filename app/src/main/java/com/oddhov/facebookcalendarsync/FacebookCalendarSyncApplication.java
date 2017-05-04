@@ -25,6 +25,8 @@ import io.realm.RealmConfiguration;
  *     - report a bug
  *
  * Navigation drawer footer with app version, and name etc.
+ * MaterialDesign features like pull to refresh
+ * How it works screen
  * Show last synced time
  * Sync birthday calendars
  * Wifi only setting
