@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.GraphRequest;
@@ -14,8 +15,9 @@ import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.exceptions.FacebookException;
+import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.EventsResponse;
-import com.oddhov.facebookcalendarsync.data.realm_models.RealmCalendarEvent;
+import com.oddhov.facebookcalendarsync.data.models.realm_models.RealmCalendarEvent;
 import com.oddhov.facebookcalendarsync.events.FacebookGetUserWithEventsResponse;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.CalendarUtils;
@@ -23,6 +25,7 @@ import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.NetworkUtils;
 import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
 import com.oddhov.facebookcalendarsync.utils.SharedPreferencesUtils;
+import com.oddhov.facebookcalendarsync.utils.TimeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,15 +39,17 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
     private SharedPreferencesUtils mSharedPreferencesUtils;
     private NotificationUtils mNotificationUtils;
     private DatabaseUtils mDatabaseUtils;
+    private TimeUtils mTimeUtils;
     private List<RealmCalendarEvent> mUpdatedEvents;
 
     SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
         mContext = context;
+        mTimeUtils = new TimeUtils();
         mDatabaseUtils = new DatabaseUtils(mContext);
         mNotificationUtils = new NotificationUtils(mContext);
         mSharedPreferencesUtils = new SharedPreferencesUtils(mContext);
-        mCalendarUtils = new CalendarUtils(mContext, mNotificationUtils, mDatabaseUtils);
+        mCalendarUtils = new CalendarUtils(mContext, mNotificationUtils, mDatabaseUtils, mTimeUtils);
         mNetworkUtils = new NetworkUtils(mContext, mNotificationUtils, mDatabaseUtils);
     }
 
@@ -67,6 +72,16 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                 mNetworkUtils.fetchUpcomingEvents(this);
             } else {
                 mNetworkUtils.fetchAllEvents(this);
+            }
+
+
+            try {
+                String dateAndTime = mTimeUtils.getCurrentDateAndTime();
+                Long dateAndTimeLong = mTimeUtils.convertDateToEpochFormat(dateAndTime);
+                mDatabaseUtils.setLastSynced(dateAndTimeLong);
+//                mDatabaseUtils.setLastSynced(mTimeUtils.convertDateToEpochFormat(mTimeUtils.getCurrentDateAndTime()));
+            } catch (RealmException e) {
+                Crashlytics.logException(e);
             }
 
             // TODO set last sync time in shared preferences (or do it on Facebook response),
@@ -103,6 +118,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                     mCalendarUtils.insertOrUpdateCalendarEvents(mCalendarUtils.getCalendarId(), mUpdatedEvents);
                     mCalendarUtils.deleteMissingCalendarEvents(mCalendarUtils.getCalendarId(), mUpdatedEvents);
                     Log.i(getContext().getString(R.string.app_name), "Updating events finished");
+
+                    // TODO update view with lastSynced time
                 }
             } else {
                 Crashlytics.logException(new FacebookException("SyncAdapter", "Facebook response contained" +

@@ -3,7 +3,9 @@ package com.oddhov.facebookcalendarsync;
 import android.app.Application;
 
 import com.crashlytics.android.Crashlytics;
+import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
+import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
@@ -48,6 +50,7 @@ import io.realm.RealmConfiguration;
 public class FacebookCalendarSyncApplication extends Application {
     //region Fields
     private AccountUtils mAccountUtils;
+    private DatabaseUtils mDatabaseUtils;
     private RealmConfiguration mRealmConfiguration;
 
     @Override
@@ -61,6 +64,13 @@ public class FacebookCalendarSyncApplication extends Application {
                     .deleteRealmIfMigrationNeeded() // TODO
                     .build();
             Realm.setDefaultConfiguration(mRealmConfiguration);
+        }
+
+        mDatabaseUtils = new DatabaseUtils(this);
+        try {
+            mDatabaseUtils.setupUserData();
+        } catch (RealmException e) {
+            Crashlytics.logException(e);
         }
 
         mAccountUtils = new AccountUtils(this);

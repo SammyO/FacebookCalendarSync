@@ -1,6 +1,4 @@
-package com.oddhov.facebookcalendarsync.data.realm_models;
-
-import com.google.gson.annotations.SerializedName;
+package com.oddhov.facebookcalendarsync.data.models.realm_models;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;

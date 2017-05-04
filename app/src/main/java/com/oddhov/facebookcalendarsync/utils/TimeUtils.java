@@ -5,9 +5,20 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class EventUtils {
+public class TimeUtils {
 
-    static Long convertDateToEpochFormat(String dateAndTime) {
+    public String getCurrentDateAndTime() {
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"); // TODO
+        return df.format(c.getTime());
+    }
+
+    public String convertEpochFormatToDate(long timeStamp) {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        return df.format(new Date(timeStamp));
+    }
+
+    public Long convertDateToEpochFormat(String dateAndTime) {
         //2023-10-28T20:00:00+0200
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"); // TODO
         Date date;

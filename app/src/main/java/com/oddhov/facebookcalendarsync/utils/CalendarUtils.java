@@ -15,7 +15,7 @@ import android.util.Log;
 
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
-import com.oddhov.facebookcalendarsync.data.realm_models.RealmCalendarEvent;
+import com.oddhov.facebookcalendarsync.data.models.realm_models.RealmCalendarEvent;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -24,13 +24,15 @@ import java.util.List;
 
 public class CalendarUtils {
     private Context mContext;
+    private TimeUtils mTimeUtils;
     private NotificationUtils mNotificationUtils;
     private DatabaseUtils mDatabaseUtils;
 
-    public CalendarUtils(Context context, NotificationUtils notificationUtils, DatabaseUtils databaseUtils) {
+    public CalendarUtils(Context context, NotificationUtils notificationUtils, DatabaseUtils databaseUtils, TimeUtils timeUtils) {
         this.mContext = context;
         this.mNotificationUtils = notificationUtils;
         this.mDatabaseUtils = databaseUtils;
+        this.mTimeUtils = timeUtils;
     }
 
     public String ensureCalendarExists() {
@@ -100,7 +102,7 @@ public class CalendarUtils {
 
             if (event.getEndTime() == null) {
                 try {
-                    mDatabaseUtils.setEventEndTime(event, EventUtils.addOneHourToTimeStamp(event.getStartTime()));
+                    mDatabaseUtils.setEventEndTime(event, TimeUtils.addOneHourToTimeStamp(event.getStartTime()));
                 } catch (ParseException e) {
                     continue;
                 }
@@ -114,8 +116,8 @@ public class CalendarUtils {
                 contentValues.put(CalendarContract.Events._ID, event.getId());
                 contentValues.put(CalendarContract.Events.TITLE, event.getName());
                 contentValues.put(CalendarContract.Events.DESCRIPTION, event.getDescription());
-                contentValues.put(CalendarContract.Events.DTSTART, EventUtils.convertDateToEpochFormat(event.getStartTime()));
-                contentValues.put(CalendarContract.Events.DTEND, EventUtils.convertDateToEpochFormat(event.getEndTime()));
+                contentValues.put(CalendarContract.Events.DTSTART, mTimeUtils.convertDateToEpochFormat(event.getStartTime()));
+                contentValues.put(CalendarContract.Events.DTEND, mTimeUtils.convertDateToEpochFormat(event.getEndTime()));
                 contentValues.put(CalendarContract.Events.EVENT_TIMEZONE, "NL");
                 contentValues.put(CalendarContract.Events.CALENDAR_ID, calendarId);
                 contentValuesList.add(contentValues);
@@ -240,8 +242,8 @@ public class CalendarUtils {
         ContentValues contentValues = new ContentValues();
         contentValues.put(CalendarContract.Events.TITLE, event.getName());
         contentValues.put(CalendarContract.Events.DESCRIPTION, event.getDescription());
-        contentValues.put(CalendarContract.Events.DTSTART, EventUtils.convertDateToEpochFormat(event.getStartTime()));
-        contentValues.put(CalendarContract.Events.DTEND, EventUtils.convertDateToEpochFormat(event.getEndTime()));
+        contentValues.put(CalendarContract.Events.DTSTART, mTimeUtils.convertDateToEpochFormat(event.getStartTime()));
+        contentValues.put(CalendarContract.Events.DTEND, mTimeUtils.convertDateToEpochFormat(event.getEndTime()));
         contentValues.put(CalendarContract.Events.EVENT_TIMEZONE, "NL"); // TODO
 
         ContentResolver contentResolver = mContext.getContentResolver();
