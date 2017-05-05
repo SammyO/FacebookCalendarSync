@@ -71,6 +71,7 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="2e60f15a13b7a184d83b4da13cf49042ab6ea650" />
+        <receiver android:name=".SyncAdapterRanReceiver" />
     </application>
 
 </manifest>

@@ -43,6 +43,9 @@ public final class Constants {
     // Notification ID
     public static final int NOTIFICATION_ID = 176;
 
+    // Intent constants
+    public static final String SYNC_ADAPTER_RAN_EXTRA = "SYNC_ADAPTER_RAN_EXTRA";
+
     // Navigation drawer items
     public static final int STOP_START_SYNC = 1;
     public static final int LOG_IN_OUT = 2;

@@ -1,8 +1,8 @@
 package com.oddhov.facebookcalendarsync;
 
-import android.accounts.Account;
-import android.content.ContentResolver;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,9 +11,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
-import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.events.NavigateEvent;
-import com.oddhov.facebookcalendarsync.data.events.SyncAdapterRunEvent;
+import com.oddhov.facebookcalendarsync.data.events.SyncAdapterRanEvent;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
@@ -29,25 +28,36 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
 
     public static final String TAG = "SyncFragment";
 
-    private Button btnSyncNow;
     private PermissionUtils mPermissionUtils;
     private DatabaseUtils mDatabaseUtils;
     private TimeUtils mTimeUtils;
     private SyncAdapterUtils mSyncAdapterUtils;
+
+    private SyncAdapterRanReceiver mSyncAdapterRanReceiver;
+
+    private Button btnSyncNow;
     private TextView tvLastSynced;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mSyncAdapterRanReceiver = new SyncAdapterRanReceiver();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.sync_fragment, container, false);
 
-        btnSyncNow = (Button) view.findViewById(R.id.btnSynNow);
-        btnSyncNow.setOnClickListener(this);
-
         mPermissionUtils = new PermissionUtils(getActivity());
         mDatabaseUtils = new DatabaseUtils(getActivity());
         mTimeUtils = new TimeUtils();
         mSyncAdapterUtils = new SyncAdapterUtils();
+
+        getActivity().registerReceiver(mSyncAdapterRanReceiver, new IntentFilter("com.oddhov.facebookcalendarsync"));
+
+        btnSyncNow = (Button) view.findViewById(R.id.btnSynNow);
+        btnSyncNow.setOnClickListener(this);
 
         tvLastSynced = (TextView) view.findViewById(R.id.tvLastSyncedValue);
         try {
@@ -79,6 +89,12 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
         EventBus.getDefault().unregister(this);
         super.onStop();
     }
+
+    @Override
+    public void onDestroyView() {
+        getActivity().unregisterReceiver(mSyncAdapterRanReceiver);
+        super.onDestroyView();
+    }
     // endregion
 
     // region OnClickListeners
@@ -93,7 +109,7 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
     // region EventBus methods
     // TODO replace with BroadcastReceiver
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onSyncAdapterRunEvent(SyncAdapterRunEvent event) {
+    public void onSyncAdapterRunEvent(SyncAdapterRanEvent event) {
         try {
             tvLastSynced.setText(mTimeUtils.convertEpochFormatToDate(mDatabaseUtils.getLastSynced()));
         } catch (RealmException e) {

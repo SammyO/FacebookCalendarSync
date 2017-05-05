@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +15,9 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.oddhov.facebookcalendarsync.R;
-import com.oddhov.facebookcalendarsync.data.events.SyncAdapterRunEvent;
+import com.oddhov.facebookcalendarsync.SyncAdapterRanReceiver;
+import com.oddhov.facebookcalendarsync.data.Constants;
+import com.oddhov.facebookcalendarsync.data.events.SyncAdapterRanEvent;
 import com.oddhov.facebookcalendarsync.data.exceptions.FacebookException;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.EventsResponse;
@@ -26,7 +29,6 @@ import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.NetworkUtils;
 import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
 import com.oddhov.facebookcalendarsync.utils.SharedPreferencesUtils;
-import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 import com.oddhov.facebookcalendarsync.utils.TimeUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -38,12 +40,14 @@ import java.util.List;
 class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Callback {
 
     private Context mContext;
+
     private NetworkUtils mNetworkUtils;
     private CalendarUtils mCalendarUtils;
     private SharedPreferencesUtils mSharedPreferencesUtils;
     private NotificationUtils mNotificationUtils;
     private DatabaseUtils mDatabaseUtils;
     private TimeUtils mTimeUtils;
+
     private List<RealmCalendarEvent> mUpdatedEvents;
 
     SyncAdapter(Context context, boolean autoInitialize) {
@@ -84,7 +88,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                 Long dateAndTimeLong = mTimeUtils.convertDateToEpochFormat(dateAndTime);
                 mDatabaseUtils.setLastSynced(dateAndTimeLong);
 
-                EventBus.getDefault().post(new SyncAdapterRunEvent()); // TODO implement broadcast receiver
+                sendSyncAdapterRanIntent();
+                EventBus.getDefault().post(new SyncAdapterRanEvent()); // TODO implement broadcast receiver
             } catch (RealmException e) {
                 Crashlytics.logException(e);
             }
@@ -132,6 +137,12 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
     //region Validation Helper Methods
     private EventsResponse parseAndValidateFacebookResponse(GraphResponse response) {
         return FacebookGetUserWithEventsResponse.parseJSON(response.getJSONObject().toString());
+    }
+
+    private void sendSyncAdapterRanIntent() {
+        Intent sendIntent = new Intent("com.oddhov.facebookcalendarsync");
+        sendIntent.putExtra(Constants.SYNC_ADAPTER_RAN_EXTRA, true);
+        getContext().sendBroadcast(sendIntent);
     }
     //endregion
 }

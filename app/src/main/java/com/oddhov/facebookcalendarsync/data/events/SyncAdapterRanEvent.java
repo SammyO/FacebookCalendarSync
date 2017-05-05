@@ -1,4 +1,4 @@
 package com.oddhov.facebookcalendarsync.data.events;
 
-public class SyncAdapterRunEvent {
+public class SyncAdapterRanEvent {
 }
