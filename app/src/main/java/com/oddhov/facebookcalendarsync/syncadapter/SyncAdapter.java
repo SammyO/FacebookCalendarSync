@@ -14,6 +14,7 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.oddhov.facebookcalendarsync.R;
+import com.oddhov.facebookcalendarsync.data.events.SyncAdapterRunEvent;
 import com.oddhov.facebookcalendarsync.data.exceptions.FacebookException;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.EventsResponse;
@@ -26,6 +27,8 @@ import com.oddhov.facebookcalendarsync.utils.NetworkUtils;
 import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
 import com.oddhov.facebookcalendarsync.utils.SharedPreferencesUtils;
 import com.oddhov.facebookcalendarsync.utils.TimeUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,18 +77,15 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                 mNetworkUtils.fetchAllEvents(this);
             }
 
-
             try {
                 String dateAndTime = mTimeUtils.getCurrentDateAndTime();
                 Long dateAndTimeLong = mTimeUtils.convertDateToEpochFormat(dateAndTime);
                 mDatabaseUtils.setLastSynced(dateAndTimeLong);
-//                mDatabaseUtils.setLastSynced(mTimeUtils.convertDateToEpochFormat(mTimeUtils.getCurrentDateAndTime()));
+
+                EventBus.getDefault().post(new SyncAdapterRunEvent());
             } catch (RealmException e) {
                 Crashlytics.logException(e);
             }
-
-            // TODO set last sync time in shared preferences (or do it on Facebook response),
-            // or use http://stackoverflow.com/questions/6622316/how-to-know-when-sync-is-finished
         }
     }
 
@@ -93,6 +93,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
     @Override
     public void onCompleted(GraphResponse response) {
         if (response.getError() != null) {
+            Log.e("SyncAdapter", "onCompleted with error");
             LoginManager.getInstance().logOut();
             mNotificationUtils.sendNotification(
                     R.string.notification_syncing_problem_title,
@@ -103,6 +104,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                     response.getError().getErrorMessage()));
         } else {
             EventsResponse eventsResponse = parseAndValidateFacebookResponse(response);
+//            Log.e("SyncAdapter", eventsResponse.getEvents().toString());
             if (eventsResponse.getEvents().size() != 0) {
                  List<RealmCalendarEvent> updatedEvents = mDatabaseUtils.updateCalendarEvents(
                         mDatabaseUtils.convertToRealmCalendarEvents(eventsResponse.getEvents()));
@@ -118,8 +120,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                     mCalendarUtils.insertOrUpdateCalendarEvents(mCalendarUtils.getCalendarId(), mUpdatedEvents);
                     mCalendarUtils.deleteMissingCalendarEvents(mCalendarUtils.getCalendarId(), mUpdatedEvents);
                     Log.i(getContext().getString(R.string.app_name), "Updating events finished");
-
-                    // TODO update view with lastSynced time
                 }
             } else {
                 Crashlytics.logException(new FacebookException("SyncAdapter", "Facebook response contained" +

@@ -36,5 +36,6 @@ dependencies {
     compile('com.mikepenz:materialdrawer:5.9.0@aar') {
         transitive = true
     }
+    compile 'org.greenrobot:eventbus:3.0.0'
     testCompile 'junit:junit:4.12'
 }

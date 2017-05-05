@@ -8,7 +8,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -26,13 +25,18 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.oddhov.facebookcalendarsync.data.Constants;
+import com.oddhov.facebookcalendarsync.data.events.NavigateEvent;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.PermissionUtils;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity implements DialogInterface.OnClickListener,
-        NavigationListener, Drawer.OnDrawerItemClickListener, FacebookCallback<LoginResult> {
+        Drawer.OnDrawerItemClickListener, FacebookCallback<LoginResult> {
     //region Fields
     private PermissionUtils mPermissionUtils;
     private Drawer mNavigationDrawer;
@@ -53,26 +57,27 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
         setupNavigationDrawer();
 
-        navigate();
+        onNavigateEvent(new NavigateEvent());
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         if (requestCode == CallbackManagerImpl.RequestCodeOffset.Login.toRequestCode()) {
             mCallbackManager.onActivityResult(requestCode, resultCode, data);
-        }
-    }
-    // endregion
-
-    // region NavigationListener
-    @Override
-    public void navigate() {
-        if (mPermissionUtils.needsPermissions()) {
-            replaceFragment(R.id.fragment_container, new PermissionsFragment(), PermissionsFragment.TAG);
-        } else if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
-            replaceFragment(R.id.fragment_container, new LoginFragment(), LoginFragment.TAG);
         } else {
-            replaceFragment(R.id.fragment_container, new SyncFragment(), SyncFragment.TAG);
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
     // endregion
@@ -83,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         if (i == DialogInterface.BUTTON_POSITIVE) {
             LoginManager.getInstance().logOut();
             mNavigationDrawer.updateName(Constants.LOG_IN_OUT, new StringHolder(getString(R.string.navigation_drawer_log_in)));
-            navigate();
+            onNavigateEvent(new NavigateEvent());
         }
     }
     // endregion
@@ -144,6 +149,19 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             default:
 
                 return false;
+        }
+    }
+    // endregion
+
+    // region EventBus
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onNavigateEvent(NavigateEvent event) {
+        if (mPermissionUtils.needsPermissions()) {
+            replaceFragment(R.id.fragment_container, new PermissionsFragment(), PermissionsFragment.TAG);
+        } else if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
+            replaceFragment(R.id.fragment_container, new LoginFragment(), LoginFragment.TAG);
+        } else {
+            replaceFragment(R.id.fragment_container, new SyncFragment(), SyncFragment.TAG);
         }
     }
     // endregion

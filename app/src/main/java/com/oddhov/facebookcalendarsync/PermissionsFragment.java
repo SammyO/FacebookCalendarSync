@@ -22,8 +22,11 @@ import android.widget.Button;
 
 import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.data.Constants;
+import com.oddhov.facebookcalendarsync.data.events.NavigateEvent;
 import com.oddhov.facebookcalendarsync.data.exceptions.UnexpectedException;
 import com.oddhov.facebookcalendarsync.utils.PermissionUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +39,6 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
     public static final String TAG = "PermissionsFragment";
 
     private Button btnGrantPermissions;
-    private NavigationListener mNavigationListenerCallback;
     private PermissionUtils mPermissionUtils;
 
     @Override
@@ -52,21 +54,10 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            mNavigationListenerCallback = (NavigationListener) context;
-        } catch (ClassCastException e) {
-            Log.e(TAG, context.toString()
-                    + " must implement LoginNavigationListener");
-        }
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         if (!mPermissionUtils.needsPermissions()) {
-            mNavigationListenerCallback.navigate();
+            EventBus.getDefault().post(new NavigateEvent());
         }
     }
 
@@ -84,7 +75,7 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
             }
             if (permissionResults.get(Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED
                     && permissionResults.get(Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED) {
-                mNavigationListenerCallback.navigate();
+                EventBus.getDefault().post(new NavigateEvent());
                 return;
             }
 
@@ -92,33 +83,6 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
                 showRequestPermissionRationale(R.string.request_account_and_calendar_permission_description);
             }
         }
-//        if (requestCode == Constants.REQUEST_ACCOUNTS_PERMISSION) {
-//            for (int grantResult : grantResults) {
-//                if (grantResult == PackageManager.PERMISSION_DENIED) {
-//                    if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.GET_ACCOUNTS)) {
-//                        showRequestPermissionRationale(R.string.request_accounts_permission_description);
-//                        return;
-//                    }
-//                }
-//            }
-//        } else if (requestCode == Constants.REQUEST_READ_WRITE_CALENDAR_GET_ACCOUNT_PERMISSIONS) {
-//            Map<String, Integer> permissionResults = new HashMap<>();
-//            permissionResults.put(Manifest.permission.WRITE_CALENDAR, PackageManager.PERMISSION_GRANTED);
-//            permissionResults.put(Manifest.permission.GET_ACCOUNTS, PackageManager.PERMISSION_GRANTED);
-//            for (int i = 0; i < permissions.length; i++) {
-//                permissionResults.put(permissions[i], grantResults[i]);
-//            }
-//            if (permissionResults.get(Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED
-//                    && permissionResults.get(Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED) {
-//                navigate();
-//                return;
-//            }
-//
-//            if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_CALENDAR)
-//                    || !ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.GET_ACCOUNTS)) {
-//                showRequestPermissionRationale(R.string.request_account_and_calendar_permission_description);
-//            }
-//        }
     }
     //endregion
 
@@ -133,7 +97,7 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
                         Constants.REQUEST_READ_WRITE_CALENDAR_GET_ACCOUNT_PERMISSIONS);
                 } catch (UnexpectedException e) {
                     Crashlytics.logException(new UnexpectedException("PermissionsFragment", "No permissions needed"));
-                    mNavigationListenerCallback.navigate();
+                    EventBus.getDefault().post(new NavigateEvent());
                 }
                 break;
         }

@@ -17,7 +17,10 @@ import com.facebook.FacebookException;
 import com.facebook.internal.CallbackManagerImpl;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+import com.oddhov.facebookcalendarsync.data.events.NavigateEvent;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.Arrays;
 
@@ -27,7 +30,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
 
     private Button btnLoginFacebook;
     private CallbackManager mCallbackManager;
-    private NavigationListener mNavigationListenerCallback;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -42,21 +44,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            mNavigationListenerCallback = (NavigationListener) context;
-        } catch (ClassCastException e) {
-            Log.e(TAG, context.toString()
-                    + " must implement LoginNavigationListener");
-        }
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         if (!AccountUtils.hasEmptyOrExpiredAccessToken()) {
-            mNavigationListenerCallback.navigate();
+            EventBus.getDefault().post(new NavigateEvent());
         }
     }
 
@@ -81,7 +72,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
     // region Facebook Listener methods
     @Override
     public void onSuccess(LoginResult loginResult) {
-        mNavigationListenerCallback.navigate();
+        EventBus.getDefault().post(new NavigateEvent());
     }
 
     @Override
@@ -100,7 +91,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
     // region Helper methods UI
     private void setupFacebook() {
         mCallbackManager = CallbackManager.Factory.create();
-
         LoginManager.getInstance().registerCallback(mCallbackManager, this);
     }
     // endregion
