@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 import com.facebook.GraphRequest;
@@ -60,7 +59,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
     public void onPerformSync(Account account, Bundle extras, String authority,
                               ContentProviderClient provider, SyncResult syncResult) {
         // TODO check for network
-        Log.e("SyncAdapter", "onPerformSync");
+        Log.e("Facebook Calendar Sync", "Running SyncAdapter");
 
         if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
             mNotificationUtils.sendNotification(
@@ -93,7 +92,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
     @Override
     public void onCompleted(GraphResponse response) {
         if (response.getError() != null) {
-            Log.e("SyncAdapter", "onCompleted with error");
             LoginManager.getInstance().logOut();
             mNotificationUtils.sendNotification(
                     R.string.notification_syncing_problem_title,
@@ -104,9 +102,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                     response.getError().getErrorMessage()));
         } else {
             EventsResponse eventsResponse = parseAndValidateFacebookResponse(response);
-//            Log.e("SyncAdapter", eventsResponse.getEvents().toString());
             if (eventsResponse.getEvents().size() != 0) {
-                 List<RealmCalendarEvent> updatedEvents = mDatabaseUtils.updateCalendarEvents(
+                List<RealmCalendarEvent> updatedEvents = mDatabaseUtils.updateCalendarEvents(
                         mDatabaseUtils.convertToRealmCalendarEvents(eventsResponse.getEvents()));
 
                 if (updatedEvents != null) {
