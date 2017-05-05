@@ -18,6 +18,7 @@ import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.PermissionUtils;
+import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 import com.oddhov.facebookcalendarsync.utils.TimeUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -32,6 +33,7 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
     private PermissionUtils mPermissionUtils;
     private DatabaseUtils mDatabaseUtils;
     private TimeUtils mTimeUtils;
+    private SyncAdapterUtils mSyncAdapterUtils;
     private TextView tvLastSynced;
 
     @Override
@@ -45,6 +47,7 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
         mPermissionUtils = new PermissionUtils(getActivity());
         mDatabaseUtils = new DatabaseUtils(getActivity());
         mTimeUtils = new TimeUtils();
+        mSyncAdapterUtils = new SyncAdapterUtils();
 
         tvLastSynced = (TextView) view.findViewById(R.id.tvLastSyncedValue);
         try {
@@ -82,13 +85,14 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.btnSynNow) {
-            startSyncAdapter();
+            mSyncAdapterUtils.runSyncAdapter();
         }
     }
     // endregion
 
     // region EventBus methods
-    @Subscribe(threadMode = ThreadMode.ASYNC)
+    // TODO replace with BroadcastReceiver
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onSyncAdapterRunEvent(SyncAdapterRunEvent event) {
         try {
             tvLastSynced.setText(mTimeUtils.convertEpochFormatToDate(mDatabaseUtils.getLastSynced()));
@@ -96,19 +100,6 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
             Crashlytics.logException(e);
         }
 
-    }
-    // endregion
-
-    // region Helper methods
-    private void startSyncAdapter() {
-        Account account = new Account(Constants.ACCOUNT_NAME, Constants.ACCOUNT_TYPE);
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.setIsSyncable(account, "com.android.calendar", 1);
-        ContentResolver.addPeriodicSync(account, "com.android.calendar", Bundle.EMPTY, Constants.SYNC_INTERVAL);
-        ContentResolver.setSyncAutomatically(account, "com.android.calendar", true);
-        ContentResolver.requestSync(account, "com.android.calendar", bundle);
     }
     // endregion
 }

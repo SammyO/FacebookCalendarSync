@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
@@ -25,6 +26,7 @@ import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.NetworkUtils;
 import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
 import com.oddhov.facebookcalendarsync.utils.SharedPreferencesUtils;
+import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 import com.oddhov.facebookcalendarsync.utils.TimeUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -53,6 +55,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
         mSharedPreferencesUtils = new SharedPreferencesUtils(mContext);
         mCalendarUtils = new CalendarUtils(mContext, mNotificationUtils, mDatabaseUtils, mTimeUtils);
         mNetworkUtils = new NetworkUtils(mContext, mNotificationUtils, mDatabaseUtils);
+        FacebookSdk.sdkInitialize(getContext());
     }
 
     @Override
@@ -81,7 +84,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                 Long dateAndTimeLong = mTimeUtils.convertDateToEpochFormat(dateAndTime);
                 mDatabaseUtils.setLastSynced(dateAndTimeLong);
 
-                EventBus.getDefault().post(new SyncAdapterRunEvent());
+                EventBus.getDefault().post(new SyncAdapterRunEvent()); // TODO implement broadcast receiver
             } catch (RealmException e) {
                 Crashlytics.logException(e);
             }

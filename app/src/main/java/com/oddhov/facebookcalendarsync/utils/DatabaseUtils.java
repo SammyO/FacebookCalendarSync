@@ -68,6 +68,25 @@ public class DatabaseUtils {
         return lastSyncedTimeStamp;
     }
 
+    public void setIsSyncAdapterPaused(final boolean paused) throws RealmException {
+        mRealm = Realm.getDefaultInstance();
+        final UserData userData = getUserData();
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                userData.setIsSyncAdapterPaused(paused);
+            }
+        });
+        closeRealm();
+    }
+
+    public boolean getIsSyncAdapterPaused() throws RealmException {
+        mRealm = Realm.getDefaultInstance();
+        boolean isPaused = getUserData().isIsSyncAdapterPaused();
+        closeRealm();
+        return isPaused;
+    }
+
     @Nullable
     public List<RealmCalendarEvent> updateCalendarEvents(List<RealmCalendarEvent> realmCalendarEventsList) {
         if (realmCalendarEventsList.isEmpty()) {

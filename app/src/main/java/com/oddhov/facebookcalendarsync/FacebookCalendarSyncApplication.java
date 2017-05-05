@@ -6,6 +6,7 @@ import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
+import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
@@ -51,6 +52,7 @@ public class FacebookCalendarSyncApplication extends Application {
     //region Fields
     private AccountUtils mAccountUtils;
     private DatabaseUtils mDatabaseUtils;
+    private SyncAdapterUtils mSyncAdapterUtils;
     private RealmConfiguration mRealmConfiguration;
 
     @Override
@@ -75,5 +77,8 @@ public class FacebookCalendarSyncApplication extends Application {
 
         mAccountUtils = new AccountUtils(this);
         mAccountUtils.ensureAccountExists();
+
+        mSyncAdapterUtils = new SyncAdapterUtils();
+        mSyncAdapterUtils.ensureSyncAdapterIsSetup();
     }
 }

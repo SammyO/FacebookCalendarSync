@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -26,8 +27,11 @@ import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.events.NavigateEvent;
+import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
+import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.PermissionUtils;
+import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -39,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         Drawer.OnDrawerItemClickListener, FacebookCallback<LoginResult> {
     //region Fields
     private PermissionUtils mPermissionUtils;
+    private SyncAdapterUtils mSyncAdapterUtils;
+    private DatabaseUtils mDatabaseUtils;
     private Drawer mNavigationDrawer;
     private CallbackManager mCallbackManager;
     private Toolbar mToolbar;
@@ -50,6 +56,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         super.onCreate(savedInstanceState);
 
         mPermissionUtils = new PermissionUtils(this);
+        mSyncAdapterUtils = new SyncAdapterUtils();
+        mDatabaseUtils = new DatabaseUtils(this);
 
         setContentView(R.layout.activity_main);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -117,7 +125,19 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
         switch ((int) drawerItem.getIdentifier()) {
             case Constants.STOP_START_SYNC:
-
+                try {
+                    if (mDatabaseUtils.getIsSyncAdapterPaused()) {
+                        mSyncAdapterUtils.startSyncAdapter();
+                        mDatabaseUtils.setIsSyncAdapterPaused(false);
+                        mNavigationDrawer.updateName(Constants.STOP_START_SYNC, new StringHolder(getString(R.string.navigation_drawer_stop_sync)));
+                    } else {
+                        mSyncAdapterUtils.stopSyncAdapter();
+                        mDatabaseUtils.setIsSyncAdapterPaused(true);
+                        mNavigationDrawer.updateName(Constants.STOP_START_SYNC, new StringHolder(getString(R.string.navigation_drawer_start_sync)));
+                    }
+                } catch (RealmException e) {
+                    Crashlytics.logException(e);
+                }
                 return true;
             case Constants.LOG_IN_OUT:
                 if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
@@ -154,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     // endregion
 
     // region EventBus
-    @Subscribe(threadMode = ThreadMode.MAIN)
+    @Subscribe(threadMode = ThreadMode.ASYNC)
     public void onNavigateEvent(NavigateEvent event) {
         if (mPermissionUtils.needsPermissions()) {
             replaceFragment(R.id.fragment_container, new PermissionsFragment(), PermissionsFragment.TAG);
@@ -210,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 .withActionBarDrawerToggle(true)
                 .build();
 
-        if (getSupportActionBar() !=  null) {
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             mNavigationDrawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(true);
         }
