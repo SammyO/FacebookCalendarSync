@@ -12,10 +12,13 @@ import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.R;
+import com.oddhov.facebookcalendarsync.data.models.ActivityTransition;
 import com.oddhov.facebookcalendarsync.syncadapter.SyncAdapterRanReceiver;
 import com.oddhov.facebookcalendarsync.data.events.NavigateEvent;
 import com.oddhov.facebookcalendarsync.data.events.SyncAdapterRanEvent;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
+import com.oddhov.facebookcalendarsync.ui_components.settings_activity.SettingsActivity;
+import com.oddhov.facebookcalendarsync.ui_components.settings_activity.SettingsScreen;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.PermissionUtils;

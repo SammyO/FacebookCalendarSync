@@ -14,20 +14,19 @@ import android.view.View;
 
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
+import com.oddhov.facebookcalendarsync.data.models.ActivityTransition;
 
 public class SettingsActivity extends AppCompatActivity implements View.OnClickListener {
 
-    // region Fields
-    // endregion
-
-    public static void start(Activity activity, SettingsScreen settingsScreen) {
+    public static void start(Activity activity, SettingsScreen settingsScreen, int enterAnim, int exitAnim) {
         Intent intent = new Intent(activity, SettingsActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra(Constants.SETTINGS_SCREEN, settingsScreen.ordinal());
         activity.startActivity(intent);
+        activity.overridePendingTransition(enterAnim, exitAnim);
     }
 
-    //region Lifecycle Methods
+    // region Lifecycle Methods
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,11 +40,22 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
+                ActivityTransition transition = ActivityTransition.BACK;
+                overridePendingTransition(transition.getEnter(), transition.getExit());
                 return true;
         }
         return false;
     }
-    //endregion
+    // endregion
+
+    // region Activity methods
+    @Override
+    public void onBackPressed() {
+        finish();
+        ActivityTransition transition = ActivityTransition.BACK;
+        overridePendingTransition(transition.getEnter(), transition.getExit());
+    }
+    // endregion
 
     // region Interface View.OnClickListener
     @Override
@@ -53,7 +63,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
     }
     // endregion
-
 
     // region Helper methods UI
     private void setupViews(int screen) {

@@ -30,6 +30,7 @@ import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.events.NavigateEvent;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
+import com.oddhov.facebookcalendarsync.data.models.ActivityTransition;
 import com.oddhov.facebookcalendarsync.ui_components.settings_activity.SettingsActivity;
 import com.oddhov.facebookcalendarsync.ui_components.settings_activity.SettingsScreen;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
@@ -90,6 +91,17 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             mCallbackManager.onActivityResult(requestCode, resultCode, data);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+    // endregion
+
+    // region Activity methods
+    @Override
+    public void onBackPressed() {
+        if (mNavigationDrawer.isDrawerOpen()) {
+            mNavigationDrawer.closeDrawer();
+        } else {
+            super.onBackPressed();
         }
     }
     // endregion
@@ -163,19 +175,21 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
                 return true;
             case Constants.FACEBOOK_SETTINGS:
-                SettingsActivity.start(this, SettingsScreen.FACEBOOK_SETTINGS);
-                mNavigationDrawer.closeDrawer();
+                SettingsActivity.start(this, SettingsScreen.FACEBOOK_SETTINGS,
+                        ActivityTransition.NEXT.getEnter(),
+                        ActivityTransition.NEXT.getExit());
                 return true;
             case Constants.LOCAL_CALENDAR_SETTINGS:
-                SettingsActivity.start(this, SettingsScreen.LOCAL_CALENDAR_SETTINGS);
-                mNavigationDrawer.closeDrawer();
+                SettingsActivity.start(this, SettingsScreen.LOCAL_CALENDAR_SETTINGS,
+                        ActivityTransition.NEXT.getEnter(),
+                        ActivityTransition.NEXT.getExit());
                 return true;
             case Constants.SYNC_SETTINGS:
-                SettingsActivity.start(this, SettingsScreen.SYNC_SETTINGS);
-                mNavigationDrawer.closeDrawer();
+                SettingsActivity.start(this, SettingsScreen.SYNC_SETTINGS,
+                        ActivityTransition.NEXT.getEnter(),
+                        ActivityTransition.NEXT.getExit());
                 return true;
             default:
-
                 return false;
         }
     }
