@@ -6,9 +6,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
-import com.oddhov.facebookcalendarsync.MainActivity;
+import com.oddhov.facebookcalendarsync.ui_components.main_activity.MainActivity;
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
 

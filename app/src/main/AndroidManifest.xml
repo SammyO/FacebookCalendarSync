@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
 
     <application
-        android:name=".FacebookCalendarSyncApplication"
+        android:name=".ui_components.FacebookCalendarSyncApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -23,7 +23,7 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
 
-        <activity android:name=".MainActivity"
+        <activity android:name=".ui_components.main_activity.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,8 +40,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".SettingsActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+        <activity android:name=".ui_components.settings_activity.SettingsActivity"
+            android:theme="@style/AppTheme.ActionBar">
 
         </activity>
 
@@ -71,7 +71,7 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="2e60f15a13b7a184d83b4da13cf49042ab6ea650" />
-        <receiver android:name=".SyncAdapterRanReceiver" />
+        <receiver android:name=".syncadapter.SyncAdapterRanReceiver" />
     </application>
 
 </manifest>

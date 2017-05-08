@@ -45,6 +45,7 @@ public final class Constants {
 
     // Intent constants
     public static final String SYNC_ADAPTER_RAN_EXTRA = "SYNC_ADAPTER_RAN_EXTRA";
+    public static final String SETTINGS_SCREEN = "SETTINGS_SCREEN";
 
     // Navigation drawer items
     public static final int STOP_START_SYNC = 1;

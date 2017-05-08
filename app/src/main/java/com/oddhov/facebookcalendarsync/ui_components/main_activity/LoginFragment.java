@@ -1,10 +1,8 @@
-package com.oddhov.facebookcalendarsync;
+package com.oddhov.facebookcalendarsync.ui_components.main_activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +15,7 @@ import com.facebook.FacebookException;
 import com.facebook.internal.CallbackManagerImpl;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.events.NavigateEvent;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 
@@ -34,7 +33,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.login_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_login, container, false);
         btnLoginFacebook = (Button) view.findViewById(R.id.btnLoginFacebook);
         btnLoginFacebook.setOnClickListener(this);
 

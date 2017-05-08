@@ -1,4 +1,4 @@
-package com.oddhov.facebookcalendarsync;
+package com.oddhov.facebookcalendarsync.ui_components;
 
 import android.app.Application;
 

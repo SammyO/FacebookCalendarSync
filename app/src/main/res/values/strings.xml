@@ -27,7 +27,9 @@
     <string name="button_sync_now">Sync now</string>
 
     <!--Settings -->
-    <string name="settings_title">Settings</string>
+    <string name="facebook_settings_title">Facebook settings</string>
+    <string name="local_calendar_settings_title">Local calendar settings</string>
+    <string name="sync_settings_title">Sync settings</string>
     <string name="dialog_logout_title">Sure?</string>
     <string name="dialog_logout_description">Are you sure you want to log out from Facebook? If you\'re logged out,
         your Facebook events won\'t be synced with your local calendar anymore.</string>

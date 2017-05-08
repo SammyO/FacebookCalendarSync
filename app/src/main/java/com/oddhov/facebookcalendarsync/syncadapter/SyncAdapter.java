@@ -15,7 +15,6 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.oddhov.facebookcalendarsync.R;
-import com.oddhov.facebookcalendarsync.SyncAdapterRanReceiver;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.events.SyncAdapterRanEvent;
 import com.oddhov.facebookcalendarsync.data.exceptions.FacebookException;
@@ -28,7 +27,6 @@ import com.oddhov.facebookcalendarsync.utils.CalendarUtils;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.NetworkUtils;
 import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
-import com.oddhov.facebookcalendarsync.utils.SharedPreferencesUtils;
 import com.oddhov.facebookcalendarsync.utils.TimeUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -43,7 +41,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
 
     private NetworkUtils mNetworkUtils;
     private CalendarUtils mCalendarUtils;
-    private SharedPreferencesUtils mSharedPreferencesUtils;
     private NotificationUtils mNotificationUtils;
     private DatabaseUtils mDatabaseUtils;
     private TimeUtils mTimeUtils;
@@ -56,7 +53,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
         mTimeUtils = new TimeUtils();
         mDatabaseUtils = new DatabaseUtils(mContext);
         mNotificationUtils = new NotificationUtils(mContext);
-        mSharedPreferencesUtils = new SharedPreferencesUtils(mContext);
         mCalendarUtils = new CalendarUtils(mContext, mNotificationUtils, mDatabaseUtils, mTimeUtils);
         mNetworkUtils = new NetworkUtils(mContext, mNotificationUtils, mDatabaseUtils);
         FacebookSdk.sdkInitialize(getContext());
@@ -77,11 +73,13 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
             mCalendarUtils.ensureCalendarExists();
             mUpdatedEvents = new ArrayList<>();
 
-            if (mSharedPreferencesUtils.getSyncOnlyUpcoming()) {
-                mNetworkUtils.fetchUpcomingEvents(this);
-            } else {
-                mNetworkUtils.fetchAllEvents(this);
-            }
+            // TODO
+            mNetworkUtils.fetchUpcomingEvents(this);
+//            if (mSharedPreferencesUtils.getSyncOnlyUpcoming()) {
+//                mNetworkUtils.fetchUpcomingEvents(this);
+//            } else {
+//                mNetworkUtils.fetchAllEvents(this);
+//            }
 
             try {
                 String dateAndTime = mTimeUtils.getCurrentDateAndTime();

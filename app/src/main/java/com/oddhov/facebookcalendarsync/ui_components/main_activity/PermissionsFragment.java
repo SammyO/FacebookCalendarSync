@@ -1,8 +1,7 @@
-package com.oddhov.facebookcalendarsync;
+package com.oddhov.facebookcalendarsync.ui_components.main_activity;
 
 
 import android.Manifest;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,17 +9,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.crashlytics.android.Crashlytics;
+import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.events.NavigateEvent;
 import com.oddhov.facebookcalendarsync.data.exceptions.UnexpectedException;
@@ -46,7 +44,7 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
                              Bundle savedInstanceState) {
         mPermissionUtils = new PermissionUtils(getActivity());
 
-        View view = inflater.inflate(R.layout.permissions_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_permissions, container, false);
         btnGrantPermissions = (Button) view.findViewById(R.id.btnGrantPermissions);
         btnGrantPermissions.setOnClickListener(this);
 

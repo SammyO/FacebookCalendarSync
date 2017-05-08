@@ -1,7 +1,8 @@
-package com.oddhov.facebookcalendarsync;
+package com.oddhov.facebookcalendarsync.ui_components.main_activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.audiofx.BassBoost;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -25,9 +26,12 @@ import com.mikepenz.materialdrawer.holder.StringHolder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.events.NavigateEvent;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
+import com.oddhov.facebookcalendarsync.ui_components.settings_activity.SettingsActivity;
+import com.oddhov.facebookcalendarsync.ui_components.settings_activity.SettingsScreen;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.PermissionUtils;
@@ -138,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
                 }
+                mNavigationDrawer.closeDrawer();
                 return true;
             case Constants.LOG_IN_OUT:
                 if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
@@ -158,13 +163,16 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
                 return true;
             case Constants.FACEBOOK_SETTINGS:
-
+                SettingsActivity.start(this, SettingsScreen.FACEBOOK_SETTINGS);
+                mNavigationDrawer.closeDrawer();
                 return true;
             case Constants.LOCAL_CALENDAR_SETTINGS:
-
+                SettingsActivity.start(this, SettingsScreen.LOCAL_CALENDAR_SETTINGS);
+                mNavigationDrawer.closeDrawer();
                 return true;
             case Constants.SYNC_SETTINGS:
-
+                SettingsActivity.start(this, SettingsScreen.SYNC_SETTINGS);
+                mNavigationDrawer.closeDrawer();
                 return true;
             default:
 

@@ -1,4 +1,4 @@
-package com.oddhov.facebookcalendarsync;
+package com.oddhov.facebookcalendarsync.ui_components.main_activity;
 
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
+import com.oddhov.facebookcalendarsync.R;
+import com.oddhov.facebookcalendarsync.syncadapter.SyncAdapterRanReceiver;
 import com.oddhov.facebookcalendarsync.data.events.NavigateEvent;
 import com.oddhov.facebookcalendarsync.data.events.SyncAdapterRanEvent;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
@@ -47,7 +49,7 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.sync_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_sync, container, false);
 
         mPermissionUtils = new PermissionUtils(getActivity());
         mDatabaseUtils = new DatabaseUtils(getActivity());
