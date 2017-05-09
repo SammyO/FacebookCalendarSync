@@ -4,6 +4,8 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/deepPurple</item>
         <item name="colorPrimaryDark">@color/deepPurpleDark</item>
+        <item name="colorAccent">@color/amber</item>
+
         <item name="android:textColorPrimary">@android:color/black</item>
 
     </style>
@@ -21,4 +23,5 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
 </resources>
