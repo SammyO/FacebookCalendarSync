@@ -2,6 +2,7 @@ package com.oddhov.facebookcalendarsync.utils;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.Event;
@@ -49,6 +50,13 @@ public class DatabaseUtils {
         closeRealm();
     }
 
+    public Long getLastSynced() throws RealmException {
+        mRealm = Realm.getDefaultInstance();
+        Long lastSyncedTimeStamp = getUserData().getLastSyncedTimeStamp();
+        closeRealm();
+        return lastSyncedTimeStamp;
+    }
+
     public void setLastSynced(final long timeStamp) throws RealmException {
         mRealm = Realm.getDefaultInstance();
         final UserData userData = getUserData();
@@ -61,14 +69,7 @@ public class DatabaseUtils {
         closeRealm();
     }
 
-    public Long getLastSynced() throws RealmException {
-        mRealm = Realm.getDefaultInstance();
-        Long lastSyncedTimeStamp = getUserData().getLastSyncedTimeStamp();
-        closeRealm();
-        return lastSyncedTimeStamp;
-    }
-
-    public void setIsSyncAdapterPaused(final boolean paused) throws RealmException {
+    public void setSyncAdapterPaused(final boolean paused) throws RealmException {
         mRealm = Realm.getDefaultInstance();
         final UserData userData = getUserData();
         mRealm.executeTransaction(new Realm.Transaction() {
@@ -85,6 +86,69 @@ public class DatabaseUtils {
         boolean isPaused = getUserData().isIsSyncAdapterPaused();
         closeRealm();
         return isPaused;
+    }
+
+    public void setSyncWifiOnly(final boolean wifiOnly) throws RealmException {
+        Log.e("DatabaseUtils", "setSyncWifiOnly: " + wifiOnly);
+        mRealm = Realm.getDefaultInstance();
+        final UserData userData = getUserData();
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                userData.setSyncWifiOnly(wifiOnly);
+            }
+        });
+        closeRealm();
+    }
+
+    public boolean getIsSyncWifiOnly() throws RealmException {
+        mRealm = Realm.getDefaultInstance();
+        boolean wifiOnly = getUserData().isSyncWifiOnly();
+        closeRealm();
+        Log.e("DatabaseUtils", "getIsSyncWifiOnly: " + wifiOnly);
+        return wifiOnly;
+    }
+
+    public boolean getShowNotifications() throws RealmException {
+        mRealm = Realm.getDefaultInstance();
+        boolean showNotifications = getUserData().isShowNotifications();
+        closeRealm();
+        Log.e("DatabaseUtils", "getShowNotifications: " + showNotifications);
+        return showNotifications;
+    }
+
+    public void setShowNotifications(final boolean showNotifications) throws RealmException {
+        Log.e("DatabaseUtils", "setShowNotifications: " + showNotifications);
+        mRealm = Realm.getDefaultInstance();
+        final UserData userData = getUserData();
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                userData.setShowNotifications(showNotifications);
+            }
+        });
+        closeRealm();
+    }
+
+    public int getSyncInterval() throws RealmException {
+        mRealm = Realm.getDefaultInstance();
+        int syncInterval = getUserData().getSyncInterval();
+        closeRealm();
+        Log.e("DatabaseUtils", "getSyncInterval: " + syncInterval);
+        return syncInterval;
+    }
+
+    public void setSyncInterval(final int syncInterval) throws RealmException {
+        Log.e("DatabaseUtils", "setSyncInterval: " + syncInterval);
+        mRealm = Realm.getDefaultInstance();
+        final UserData userData = getUserData();
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                userData.setSyncInterval(syncInterval);
+            }
+        });
+        closeRealm();
     }
 
     @Nullable

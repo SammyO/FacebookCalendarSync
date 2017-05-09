@@ -2,7 +2,6 @@ package com.oddhov.facebookcalendarsync.ui_components.main_activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.audiofx.BassBoost;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -144,11 +143,11 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
                 try {
                     if (mDatabaseUtils.getIsSyncAdapterPaused()) {
                         mSyncAdapterUtils.startSyncAdapter();
-                        mDatabaseUtils.setIsSyncAdapterPaused(false);
+                        mDatabaseUtils.setSyncAdapterPaused(false);
                         mNavigationDrawer.updateName(Constants.STOP_START_SYNC, new StringHolder(getString(R.string.navigation_drawer_stop_sync)));
                     } else {
                         mSyncAdapterUtils.stopSyncAdapter();
-                        mDatabaseUtils.setIsSyncAdapterPaused(true);
+                        mDatabaseUtils.setSyncAdapterPaused(true);
                         mNavigationDrawer.updateName(Constants.STOP_START_SYNC, new StringHolder(getString(R.string.navigation_drawer_start_sync)));
                     }
                 } catch (RealmException e) {
