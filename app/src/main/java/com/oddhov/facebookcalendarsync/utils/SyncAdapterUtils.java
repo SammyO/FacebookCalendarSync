@@ -14,32 +14,6 @@ import java.util.List;
 
 public class SyncAdapterUtils {
 
-    public void runSyncAdapter() {
-        Account account = new Account(Constants.ACCOUNT_NAME, Constants.ACCOUNT_TYPE);
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.requestSync(account, "com.android.calendar", bundle);
-    }
-
-    public void stopSyncAdapter() {
-        Account account = new Account(Constants.ACCOUNT_NAME, Constants.ACCOUNT_TYPE);
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.setIsSyncable(account, "com.android.calendar", 0);
-        Log.i("SyncAdapter", "SyncAdapter is syncable: " + ContentResolver.getIsSyncable(account, "com.android.calendar"));
-    }
-
-    public void startSyncAdapter() {
-        Account account = new Account(Constants.ACCOUNT_NAME, Constants.ACCOUNT_TYPE);
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.setIsSyncable(account, "com.android.calendar", 1);
-        Log.i("SyncAdapter", "SyncAdapter is syncable: " + ContentResolver.getIsSyncable(account, "com.android.calendar"));
-    }
-
     public void ensureSyncAdapterIsSetup() {
         Account account = new Account(Constants.ACCOUNT_NAME, Constants.ACCOUNT_TYPE);
         Bundle bundle = new Bundle();
@@ -54,13 +28,43 @@ public class SyncAdapterUtils {
         }
     }
 
+    public void setSyncAdapterRunnable(boolean runable) {
+        Account account = new Account(Constants.ACCOUNT_NAME, Constants.ACCOUNT_TYPE);
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        if (runable) {
+            ContentResolver.setIsSyncable(account, "com.android.calendar", 1);
+        } else {
+            ContentResolver.setIsSyncable(account, "com.android.calendar", 0);
+        }
+        Log.i("SyncAdapter", "SyncAdapter is syncable: " + ContentResolver.getIsSyncable(account, "com.android.calendar"));
+    }
+
+    public void runSyncAdapterNow() {
+        Account account = new Account(Constants.ACCOUNT_NAME, Constants.ACCOUNT_TYPE);
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        ContentResolver.requestSync(account, "com.android.calendar", bundle);
+    }
+
+    public void setSyncAdapterRunInterval(int interval) {
+        Account account = new Account(Constants.ACCOUNT_NAME, Constants.ACCOUNT_TYPE);
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        ContentResolver.addPeriodicSync(account, "com.android.calendar", Bundle.EMPTY, interval * Constants.SECONDS_IN_HOUR);
+
+    }
+
     private void setupSyncAdapter() {
         Account account = new Account(Constants.ACCOUNT_NAME, Constants.ACCOUNT_TYPE);
         Bundle bundle = new Bundle();
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         ContentResolver.setIsSyncable(account, "com.android.calendar", 1);
-        ContentResolver.addPeriodicSync(account, "com.android.calendar", Bundle.EMPTY, Constants.SYNC_INTERVAL);
+        ContentResolver.addPeriodicSync(account, "com.android.calendar", Bundle.EMPTY, Constants.SECONDS_IN_HOUR);
         ContentResolver.setSyncAutomatically(account, "com.android.calendar", true);
         ContentResolver.requestSync(account, "com.android.calendar", bundle);
     }

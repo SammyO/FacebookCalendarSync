@@ -142,11 +142,11 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
             case Constants.STOP_START_SYNC:
                 try {
                     if (mDatabaseUtils.getIsSyncAdapterPaused()) {
-                        mSyncAdapterUtils.startSyncAdapter();
+                        mSyncAdapterUtils.setSyncAdapterRunnable(true);
                         mDatabaseUtils.setSyncAdapterPaused(false);
                         mNavigationDrawer.updateName(Constants.STOP_START_SYNC, new StringHolder(getString(R.string.navigation_drawer_stop_sync)));
                     } else {
-                        mSyncAdapterUtils.stopSyncAdapter();
+                        mSyncAdapterUtils.setSyncAdapterRunnable(false);
                         mDatabaseUtils.setSyncAdapterPaused(true);
                         mNavigationDrawer.updateName(Constants.STOP_START_SYNC, new StringHolder(getString(R.string.navigation_drawer_start_sync)));
                     }

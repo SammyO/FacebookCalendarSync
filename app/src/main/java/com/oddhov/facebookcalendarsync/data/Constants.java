@@ -4,7 +4,7 @@ import android.provider.CalendarContract;
 
 public final class Constants {
     // Sync interval
-    public static final long SYNC_INTERVAL = 3600L;
+    public static final long SECONDS_IN_HOUR = 3600L;
 
     // Authorities
     public static final String CALENDAR_AUTHORITY = "com.android.calendar";

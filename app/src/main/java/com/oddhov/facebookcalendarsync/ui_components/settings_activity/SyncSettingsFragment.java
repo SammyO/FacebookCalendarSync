@@ -17,12 +17,14 @@ import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.exceptions.UnexpectedException;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
+import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 
 public class SyncSettingsFragment extends Fragment implements View.OnClickListener, DialogInterface.OnClickListener {
     // region Fields
     public static final String TAG = "SyncSettingsFragment";
 
     private DatabaseUtils mDatabaseUtils;
+    private SyncAdapterUtils mSyncAdapterUtils;
 
     private SwitchCompat swWifiOnly;
     private SwitchCompat swNotifications;
@@ -84,6 +86,7 @@ public class SyncSettingsFragment extends Fragment implements View.OnClickListen
             case 0:
                 try {
                     mDatabaseUtils.setSyncInterval(1);
+                    mSyncAdapterUtils.setSyncAdapterRunInterval(1);
                     tvSyncInterval.setText(R.string.sync_settings_sync_interval_1hr);
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
@@ -92,6 +95,7 @@ public class SyncSettingsFragment extends Fragment implements View.OnClickListen
             case 1:
                 try {
                     mDatabaseUtils.setSyncInterval(6);
+                    mSyncAdapterUtils.setSyncAdapterRunInterval(6);
                     tvSyncInterval.setText(R.string.sync_settings_sync_interval_6hrs);
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
@@ -100,6 +104,7 @@ public class SyncSettingsFragment extends Fragment implements View.OnClickListen
             case 2:
                 try {
                     mDatabaseUtils.setSyncInterval(12);
+                    mSyncAdapterUtils.setSyncAdapterRunInterval(12);
                     tvSyncInterval.setText(R.string.sync_settings_sync_interval_12hrs);
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
@@ -108,6 +113,7 @@ public class SyncSettingsFragment extends Fragment implements View.OnClickListen
             case 3:
                 try {
                     mDatabaseUtils.setSyncInterval(24);
+                    mSyncAdapterUtils.setSyncAdapterRunInterval(24);
                     tvSyncInterval.setText(R.string.sync_settings_sync_interval_24hrs);
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
