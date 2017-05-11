@@ -152,7 +152,7 @@
                     android:text="@string/facebook_settings_sync_range_all"
                     android:textColor="@color/greyDark"
                     android:textSize="@dimen/font_smaller"
-                    app:buttonTint="@color/amberDarker" />
+                    app:buttonTint="@color/amber" />
 
                 <android.support.v7.widget.AppCompatRadioButton
                     android:id="@+id/rbSyncRangeUpcoming"
@@ -162,7 +162,7 @@
                     android:text="@string/facebook_settings_sync_range_upcoming"
                     android:textColor="@color/greyDark"
                     android:textSize="@dimen/font_smaller"
-                    app:buttonTint="@color/amberDarker" />
+                    app:buttonTint="@color/amber" />
 
             </RadioGroup>
         </LinearLayout>

@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         switch ((int) drawerItem.getIdentifier()) {
             case Constants.STOP_START_SYNC:
                 try {
-                    if (mDatabaseUtils.getIsSyncAdapterPaused()) {
+                    if (mDatabaseUtils.getSyncAdapterPaused()) {
                         mSyncAdapterUtils.setSyncAdapterRunnable(true);
                         mDatabaseUtils.setSyncAdapterPaused(false);
                         mNavigationDrawer.updateName(Constants.STOP_START_SYNC, new StringHolder(getString(R.string.navigation_drawer_stop_sync)));

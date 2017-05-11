@@ -130,7 +130,7 @@ public class SyncSettingsFragment extends Fragment implements View.OnClickListen
     private void setupViews(View view) {
         try {
             swWifiOnly = (SwitchCompat) view.findViewById(R.id.swWifiOnly);
-            swWifiOnly.setChecked(mDatabaseUtils.getIsSyncWifiOnly());
+            swWifiOnly.setChecked(mDatabaseUtils.getSyncWifiOnly());
             swWifiOnly.setOnClickListener(this);
 
             swNotifications = (SwitchCompat) view.findViewById(R.id.swShowNotifications);

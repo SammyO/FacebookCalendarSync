@@ -82,7 +82,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
             NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
             if (activeNetwork != null) {
                 if ((activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) ||
-                        ((activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) && !mDatabaseUtils.getIsSyncWifiOnly())) {
+                        ((activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) && !mDatabaseUtils.getSyncWifiOnly())) {
                     /*
                      * User is connected to wifi, or on a mobile data connection,
                      * but the sync-wifi-only option hasn't been set, so we can sync

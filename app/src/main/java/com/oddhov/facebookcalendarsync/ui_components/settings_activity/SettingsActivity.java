@@ -74,7 +74,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-
         switch (SettingsScreen.values()[screen]) {
             case FACEBOOK_SETTINGS:
                 setTitle(R.string.facebook_settings_title);

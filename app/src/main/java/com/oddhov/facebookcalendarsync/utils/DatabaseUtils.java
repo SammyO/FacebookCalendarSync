@@ -69,6 +69,13 @@ public class DatabaseUtils {
         closeRealm();
     }
 
+    public boolean getSyncAdapterPaused() throws RealmException {
+        mRealm = Realm.getDefaultInstance();
+        boolean isPaused = getUserData().isIsSyncAdapterPaused();
+        closeRealm();
+        return isPaused;
+    }
+
     public void setSyncAdapterPaused(final boolean paused) throws RealmException {
         mRealm = Realm.getDefaultInstance();
         final UserData userData = getUserData();
@@ -81,11 +88,12 @@ public class DatabaseUtils {
         closeRealm();
     }
 
-    public boolean getIsSyncAdapterPaused() throws RealmException {
+    public boolean getSyncWifiOnly() throws RealmException {
         mRealm = Realm.getDefaultInstance();
-        boolean isPaused = getUserData().isIsSyncAdapterPaused();
+        boolean wifiOnly = getUserData().isSyncWifiOnly();
         closeRealm();
-        return isPaused;
+        Log.e("DatabaseUtils", "getSyncWifiOnly: " + wifiOnly);
+        return wifiOnly;
     }
 
     public void setSyncWifiOnly(final boolean wifiOnly) throws RealmException {
@@ -99,14 +107,6 @@ public class DatabaseUtils {
             }
         });
         closeRealm();
-    }
-
-    public boolean getIsSyncWifiOnly() throws RealmException {
-        mRealm = Realm.getDefaultInstance();
-        boolean wifiOnly = getUserData().isSyncWifiOnly();
-        closeRealm();
-        Log.e("DatabaseUtils", "getIsSyncWifiOnly: " + wifiOnly);
-        return wifiOnly;
     }
 
     public boolean getShowNotifications() throws RealmException {
@@ -146,6 +146,69 @@ public class DatabaseUtils {
             @Override
             public void execute(Realm realm) {
                 userData.setSyncInterval(syncInterval);
+            }
+        });
+        closeRealm();
+    }
+
+    public boolean getSyncBirthdays() throws RealmException {
+        mRealm = Realm.getDefaultInstance();
+        boolean syncBirthdays = getUserData().getSyncBirthdays();
+        closeRealm();
+        Log.e("DatabaseUtils", "getSyncBirthdays: " + syncBirthdays);
+        return syncBirthdays;
+    }
+
+    public void setSyncBirthdays(final boolean syncBirthdays) throws RealmException {
+        Log.e("DatabaseUtils", "setSyncBirthdays: " + syncBirthdays);
+        mRealm = Realm.getDefaultInstance();
+        final UserData userData = getUserData();
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                userData.setSyncBirthdays(syncBirthdays);
+            }
+        });
+        closeRealm();
+    }
+
+    public boolean getShowLinks() throws RealmException {
+        mRealm = Realm.getDefaultInstance();
+        boolean showLinks = getUserData().getShowLinks();
+        closeRealm();
+        Log.e("DatabaseUtils", "getShowLinks: " + showLinks);
+        return showLinks;
+    }
+
+    public void setShowLinks(final boolean showLinks) throws RealmException {
+        Log.e("DatabaseUtils", "setShowLinks: " + showLinks);
+        mRealm = Realm.getDefaultInstance();
+        final UserData userData = getUserData();
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                userData.setShowLinks(showLinks);
+            }
+        });
+        closeRealm();
+    }
+
+    public int getSyncRange() throws RealmException {
+        mRealm = Realm.getDefaultInstance();
+        int syncRange = getUserData().getSyncRange();
+        closeRealm();
+        Log.e("DatabaseUtils", "getSyncRange: " + syncRange);
+        return syncRange;
+    }
+
+    public void setSyncRange(final int syncRange) throws RealmException {
+        Log.e("DatabaseUtils", "setSyncRange: " + syncRange);
+        mRealm = Realm.getDefaultInstance();
+        final UserData userData = getUserData();
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                userData.setSyncRange(syncRange);
             }
         });
         closeRealm();
