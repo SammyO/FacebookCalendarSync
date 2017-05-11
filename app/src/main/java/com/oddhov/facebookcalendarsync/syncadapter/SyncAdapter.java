@@ -22,6 +22,7 @@ import com.oddhov.facebookcalendarsync.data.events.SyncAdapterRanEvent;
 import com.oddhov.facebookcalendarsync.data.exceptions.FacebookException;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.EventsResponse;
+import com.oddhov.facebookcalendarsync.data.models.SyncRange;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.RealmCalendarEvent;
 import com.oddhov.facebookcalendarsync.events.FacebookGetUserWithEventsResponse;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
@@ -96,13 +97,12 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                         mCalendarUtils.ensureCalendarExists();
                         mUpdatedEvents = new ArrayList<>();
 
-                        // TODO
-                        mNetworkUtils.fetchUpcomingEvents(this);
-//            if (mSharedPreferencesUtils.getSyncOnlyUpcoming()) {
-//                mNetworkUtils.fetchUpcomingEvents(this);
-//            } else {
-//                mNetworkUtils.fetchAllEvents(this);
-//            }
+                        if (SyncRange.values()[mDatabaseUtils.getSyncRange()] == SyncRange.SYNC_UPCOMING) {
+                            mNetworkUtils.fetchUpcomingEvents(this);
+                        } else {
+                            mNetworkUtils.fetchAllEvents(this);
+                        }
+
                         String dateAndTime = mTimeUtils.getCurrentDateAndTime();
                         Long dateAndTimeLong = mTimeUtils.convertDateToEpochFormat(dateAndTime);
                         mDatabaseUtils.setLastSynced(dateAndTimeLong);
