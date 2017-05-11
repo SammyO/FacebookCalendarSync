@@ -30,7 +30,6 @@ import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.NetworkUtils;
 import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
 import com.oddhov.facebookcalendarsync.utils.PermissionUtils;
-import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 import com.oddhov.facebookcalendarsync.utils.TimeUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -48,7 +47,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
     private NotificationUtils mNotificationUtils;
     private DatabaseUtils mDatabaseUtils;
     private TimeUtils mTimeUtils;
-    private SyncAdapterUtils mSyncAdapterUtils;
     private PermissionUtils mPermissionUtils;
 
     private List<RealmCalendarEvent> mUpdatedEvents;
@@ -58,7 +56,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
         mContext = context;
         mTimeUtils = new TimeUtils();
         mDatabaseUtils = new DatabaseUtils(mContext);
-        mSyncAdapterUtils = new SyncAdapterUtils();
         mNotificationUtils = new NotificationUtils(mContext);
         mCalendarUtils = new CalendarUtils(mContext, mNotificationUtils, mDatabaseUtils, mTimeUtils);
         mNetworkUtils = new NetworkUtils(mContext, mNotificationUtils, mDatabaseUtils);

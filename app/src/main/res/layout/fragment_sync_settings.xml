@@ -160,7 +160,7 @@
                 android:layout_gravity="right"
                 android:includeFontPadding="false"
                 android:text="@string/sync_settings_sync_interval_1hr"
-                android:textColor="@color/amberDark"
+                android:textColor="@color/amberDarker"
                 android:textSize="@dimen/font_small" />
         </LinearLayout>
 

@@ -6,6 +6,9 @@
     <color name="black">#000000</color>
     <color name="greyDark">#757575</color>
     <color name="greyLight">#BDBDBD</color>
+    <color name="amberLighter">#FFD967</color>
+    <color name="amberLight">#FFCE3D</color>
     <color name="amber">#FFC107</color>
-    <color name="amberDark">#FFC107</color>
+    <color name="amberDarker">#C99700</color>
+    <color name="amberDarkest">#9E7700</color>
 </resources>
