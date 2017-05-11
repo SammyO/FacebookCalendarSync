@@ -68,16 +68,18 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
             Map<String, Integer> permissionResults = new HashMap<>();
             permissionResults.put(Manifest.permission.WRITE_CALENDAR, PackageManager.PERMISSION_GRANTED);
             permissionResults.put(Manifest.permission.GET_ACCOUNTS, PackageManager.PERMISSION_GRANTED);
+            permissionResults.put(Manifest.permission.ACCESS_NETWORK_STATE, PackageManager.PERMISSION_GRANTED);
             for (int i = 0; i < permissions.length; i++) {
                 permissionResults.put(permissions[i], grantResults[i]);
             }
             if (permissionResults.get(Manifest.permission.WRITE_CALENDAR) == PackageManager.PERMISSION_GRANTED
-                    && permissionResults.get(Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED) {
+                    && permissionResults.get(Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED
+                    && permissionResults.get(Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) {
                 EventBus.getDefault().post(new NavigateEvent());
                 return;
             }
 
-            if (mPermissionUtils.shouldShowRequestPermissionDialog()) {
+            if (mPermissionUtils.shouldShowRequestPermissionDialog(getActivity())) {
                 showRequestPermissionRationale(R.string.request_account_and_calendar_permission_description);
             }
         }
@@ -92,7 +94,7 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
                 try {
                     String[] permissionsNeeded = checkPermissionsAndRequest();
                     requestPermissions(permissionsNeeded,
-                        Constants.REQUEST_READ_WRITE_CALENDAR_GET_ACCOUNT_PERMISSIONS);
+                            Constants.REQUEST_READ_WRITE_CALENDAR_GET_ACCOUNT_PERMISSIONS);
                 } catch (UnexpectedException e) {
                     Crashlytics.logException(new UnexpectedException("PermissionsFragment", "No permissions needed"));
                     EventBus.getDefault().post(new NavigateEvent());
@@ -134,24 +136,23 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
         int readCalendarPermission = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CALENDAR);
         int writeCalendarPermission = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_CALENDAR);
         int accountsPermission = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.GET_ACCOUNTS);
+        int networkStatePermission = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_NETWORK_STATE);
 
-        if (readCalendarPermission == PackageManager.PERMISSION_GRANTED &&
-                writeCalendarPermission == PackageManager.PERMISSION_GRANTED &&
-                accountsPermission == PackageManager.PERMISSION_GRANTED) {
-            throw new UnexpectedException("PermissionsFragment", "No permissions needed");
-        } else {
-            List<String> permissionsNeeded = new ArrayList<>();
-            if (readCalendarPermission == PackageManager.PERMISSION_DENIED) {
-                permissionsNeeded.add(Manifest.permission.READ_CALENDAR);
-            }
-            if (writeCalendarPermission == PackageManager.PERMISSION_DENIED) {
-                permissionsNeeded.add(Manifest.permission.WRITE_CALENDAR);
-            }
-            if (accountsPermission == PackageManager.PERMISSION_DENIED) {
-                permissionsNeeded.add(Manifest.permission.GET_ACCOUNTS);
-            }
-            return permissionsNeeded.toArray(new String[permissionsNeeded.size()]);
+        List<String> permissionsNeeded = new ArrayList<>();
+        if (readCalendarPermission == PackageManager.PERMISSION_DENIED) {
+            permissionsNeeded.add(Manifest.permission.READ_CALENDAR);
         }
+        if (writeCalendarPermission == PackageManager.PERMISSION_DENIED) {
+            permissionsNeeded.add(Manifest.permission.WRITE_CALENDAR);
+        }
+        if (accountsPermission == PackageManager.PERMISSION_DENIED) {
+            permissionsNeeded.add(Manifest.permission.GET_ACCOUNTS);
+        }
+        if (networkStatePermission == PackageManager.PERMISSION_DENIED) {
+            permissionsNeeded.add(Manifest.permission.ACCESS_NETWORK_STATE);
+        }
+        return permissionsNeeded.toArray(new String[permissionsNeeded.size()]);
+
     }
     // endregion
 }

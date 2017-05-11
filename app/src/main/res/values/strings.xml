@@ -15,16 +15,19 @@
     <string name="request_permissions_title">We need your permission</string>
     <string name="request_accounts_permission_description">In order to sync your Facebook events with your local
     calendar, we need permission to access your accounts and contacts. You can enable these permissions in your app
-    info.</string>
+    settings.</string>
     <string name="request_calendar_permission_description">In order to sync your Facebook events with your local
     calendar, we need permission to access your calendar. You can enable these permissions in your app
-    info.</string>
+    settings.</string>
     <string name="request_account_and_calendar_permission_description">In order to sync your Facebook events with your local
     calendar, we need permission to access your calendar and your accounts. You can enable these permissions in your app
-    info.</string>
+    settings.</string>
 
     <!--Sync Fragment-->
     <string name="button_sync_now">Sync now</string>
+    <string name="no_network_title">No network</string>
+    <string name="no_network_message">It seems that you don\'t have an active network connection. Please connect to the internet, so
+    your Facebook events can be synced.</string>
 
     <!-- Navigation drawer -->
     <string name="navigation_drawer_header_settings">Settings</string>
@@ -67,6 +70,7 @@
 
     <!-- Notifications -->
     <string name="notification_syncing_problem_title">Syncing problem</string>
+
     <string name="notification_facebook_problem_message_short">There was a problem syncing your calendar</string>
     <string name="notification_facebook_problem_message_long">We couldn\'t sync your Facebook events with
     your calendar. Please log in again.</string>
@@ -75,4 +79,9 @@
     because of missing permissions</string>
     <string name="notification_missing_permissions_message_long">We couldn\'t sync your Facebook events with
     your calendar, because some permissions aren\'t granted.</string>
+
+    <string name="notification_network_problem_message_short">No network</string>
+    <string name="notification_network_problem_message_long">You don\'t seem to have an active data connection.
+    Please connect to the internet, so your Facebook events can be synced</string>
+
 </resources>

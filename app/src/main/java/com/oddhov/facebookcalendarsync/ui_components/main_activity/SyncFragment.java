@@ -1,9 +1,13 @@
 package com.oddhov.facebookcalendarsync.ui_components.main_activity;
 
+import android.content.Context;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -103,7 +107,16 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.btnSynNow) {
-            mSyncAdapterUtils.runSyncAdapterNow();
+            if (hasNetworkConnection()) {
+                mSyncAdapterUtils.runSyncAdapterNow();
+            } else {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(R.string.no_network_title);
+                builder.setMessage(R.string.no_network_message);
+                builder.setPositiveButton(android.R.string.ok, null);
+                builder.setCancelable(true);
+                builder.show();
+            }
         }
     }
     // endregion
@@ -117,6 +130,17 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
         } catch (RealmException e) {
             Crashlytics.logException(e);
         }
+
+    }
+
+    private boolean hasNetworkConnection() {
+        if (mPermissionUtils.needsPermissions()) {
+            EventBus.getDefault().post(new NavigateEvent());
+        }
+
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null;
 
     }
     // endregion

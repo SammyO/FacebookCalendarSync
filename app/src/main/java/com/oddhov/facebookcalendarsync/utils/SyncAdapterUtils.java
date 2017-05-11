@@ -21,10 +21,13 @@ public class SyncAdapterUtils {
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         List<PeriodicSync> periodicSyncsList = ContentResolver.getPeriodicSyncs(account, "com.android.calendar");
         if (periodicSyncsList.size() == 0) {
+            Log.e("SyncAdapterUtils", "setting up new adapter");
             setupSyncAdapter();
         } else if (periodicSyncsList.size() > 1) {
             Crashlytics.logException(new UnexpectedException("SyncAdapterUtils",
                     "More than one SyncAdapter set up for this account"));
+        } else {
+            Log.e("SyncAdapterUtils", "adapter exists");
         }
     }
 

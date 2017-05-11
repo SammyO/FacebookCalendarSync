@@ -6,6 +6,8 @@ import android.content.ContentProviderClient;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -27,6 +29,8 @@ import com.oddhov.facebookcalendarsync.utils.CalendarUtils;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.NetworkUtils;
 import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
+import com.oddhov.facebookcalendarsync.utils.PermissionUtils;
+import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 import com.oddhov.facebookcalendarsync.utils.TimeUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -44,6 +48,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
     private NotificationUtils mNotificationUtils;
     private DatabaseUtils mDatabaseUtils;
     private TimeUtils mTimeUtils;
+    private SyncAdapterUtils mSyncAdapterUtils;
+    private PermissionUtils mPermissionUtils;
 
     private List<RealmCalendarEvent> mUpdatedEvents;
 
@@ -52,9 +58,12 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
         mContext = context;
         mTimeUtils = new TimeUtils();
         mDatabaseUtils = new DatabaseUtils(mContext);
+        mSyncAdapterUtils = new SyncAdapterUtils();
         mNotificationUtils = new NotificationUtils(mContext);
         mCalendarUtils = new CalendarUtils(mContext, mNotificationUtils, mDatabaseUtils, mTimeUtils);
         mNetworkUtils = new NetworkUtils(mContext, mNotificationUtils, mDatabaseUtils);
+        mPermissionUtils = new PermissionUtils(mContext);
+
         FacebookSdk.sdkInitialize(getContext());
     }
 
@@ -64,34 +73,58 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
         // TODO check for network
         Log.e("Facebook Calendar Sync", "Running SyncAdapter");
 
-        if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
+        if (mPermissionUtils.needsPermissions()) {
             mNotificationUtils.sendNotification(
                     R.string.notification_syncing_problem_title,
-                    R.string.notification_facebook_problem_message_short,
-                    R.string.notification_facebook_problem_message_long);
-        } else {
-            mCalendarUtils.ensureCalendarExists();
-            mUpdatedEvents = new ArrayList<>();
+                    R.string.notification_missing_permissions_message_short,
+                    R.string.notification_missing_permissions_message_long);
+        }
 
-            // TODO
-            mNetworkUtils.fetchUpcomingEvents(this);
+        try {
+            ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            if (activeNetwork != null) {
+                if ((activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) ||
+                        ((activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) && !mDatabaseUtils.getIsSyncWifiOnly())) {
+                    /*
+                     * User is connected to wifi, or on a mobile data connection,
+                     * but the sync-wifi-only option hasn't been set, so we can sync
+                     */
+                    if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
+                        mNotificationUtils.sendNotification(
+                                R.string.notification_syncing_problem_title,
+                                R.string.notification_facebook_problem_message_short,
+                                R.string.notification_facebook_problem_message_long);
+                    } else {
+                        mCalendarUtils.ensureCalendarExists();
+                        mUpdatedEvents = new ArrayList<>();
+
+                        // TODO
+                        mNetworkUtils.fetchUpcomingEvents(this);
 //            if (mSharedPreferencesUtils.getSyncOnlyUpcoming()) {
 //                mNetworkUtils.fetchUpcomingEvents(this);
 //            } else {
 //                mNetworkUtils.fetchAllEvents(this);
 //            }
+                        String dateAndTime = mTimeUtils.getCurrentDateAndTime();
+                        Long dateAndTimeLong = mTimeUtils.convertDateToEpochFormat(dateAndTime);
+                        mDatabaseUtils.setLastSynced(dateAndTimeLong);
 
-            try {
-                String dateAndTime = mTimeUtils.getCurrentDateAndTime();
-                Long dateAndTimeLong = mTimeUtils.convertDateToEpochFormat(dateAndTime);
-                mDatabaseUtils.setLastSynced(dateAndTimeLong);
+                        sendSyncAdapterRanIntent();
+                        EventBus.getDefault().post(new SyncAdapterRanEvent());
 
-                sendSyncAdapterRanIntent();
-                EventBus.getDefault().post(new SyncAdapterRanEvent()); // TODO implement broadcast receiver
-            } catch (RealmException e) {
-                Crashlytics.logException(e);
+                        // TODO remove this, just for testing
+                        mNotificationUtils.sendNotification(
+                                "Syncing done",
+                                "Just performed a sync",
+                                "Current sync interval: " + mDatabaseUtils.getSyncInterval());
+                    }
+                }
             }
+        } catch (RealmException e) {
+            Crashlytics.logException(e);
         }
+
     }
 
 

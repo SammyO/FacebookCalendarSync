@@ -36,6 +36,7 @@ public class SyncSettingsFragment extends Fragment implements View.OnClickListen
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mDatabaseUtils = new DatabaseUtils(getActivity());
+        mSyncAdapterUtils = new SyncAdapterUtils();
 
         View view = inflater.inflate(R.layout.fragment_sync_settings, container, false);
         setupViews(view);
