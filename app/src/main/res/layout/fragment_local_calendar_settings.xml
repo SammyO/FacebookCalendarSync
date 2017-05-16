@@ -1,10 +1,184 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Local calendar settings"/>
+        android:layout_marginBottom="@dimen/spacing_normal"
+        android:layout_marginLeft="@dimen/spacing_normal"
+        android:layout_marginRight="@dimen/spacing_normal"
+        android:layout_marginTop="@dimen/spacing_large"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_tiny"
+                android:gravity="left"
+                android:text="@string/local_calendar_settings_reminders"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_normal" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="@string/local_calendar_settings_reminders_description"
+                android:textColor="@color/greyLight"
+                android:textSize="@dimen/font_smaller" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/swReminders"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llSetupReminderTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spacing_normal"
+        android:layout_marginLeft="@dimen/spacing_normal"
+        android:layout_marginRight="@dimen/spacing_normal"
+        android:layout_marginTop="@dimen/spacing_large"
+        android:orientation="horizontal"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_tiny"
+                android:gravity="left"
+                android:text="@string/local_calendar_settings_reminder_time"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_normal" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="@string/local_calendar_settings_reminder_time_description"
+                android:textColor="@color/greyLight"
+                android:textSize="@dimen/font_smaller" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spacing_normal"
+        android:layout_marginLeft="@dimen/spacing_normal"
+        android:layout_marginRight="@dimen/spacing_normal"
+        android:layout_marginTop="@dimen/spacing_large"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_tiny"
+                android:gravity="left"
+                android:text="@string/local_calendar_settings_calendar_colour"
+                android:textColor="@color/black"
+                android:textSize="@dimen/font_normal" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="@string/local_calendar_settings_calendar_colour_description"
+                android:textColor="@color/greyLight"
+                android:textSize="@dimen/font_smaller" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioGroup
+                android:id="@+id/rgCalendarColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_normal"
+                android:orientation="vertical">
+
+                <android.support.v7.widget.AppCompatRadioButton
+                    android:id="@+id/rbCalendarColorRed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/local_calendar_settings_calendar_colour_red"
+                    android:textColor="@color/greyDark"
+                    android:textSize="@dimen/font_smaller"
+                    app:buttonTint="@android:color/holo_red_light" />
+
+                <android.support.v7.widget.AppCompatRadioButton
+                    android:id="@+id/rbCalendarColorGreen"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/local_calendar_settings_calendar_colour_green"
+                    android:textColor="@color/greyDark"
+                    android:textSize="@dimen/font_smaller"
+                    app:buttonTint="@android:color/holo_green_dark" />
+
+                <android.support.v7.widget.AppCompatRadioButton
+                    android:id="@+id/rbCalendarColorOrange"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/local_calendar_settings_calendar_colour_orange"
+                    android:textColor="@color/greyDark"
+                    android:textSize="@dimen/font_smaller"
+                    app:buttonTint="@android:color/holo_orange_light" />
+
+                <android.support.v7.widget.AppCompatRadioButton
+                    android:id="@+id/rbCalendarColorPurple"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/local_calendar_settings_calendar_colour_purple"
+                    android:textColor="@color/greyDark"
+                    android:textSize="@dimen/font_smaller"
+                    app:buttonTint="@android:color/holo_purple" />
+
+                <android.support.v7.widget.AppCompatRadioButton
+                    android:id="@+id/rbCalendarColorBlue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/local_calendar_settings_calendar_colour_blue"
+                    android:textColor="@color/greyDark"
+                    android:textSize="@dimen/font_smaller"
+                    app:buttonTint="@android:color/holo_blue_bright" />
+
+            </RadioGroup>
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>

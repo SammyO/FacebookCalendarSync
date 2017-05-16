@@ -71,6 +71,26 @@
     <string name="facebook_settings_sync_range_all">All events</string>
     <string name="facebook_settings_sync_range_upcoming">Upcoming events</string>
 
+    <!-- Local calendar settings -->
+    <string name="local_calendar_settings_reminders">Event reminders</string>
+    <string name="local_calendar_settings_reminders_description">Setup reminders for Facebook events.</string>
+    <string name="local_calendar_settings_reminder_time">Reminder time</string>
+    <string name="local_calendar_settings_reminder_time_description">Setup when you wish to be notified of an event starting.</string>
+    <string name="local_calendar_settings_calendar_colour">Calendar colour</string>
+    <string name="local_calendar_settings_calendar_colour_description">Choose the colour of your Facebook
+    events local calendar.</string>
+    <string name="local_calendar_settings_calendar_colour_red">Red</string>
+    <string name="local_calendar_settings_calendar_colour_green">Green</string>
+    <string name="local_calendar_settings_calendar_colour_orange">Orange</string>
+    <string name="local_calendar_settings_calendar_colour_purple">Purple</string>
+    <string name="local_calendar_settings_calendar_colour_blue">Blue</string>
+    <string name="local_calendar_settings_reminder_time_05h">0.5 hour</string>
+    <string name="local_calendar_settings_reminder_time_1h">1 hour</string>
+    <string name="local_calendar_settings_reminder_time_2hrs">2 hours</string>
+    <string name="local_calendar_settings_reminder_time_6hrs">6 hours</string>
+    <string name="local_calendar_settings_reminder_time_12hrs">12 hours</string>
+    <string name="local_calendar_settings_reminder_time_24hrs">24 hours</string>
+
     <!--Words-->
     <string name="word_yes">Yes</string>
     <string name="word_cancel">Cancel</string>
