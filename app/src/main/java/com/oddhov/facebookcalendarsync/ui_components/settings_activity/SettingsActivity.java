@@ -77,7 +77,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         switch (SettingsScreen.values()[screen]) {
             case FACEBOOK_SETTINGS:
                 setTitle(R.string.facebook_settings_title);
-                replaceFragment(R.id.fragment_container, new FacebookSettingsFragmentTest(), FacebookSettingsFragmentTest.TAG);
+                replaceFragment(R.id.fragment_container, new FacebookSettingsFragment(), FacebookSettingsFragment.TAG);
                 break;
             case LOCAL_CALENDAR_SETTINGS:
                 setTitle(R.string.local_calendar_settings_title);
