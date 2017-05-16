@@ -32,17 +32,20 @@ public class SyncFragment extends Fragment {
     //region static fields
     public static final String TAG = "SyncFragment";
     //endregion
-    //region VI
-    @BindView(R.id.tvLastSyncedValue)
-    TextView tvLastSynced;
+
     //region fields
     private PermissionUtils mPermissionUtils;
     private DatabaseUtils mDatabaseUtils;
     private TimeUtils mTimeUtils;
     private SyncAdapterUtils mSyncAdapterUtils;
     private SyncAdapterRanReceiver mSyncAdapterRanReceiver;
-    //endregion
+
     private Unbinder mUnbinder;
+    //endregion
+
+    //region VI
+    @BindView(R.id.tvLastSyncedValue)
+    TextView tvLastSynced;
     //endregion
 
     @Override
