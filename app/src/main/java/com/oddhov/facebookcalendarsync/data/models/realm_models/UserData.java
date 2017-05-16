@@ -1,5 +1,6 @@
 package com.oddhov.facebookcalendarsync.data.models.realm_models;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 
 public class UserData extends RealmObject {
@@ -12,6 +13,9 @@ public class UserData extends RealmObject {
     private boolean mSyncBirthdays;
     private boolean mShowLinks;
     private int mSyncRange;
+    private boolean mShowReminders;
+    private int mCalendarColor;
+    private RealmList<EventReminder> mEventReminders;
 
     public UserData() {
         setSyncInterval(1);
@@ -80,5 +84,29 @@ public class UserData extends RealmObject {
 
     public void setSyncRange(int syncRange) {
         this.mSyncRange = syncRange;
+    }
+
+    public boolean getShowReminders() {
+        return mShowReminders;
+    }
+
+    public void setShowReminders(boolean showReminders) {
+        this.mShowReminders = showReminders;
+    }
+
+    public int getCalendarColor() {
+        return mCalendarColor;
+    }
+
+    public void setCalendarColor(int calendarColor) {
+        this.mCalendarColor = calendarColor;
+    }
+
+    public RealmList<EventReminder> getEventReminders() {
+        return mEventReminders;
+    }
+
+    public void setEventReminders(RealmList<EventReminder> reminders) {
+        this.mEventReminders = reminders;
     }
 }

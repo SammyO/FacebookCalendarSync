@@ -3,6 +3,7 @@ package com.oddhov.facebookcalendarsync.ui_components.settings_activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SwitchCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 public class FacebookSettingsFragment extends Fragment implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
 
     // region Fields
+
     public static final String TAG = "FacebookSettingsFragment";
 
     private DatabaseUtils mDatabaseUtils;
@@ -29,6 +31,7 @@ public class FacebookSettingsFragment extends Fragment implements View.OnClickLi
     private RadioGroup rgSyncRange;
     private RadioButton rbSynAll;
     private RadioButton rbSynUpcoming;
+
     // endregion
 
     @Override
@@ -69,17 +72,19 @@ public class FacebookSettingsFragment extends Fragment implements View.OnClickLi
     // region Interface RadioGroup.OnCheckedChangeListener
     @Override
     public void onCheckedChanged(RadioGroup radioGroup, int which) {
+        Log.e("FacebookSettings", "onCheckedChanged");
+
         switch (which) {
             case R.id.rbSyncRangeAll:
                 try {
-                    mDatabaseUtils.setSyncRange(0);
+                    mDatabaseUtils.setSyncRange(SyncRange.SYNC_ALL.ordinal());
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
                 }
                 break;
             case R.id.rbSyncRangeUpcoming:
                 try {
-                    mDatabaseUtils.setSyncRange(1);
+                    mDatabaseUtils.setSyncRange(SyncRange.SYNC_UPCOMING.ordinal());
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
                 }

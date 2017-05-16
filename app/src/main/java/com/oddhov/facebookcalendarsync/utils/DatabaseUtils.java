@@ -4,8 +4,10 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.Event;
+import com.oddhov.facebookcalendarsync.data.models.realm_models.EventReminder;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.RealmCalendarEvent;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.UserData;
 
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 
 public class DatabaseUtils {
     private Context mContext;
@@ -44,6 +47,23 @@ public class DatabaseUtils {
                 @Override
                 public void execute(Realm realm) {
                     mRealm.createObject(UserData.class);
+                }
+            });
+            final RealmList<EventReminder> eventReminders = new RealmList<>();
+            eventReminders.add(new EventReminder(false, 30));
+            eventReminders.add(new EventReminder(false, 60));
+            eventReminders.add(new EventReminder(true, 120));
+            eventReminders.add(new EventReminder(false, 360));
+            eventReminders.add(new EventReminder(false, 720));
+            eventReminders.add(new EventReminder(false, 1440));
+            mRealm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    try {
+                        getUserData().setEventReminders(eventReminders);
+                    } catch (RealmException e) {
+                        Crashlytics.logException(e);
+                    }
                 }
             });
         }
@@ -209,6 +229,57 @@ public class DatabaseUtils {
             @Override
             public void execute(Realm realm) {
                 userData.setSyncRange(syncRange);
+            }
+        });
+        closeRealm();
+    }
+
+    public boolean getShowReminders() throws RealmException {
+        mRealm = Realm.getDefaultInstance();
+        boolean showReminders = getUserData().getShowReminders();
+        closeRealm();
+        Log.e("DatabaseUtils", "getShowReminders: " + showReminders);
+        return showReminders;
+    }
+
+    public void setShowReminders(final boolean showReminders) throws RealmException {
+        Log.e("DatabaseUtils", "setShowReminders: " + showReminders);
+        mRealm = Realm.getDefaultInstance();
+        final UserData userData = getUserData();
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                userData.setShowReminders(showReminders);
+            }
+        });
+        closeRealm();
+    }
+
+    public RealmList<EventReminder> getAllReminderTimes() throws RealmException {
+        mRealm = Realm.getDefaultInstance();
+        RealmList<EventReminder> reminders = getUserData().getEventReminders();
+        closeRealm();
+        Log.e("DatabaseUtils", "getAllReminderTimes: " + reminders.toString());
+        return reminders;
+    }
+
+
+    public int getCalendarColor() throws RealmException {
+        mRealm = Realm.getDefaultInstance();
+        int calendarColor = getUserData().getCalendarColor();
+        closeRealm();
+        Log.e("DatabaseUtils", "getCalendarColor: " + calendarColor);
+        return calendarColor;
+    }
+
+    public void setCalendarColor(final int calendarColor) throws RealmException {
+        Log.e("DatabaseUtils", "setCalendarColor: " + calendarColor);
+        mRealm = Realm.getDefaultInstance();
+        final UserData userData = getUserData();
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                userData.setCalendarColor(calendarColor);
             }
         });
         closeRealm();

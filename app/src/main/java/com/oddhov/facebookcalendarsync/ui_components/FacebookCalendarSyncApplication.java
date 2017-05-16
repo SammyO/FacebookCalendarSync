@@ -26,6 +26,8 @@ import io.realm.RealmConfiguration;
  *     - log out from Facebook
  *     - report a bug
  *
+ * Settings: scrollviews
+ * Settings changed: force sync now?
  * Navigation drawer footer with app version, and name etc.
  * MaterialDesign features like pull to refresh
  * How it works screen
