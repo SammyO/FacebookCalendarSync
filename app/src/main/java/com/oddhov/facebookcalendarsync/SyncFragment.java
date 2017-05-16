@@ -29,7 +29,6 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class SyncFragment extends Fragment {
-
     public static final String TAG = "SyncFragment";
     @BindView(R.id.tvLastSyncedValue)
     TextView tvLastSynced;
