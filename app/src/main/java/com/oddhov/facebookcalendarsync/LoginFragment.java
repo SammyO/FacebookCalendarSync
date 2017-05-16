@@ -1,14 +1,11 @@
 package com.oddhov.facebookcalendarsync;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.facebook.CallbackManager;
@@ -24,22 +21,23 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.Arrays;
 
-public class LoginFragment extends Fragment implements View.OnClickListener, FacebookCallback<LoginResult> {
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
+
+public class LoginFragment extends Fragment implements FacebookCallback<LoginResult> {
 
     public static final String TAG = "LoginFragment";
 
-    private Button btnLoginFacebook;
     private CallbackManager mCallbackManager;
+    private Unbinder mUnbinder;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.login_fragment, container, false);
-        btnLoginFacebook = (Button) view.findViewById(R.id.btnLoginFacebook);
-        btnLoginFacebook.setOnClickListener(this);
-
+        mUnbinder = ButterKnife.bind(this, view);
         setupFacebook();
-
         return view;
     }
 
@@ -52,20 +50,23 @@ public class LoginFragment extends Fragment implements View.OnClickListener, Fac
     }
 
     @Override
+    public void onDestroyView() {
+        mUnbinder.unbind();
+        super.onDestroyView();
+    }
+
+    @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         if (requestCode == CallbackManagerImpl.RequestCodeOffset.Login.toRequestCode()) {
             mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
 
-    // region OnClickListeners
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btnLoginFacebook:
-                LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email", "public_profile", "user_events"));
-                break;
-        }
+    //region VI Methods
+    @OnClick(R.id.btnLoginFacebook)
+    public void onLoginClicked() {
+        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email", "public_profile", "user_events"));
+
     }
     // endregion
 

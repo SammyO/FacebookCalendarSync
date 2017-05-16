@@ -2,7 +2,6 @@ package com.oddhov.facebookcalendarsync;
 
 
 import android.Manifest;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,15 +9,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.data.Constants;
@@ -33,13 +29,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PermissionsFragment extends Fragment implements View.OnClickListener,
-        DialogInterface.OnClickListener {
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
+
+public class PermissionsFragment extends Fragment implements DialogInterface.OnClickListener {
 
     public static final String TAG = "PermissionsFragment";
 
-    private Button btnGrantPermissions;
     private PermissionUtils mPermissionUtils;
+    private Unbinder mUnbinder;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -47,9 +46,7 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
         mPermissionUtils = new PermissionUtils(getActivity());
 
         View view = inflater.inflate(R.layout.permissions_fragment, container, false);
-        btnGrantPermissions = (Button) view.findViewById(R.id.btnGrantPermissions);
-        btnGrantPermissions.setOnClickListener(this);
-
+        mUnbinder = ButterKnife.bind(this, view);
         return view;
     }
 
@@ -59,6 +56,12 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
         if (!mPermissionUtils.needsPermissions()) {
             EventBus.getDefault().post(new NavigateEvent());
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        mUnbinder.unbind();
+        super.onDestroyView();
     }
 
     @Override
@@ -86,24 +89,19 @@ public class PermissionsFragment extends Fragment implements View.OnClickListene
     }
     //endregion
 
-    // region OnClickListeners
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btnGrantPermissions:
-                try {
-                    String[] permissionsNeeded = checkPermissionsAndRequest();
-                    requestPermissions(permissionsNeeded,
-                        Constants.REQUEST_READ_WRITE_CALENDAR_GET_ACCOUNT_PERMISSIONS);
-                } catch (UnexpectedException e) {
-                    Crashlytics.logException(new UnexpectedException("PermissionsFragment", "No permissions needed"));
-                    EventBus.getDefault().post(new NavigateEvent());
-                }
-                break;
+    //region VI methods
+    @OnClick(R.id.btnGrantPermissions)
+    public void onGrantPermissionsClicked() {
+        try {
+            String[] permissionsNeeded = checkPermissionsAndRequest();
+            requestPermissions(permissionsNeeded,
+                    Constants.REQUEST_READ_WRITE_CALENDAR_GET_ACCOUNT_PERMISSIONS);
+        } catch (UnexpectedException e) {
+            Crashlytics.logException(new UnexpectedException("PermissionsFragment", "No permissions needed"));
+            EventBus.getDefault().post(new NavigateEvent());
         }
     }
-    // endregion
-
+    //endregion
 
     //region OnClickListeners
     @Override
