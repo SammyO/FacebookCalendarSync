@@ -17,11 +17,11 @@ import com.oddhov.facebookcalendarsync.data.models.SyncRange;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 
-public class FacebookSettingsFragment extends Fragment implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
+public class FacebookSettingsFragmentTest extends Fragment implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
 
     // region Fields
 
-    public static final String TAG = "FacebookSettingsFragment";
+    public static final String TAG = "FacebookSettingsFragmentTest";
 
     private DatabaseUtils mDatabaseUtils;
     private SyncAdapterUtils mSyncAdapterUtils;
