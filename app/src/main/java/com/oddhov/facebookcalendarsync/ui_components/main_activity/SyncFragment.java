@@ -11,7 +11,6 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
@@ -30,19 +29,30 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-public class SyncFragment extends Fragment implements View.OnClickListener {
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
 
+public class SyncFragment extends Fragment {
+    //region static fields
     public static final String TAG = "SyncFragment";
+    //endregion
 
+    //region fields
     private PermissionUtils mPermissionUtils;
     private DatabaseUtils mDatabaseUtils;
     private TimeUtils mTimeUtils;
     private SyncAdapterUtils mSyncAdapterUtils;
-
     private SyncAdapterRanReceiver mSyncAdapterRanReceiver;
 
-    private Button btnSyncNow;
-    private TextView tvLastSynced;
+    private Unbinder mUnbinder;
+    //endregion
+
+    //region VI
+    @BindView(R.id.tvLastSyncedValue)
+    TextView tvLastSynced;
+    //endregion
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,19 +63,15 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_sync, container, false);
-
         mPermissionUtils = new PermissionUtils(getActivity());
         mDatabaseUtils = new DatabaseUtils(getActivity());
         mTimeUtils = new TimeUtils();
         mSyncAdapterUtils = new SyncAdapterUtils();
 
         getActivity().registerReceiver(mSyncAdapterRanReceiver, new IntentFilter("com.oddhov.facebookcalendarsync"));
+        View view = inflater.inflate(R.layout.sync_fragment, container, false);
+        mUnbinder = ButterKnife.bind(this, view);
 
-        btnSyncNow = (Button) view.findViewById(R.id.btnSynNow);
-        btnSyncNow.setOnClickListener(this);
-
-        tvLastSynced = (TextView) view.findViewById(R.id.tvLastSyncedValue);
         try {
             tvLastSynced.setText(mTimeUtils.convertEpochFormatToDate(mDatabaseUtils.getLastSynced()));
         } catch (RealmException e) {
@@ -87,7 +93,6 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
         if (AccountUtils.hasEmptyOrExpiredAccessToken() || mPermissionUtils.needsPermissions()) {
             EventBus.getDefault().post(new NavigateEvent());
         }
-
     }
 
     @Override
@@ -99,24 +104,23 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onDestroyView() {
         getActivity().unregisterReceiver(mSyncAdapterRanReceiver);
+        mUnbinder.unbind();
         super.onDestroyView();
     }
     // endregion
 
-    // region OnClickListeners
-    @Override
-    public void onClick(View view) {
-        if (view.getId() == R.id.btnSynNow) {
-            if (hasNetworkConnection()) {
-                mSyncAdapterUtils.runSyncAdapterNow();
-            } else {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(R.string.no_network_title);
-                builder.setMessage(R.string.no_network_message);
-                builder.setPositiveButton(android.R.string.ok, null);
-                builder.setCancelable(true);
-                builder.show();
-            }
+    // region VI methods
+    @OnClick(R.id.btnSynNow)
+    public void onSyncNowClicked() {
+        if (hasNetworkConnection()) {
+            mSyncAdapterUtils.runSyncAdapterNow();
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.no_network_title);
+            builder.setMessage(R.string.no_network_message);
+            builder.setPositiveButton(android.R.string.ok, null);
+            builder.setCancelable(true);
+            builder.show();
         }
     }
     // endregion
