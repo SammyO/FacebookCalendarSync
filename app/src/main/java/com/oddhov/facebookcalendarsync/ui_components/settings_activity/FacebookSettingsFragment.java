@@ -15,56 +15,66 @@ import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.SyncRange;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
-import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 
-public class FacebookSettingsFragment extends Fragment implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
 
+public class FacebookSettingsFragment extends Fragment implements RadioGroup.OnCheckedChangeListener {
     // region Fields
-
     public static final String TAG = "FacebookSettingsFragment";
 
     private DatabaseUtils mDatabaseUtils;
-    private SyncAdapterUtils mSyncAdapterUtils;
+    private Unbinder mUnbinder;
 
-    private SwitchCompat swSyncBirthdays;
-    private SwitchCompat swShowLinks;
-    private RadioGroup rgSyncRange;
-    private RadioButton rbSynAll;
-    private RadioButton rbSynUpcoming;
-
+    @BindView(R.id.swSyncBirthdays)
+    SwitchCompat swSyncBirthdays;
+    @BindView(R.id.swShowLinks)
+    SwitchCompat swShowLinks;
+    @BindView(R.id.rgSyncRange)
+    RadioGroup rgSyncRange;
+    @BindView(R.id.rbSyncRangeAll)
+    RadioButton rbSynAll;
+    @BindView(R.id.rbSyncRangeUpcoming)
+    RadioButton rbSynUpcoming;
     // endregion
 
+    // region Lifecycle methods
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mDatabaseUtils = new DatabaseUtils(getActivity());
-        mSyncAdapterUtils = new SyncAdapterUtils();
 
         View view = inflater.inflate(R.layout.fragment_facebook_settings, container, false);
+        mUnbinder = ButterKnife.bind(this, view);
         setupViews(view);
         return view;
     }
 
-    // region Interface View.OnClickListener
     @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.swSyncBirthdays:
-                try {
-                    mDatabaseUtils.setSyncBirthdays(swSyncBirthdays.isChecked());
-                } catch (RealmException e) {
-                    Crashlytics.logException(e);
-                }
-                break;
-            case R.id.swShowLinks:
-                try {
-                    mDatabaseUtils.setShowLinks(swShowLinks.isChecked());
-                } catch (RealmException e) {
-                    Crashlytics.logException(e);
-                }
-                break;
-            default:
-                break;
+    public void onDestroyView() {
+        mUnbinder.unbind();
+        super.onDestroyView();
+    }
+    // endregion
+
+    // region VI methods
+    @OnClick(R.id.swSyncBirthdays)
+    public void onSyncBirthdaysClicked() {
+        try {
+            mDatabaseUtils.setSyncBirthdays(swSyncBirthdays.isChecked());
+        } catch (RealmException e) {
+            Crashlytics.logException(e);
+        }
+    }
+
+    @OnClick(R.id.swShowLinks)
+    public void onShowLinksClicked() {
+        try {
+            mDatabaseUtils.setShowLinks(swShowLinks.isChecked());
+        } catch (RealmException e) {
+            Crashlytics.logException(e);
         }
     }
     // endregion
@@ -98,18 +108,9 @@ public class FacebookSettingsFragment extends Fragment implements View.OnClickLi
     // region Helper Methods (UI)
     private void setupViews(View view) {
         try {
-            swSyncBirthdays = (SwitchCompat) view.findViewById(R.id.swSyncBirthdays);
             swSyncBirthdays.setChecked(mDatabaseUtils.getSyncBirthdays());
-            swSyncBirthdays.setOnClickListener(this);
-
-            swShowLinks = (SwitchCompat) view.findViewById(R.id.swShowLinks);
             swShowLinks.setChecked(mDatabaseUtils.getShowLinks());
-            swShowLinks.setOnClickListener(this);
 
-            rbSynAll = (RadioButton) view.findViewById(R.id.rbSyncRangeAll);
-            rbSynUpcoming = (RadioButton) view.findViewById(R.id.rbSyncRangeUpcoming);
-
-            rgSyncRange = (RadioGroup) view.findViewById(R.id.rgSyncRange);
             rgSyncRange.setOnCheckedChangeListener(this);
             switch (SyncRange.values()[mDatabaseUtils.getSyncRange()]) {
                 case SYNC_ALL:

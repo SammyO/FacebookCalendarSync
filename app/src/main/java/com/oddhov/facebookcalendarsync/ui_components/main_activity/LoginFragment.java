@@ -36,7 +36,7 @@ public class LoginFragment extends Fragment implements FacebookCallback<LoginRes
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.login_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_login, container, false);
         mUnbinder = ButterKnife.bind(this, view);
         setupFacebook();
         return view;

@@ -19,19 +19,31 @@ import com.oddhov.facebookcalendarsync.data.exceptions.UnexpectedException;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 
-public class SyncSettingsFragment extends Fragment implements View.OnClickListener, DialogInterface.OnClickListener {
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
+
+public class SyncSettingsFragment extends Fragment implements DialogInterface.OnClickListener {
     // region Fields
     public static final String TAG = "SyncSettingsFragment";
 
     private DatabaseUtils mDatabaseUtils;
     private SyncAdapterUtils mSyncAdapterUtils;
 
-    private SwitchCompat swWifiOnly;
-    private SwitchCompat swNotifications;
-    private LinearLayout llSyncInterval;
-    private TextView tvSyncInterval;
+    private Unbinder mUnbinder;
+
+    @BindView(R.id.swWifiOnly)
+    SwitchCompat swWifiOnly;
+    @BindView(R.id.swShowNotifications)
+    SwitchCompat swShowNotifications;
+    @BindView(R.id.llSyncInterval)
+    LinearLayout llSyncInterval;
+    @BindView(R.id.tvSyncInterval)
+    TextView tvSyncInterval;
     // endregion
 
+    // region Lifecycle methods
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -39,44 +51,48 @@ public class SyncSettingsFragment extends Fragment implements View.OnClickListen
         mSyncAdapterUtils = new SyncAdapterUtils();
 
         View view = inflater.inflate(R.layout.fragment_sync_settings, container, false);
+        mUnbinder = ButterKnife.bind(this, view);
         setupViews(view);
         return view;
     }
 
-    // region Interface View.OnClickListener
     @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.swWifiOnly:
-                try {
-                    mDatabaseUtils.setSyncWifiOnly(swWifiOnly.isChecked());
-                } catch (RealmException e) {
-                    Crashlytics.logException(e);
-                }
-                Log.e("SyncSettings", "click wifi only");
-                break;
-            case R.id.swShowNotifications:
-                try {
-                    mDatabaseUtils.setShowNotifications(swNotifications.isChecked());
-                } catch (RealmException e) {
-                    Crashlytics.logException(e);
-                }
-                Log.e("SyncSettings", "click notifications");
-                break;
-            case R.id.llSyncInterval:
-                CharSequence syncIntervals[] = new CharSequence[]{
-                        getString(R.string.sync_settings_sync_interval_1hr),
-                        getString(R.string.sync_settings_sync_interval_6hrs),
-                        getString(R.string.sync_settings_sync_interval_12hrs),
-                        getString(R.string.sync_settings_sync_interval_24hrs)};
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(R.string.sync_settings_sync_interval);
-                builder.setItems(syncIntervals, this);
-                builder.show();
-                break;
-            default:
-                break;
+    public void onDestroyView() {
+        mUnbinder.unbind();
+        super.onDestroyView();
+    }
+    // endregion
+
+    // region VI methods
+    @OnClick(R.id.swShowNotifications)
+    public void onShowNotificationsClicked() {
+        try {
+            mDatabaseUtils.setShowNotifications(swShowNotifications.isChecked());
+        } catch (RealmException e) {
+            Crashlytics.logException(e);
         }
+    }
+
+    @OnClick(R.id.swWifiOnly)
+    public void onWifiOnlyCliced() {
+        try {
+            mDatabaseUtils.setSyncWifiOnly(swWifiOnly.isChecked());
+        } catch (RealmException e) {
+            Crashlytics.logException(e);
+        }
+    }
+
+    @OnClick(R.id.llSyncInterval)
+    public void onSyncIntervalClicked() {
+        CharSequence syncIntervals[] = new CharSequence[]{
+                getString(R.string.sync_settings_sync_interval_1hr),
+                getString(R.string.sync_settings_sync_interval_6hrs),
+                getString(R.string.sync_settings_sync_interval_12hrs),
+                getString(R.string.sync_settings_sync_interval_24hrs)};
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.sync_settings_sync_interval);
+        builder.setItems(syncIntervals, this);
+        builder.show();
     }
     // endregion
 
@@ -129,17 +145,10 @@ public class SyncSettingsFragment extends Fragment implements View.OnClickListen
     // region Helper Methods (UI)
     private void setupViews(View view) {
         try {
-            swWifiOnly = (SwitchCompat) view.findViewById(R.id.swWifiOnly);
             swWifiOnly.setChecked(mDatabaseUtils.getSyncWifiOnly());
-            swWifiOnly.setOnClickListener(this);
 
-            swNotifications = (SwitchCompat) view.findViewById(R.id.swShowNotifications);
-            swNotifications.setChecked(mDatabaseUtils.getShowNotifications());
-            swNotifications.setOnClickListener(this);
+            swShowNotifications.setChecked(mDatabaseUtils.getShowNotifications());
 
-            tvSyncInterval = (TextView) view.findViewById(R.id.tvSyncInterval);
-
-            llSyncInterval = (LinearLayout) view.findViewById(R.id.llSyncInterval);
             int syncInterval = mDatabaseUtils.getSyncInterval();
             switch (syncInterval) {
                 case 1:
@@ -160,7 +169,6 @@ public class SyncSettingsFragment extends Fragment implements View.OnClickListen
                             "Unexpected sync interval in Realm"));
                     break;
             }
-            llSyncInterval.setOnClickListener(this);
         } catch (RealmException e) {
             e.printStackTrace();
         }

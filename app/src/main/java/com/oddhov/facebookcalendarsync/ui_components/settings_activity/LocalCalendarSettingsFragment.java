@@ -18,63 +18,79 @@ import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.CalendarColour;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.EventReminder;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
-import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
 import io.realm.RealmList;
 
-public class LocalCalendarSettingsFragment extends Fragment implements View.OnClickListener,
-        RadioGroup.OnCheckedChangeListener, DialogInterface.OnMultiChoiceClickListener {
+public class LocalCalendarSettingsFragment extends Fragment implements RadioGroup.OnCheckedChangeListener,
+        DialogInterface.OnMultiChoiceClickListener {
 
     // region Fields
     public static final String TAG = "LocalCalendarSettingsFragment";
 
     private DatabaseUtils mDatabaseUtils;
-    private SyncAdapterUtils mSyncAdapterUtils;
+    private Unbinder mUnbinder;
 
-    private SwitchCompat swReminders;
-    private LinearLayout llSetupReminderTime;
-    private RadioGroup rgCalendarColor;
-    private RadioButton rbCalendarColorRed;
-    private RadioButton rbCalendarColorGreen;
-    private RadioButton rbCalendarColorOrange;
-    private RadioButton rbCalendarColorPurple;
-    private RadioButton rbCalendarColorBlue;
+    @BindView(R.id.swReminders)
+    SwitchCompat swReminders;
+    @BindView(R.id.llSetupReminderTime)
+    LinearLayout llSetupReminderTime;
+    @BindView(R.id.rgCalendarColor)
+    RadioGroup rgCalendarColor;
+    @BindView(R.id.rbCalendarColorRed)
+    RadioButton rbCalendarColorRed;
+    @BindView(R.id.rbCalendarColorGreen)
+    RadioButton rbCalendarColorGreen;
+    @BindView(R.id.rbCalendarColorOrange)
+    RadioButton rbCalendarColorOrange;
+    @BindView(R.id.rbCalendarColorPurple)
+    RadioButton rbCalendarColorPurple;
+    @BindView(R.id.rbCalendarColorBlue)
+    RadioButton rbCalendarColorBlue;
     // endregion
 
+    // region Lifecycle methods
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mDatabaseUtils = new DatabaseUtils(getActivity());
-        mSyncAdapterUtils = new SyncAdapterUtils();
 
         View view = inflater.inflate(R.layout.fragment_local_calendar_settings, container, false);
+        mUnbinder = ButterKnife.bind(this, view);
         setupViews(view);
         return view;
     }
 
-    // region Interface View.OnClickListener
     @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.swReminders:
-                try {
-                    if (swReminders.isChecked()) {
-                        mDatabaseUtils.setShowReminders(true);
-                        llSetupReminderTime.setVisibility(View.VISIBLE);
+    public void onDestroyView() {
+        mUnbinder.unbind();
+        super.onDestroyView();
+    }
+    // endregion
 
-                    } else {
-                        mDatabaseUtils.setShowReminders(false);
-                        llSetupReminderTime.setVisibility(View.GONE);
-                    }
-                } catch (RealmException e) {
-                    Crashlytics.logException(e);
-                }
-                break;
-            case R.id.llSetupReminderTime:
-                showReminderTimesDialog();
-            default:
-                break;
+    // region VI methods
+    @OnClick(R.id.swReminders)
+    public void onShowRemindersClicked() {
+        try {
+            if (swReminders.isChecked()) {
+                mDatabaseUtils.setShowReminders(true);
+                llSetupReminderTime.setVisibility(View.VISIBLE);
+
+            } else {
+                mDatabaseUtils.setShowReminders(false);
+                llSetupReminderTime.setVisibility(View.GONE);
+            }
+        } catch (RealmException e) {
+            Crashlytics.logException(e);
         }
+    }
+
+    @OnClick(R.id.llSetupReminderTime)
+    public void onSetupReminderTimeClicked() {
+//        showReminderTimesDialog();
     }
     // endregion
 
@@ -122,25 +138,14 @@ public class LocalCalendarSettingsFragment extends Fragment implements View.OnCl
     // region Helper Methods (UI)
     private void setupViews(View view) {
         try {
-            swReminders = (SwitchCompat) view.findViewById(R.id.swReminders);
             swReminders.setChecked(mDatabaseUtils.getShowReminders());
-            swReminders.setOnClickListener(this);
 
-            llSetupReminderTime = (LinearLayout) view.findViewById(R.id.llSetupReminderTime);
             if (mDatabaseUtils.getShowReminders()) {
                 llSetupReminderTime.setVisibility(View.VISIBLE);
             } else {
                 llSetupReminderTime.setVisibility(View.GONE);
             }
-            llSetupReminderTime.setOnClickListener(this);
 
-            rbCalendarColorRed = (RadioButton) view.findViewById(R.id.rbCalendarColorRed);
-            rbCalendarColorGreen = (RadioButton) view.findViewById(R.id.rbCalendarColorGreen);
-            rbCalendarColorOrange = (RadioButton) view.findViewById(R.id.rbCalendarColorOrange);
-            rbCalendarColorPurple = (RadioButton) view.findViewById(R.id.rbCalendarColorPurple);
-            rbCalendarColorBlue = (RadioButton) view.findViewById(R.id.rbCalendarColorBlue);
-
-            rgCalendarColor = (RadioGroup) view.findViewById(R.id.rgCalendarColor);
             rgCalendarColor.setOnCheckedChangeListener(this);
             switch (CalendarColour.values()[mDatabaseUtils.getCalendarColor()]) {
                 case RED:

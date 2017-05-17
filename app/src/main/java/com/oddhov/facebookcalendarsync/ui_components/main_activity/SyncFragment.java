@@ -69,7 +69,7 @@ public class SyncFragment extends Fragment {
         mSyncAdapterUtils = new SyncAdapterUtils();
 
         getActivity().registerReceiver(mSyncAdapterRanReceiver, new IntentFilter("com.oddhov.facebookcalendarsync"));
-        View view = inflater.inflate(R.layout.sync_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_sync, container, false);
         mUnbinder = ButterKnife.bind(this, view);
 
         try {

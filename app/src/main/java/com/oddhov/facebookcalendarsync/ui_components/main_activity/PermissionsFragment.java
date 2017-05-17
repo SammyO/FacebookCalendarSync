@@ -46,7 +46,7 @@ public class PermissionsFragment extends Fragment implements DialogInterface.OnC
                              Bundle savedInstanceState) {
         mPermissionUtils = new PermissionUtils(getActivity());
 
-        View view = inflater.inflate(R.layout.permissions_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_permissions, container, false);
         mUnbinder = ButterKnife.bind(this, view);
         return view;
     }
