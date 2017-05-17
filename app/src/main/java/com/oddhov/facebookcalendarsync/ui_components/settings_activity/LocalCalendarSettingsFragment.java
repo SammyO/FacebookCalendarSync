@@ -127,10 +127,12 @@ public class LocalCalendarSettingsFragment extends Fragment implements RadioGrou
     // region DialogInterface..OnMultiChoiceClickListener
     @Override
     public void onClick(DialogInterface dialogInterface, int which, boolean isChecked) {
-        if (isChecked) {
-            // TODO add item to Realm
-        } else { // TODO check if item exists in Realm
-            // TODO remove item from Realm
+        try {
+            if (which <= mDatabaseUtils.getAllReminderTimes().size()) {
+                mDatabaseUtils.setReminderTime(which, isChecked);
+            }
+        } catch (RealmException e) {
+            e.printStackTrace();
         }
     }
     // endregion

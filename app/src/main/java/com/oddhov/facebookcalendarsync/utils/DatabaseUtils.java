@@ -47,7 +47,7 @@ public class DatabaseUtils {
             final RealmList<EventReminder> eventReminders = new RealmList<>();
             eventReminders.add(new EventReminder(false, 30));
             eventReminders.add(new EventReminder(false, 60));
-            eventReminders.add(new EventReminder(true, 120));
+            eventReminders.add(new EventReminder(false, 120));
             eventReminders.add(new EventReminder(false, 360));
             eventReminders.add(new EventReminder(false, 720));
             eventReminders.add(new EventReminder(false, 1440));
@@ -257,6 +257,18 @@ public class DatabaseUtils {
         return reminders;
     }
 
+    public void setReminderTime(final int position, final boolean isSet) throws RealmException {
+        Log.e("DatabaseUtils", "setReminderTIme: " + position + " " + isSet);
+        mRealm = Realm.getDefaultInstance();
+        final UserData userData = getUserData();
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                userData.getEventReminders().get(position).setIsSet(isSet);
+            }
+        });
+        closeRealm();
+    }
 
     public int getCalendarColor() throws RealmException {
         mRealm = Realm.getDefaultInstance();
