@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.Event;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.EventReminder;
@@ -43,12 +42,8 @@ public class DatabaseUtils {
     public void setupUserData() throws RealmException {
         openRealm();
         if (getUserData() == null) {
-            mRealm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-                    mRealm.createObject(UserData.class);
-                }
-            });
+            final UserData userdata = new UserData();
+
             final RealmList<EventReminder> eventReminders = new RealmList<>();
             eventReminders.add(new EventReminder(false, 30));
             eventReminders.add(new EventReminder(false, 60));
@@ -56,14 +51,13 @@ public class DatabaseUtils {
             eventReminders.add(new EventReminder(false, 360));
             eventReminders.add(new EventReminder(false, 720));
             eventReminders.add(new EventReminder(false, 1440));
+
+            userdata.setEventReminders(eventReminders);
+
             mRealm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
-                    try {
-                        getUserData().setEventReminders(eventReminders);
-                    } catch (RealmException e) {
-                        Crashlytics.logException(e);
-                    }
+                    mRealm.copyToRealm(userdata);
                 }
             });
         }

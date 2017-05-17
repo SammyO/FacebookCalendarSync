@@ -90,7 +90,7 @@ public class LocalCalendarSettingsFragment extends Fragment implements RadioGrou
 
     @OnClick(R.id.llSetupReminderTime)
     public void onSetupReminderTimeClicked() {
-//        showReminderTimesDialog();
+        showReminderTimesDialog();
     }
     // endregion
 
