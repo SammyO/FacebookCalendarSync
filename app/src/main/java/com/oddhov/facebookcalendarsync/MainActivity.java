@@ -39,12 +39,18 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Arrays;
 
+import javax.inject.Inject;
+
 public class MainActivity extends AppCompatActivity implements DialogInterface.OnClickListener,
         Drawer.OnDrawerItemClickListener, FacebookCallback<LoginResult> {
     //region Fields
-    private PermissionUtils mPermissionUtils;
-    private SyncAdapterUtils mSyncAdapterUtils;
-    private DatabaseUtils mDatabaseUtils;
+    @Inject
+    PermissionUtils mPermissionUtils;
+    @Inject
+    SyncAdapterUtils mSyncAdapterUtils;
+    @Inject
+    DatabaseUtils mDatabaseUtils;
+
     private Drawer mNavigationDrawer;
     private CallbackManager mCallbackManager;
     private Toolbar mToolbar;

@@ -9,20 +9,16 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import com.oddhov.facebookcalendarsync.utils.SharedPreferencesUtils;
 
 public class SettingsActivity extends AppCompatActivity implements View.OnClickListener, DialogInterface.OnClickListener {
 
     private TextView tvSyncEventsValue;
     private Button btnChangeSyncPreference;
 
-    private SharedPreferencesUtils mSharedPreferencesUtils;
 
     public static void start(Activity activity) {
         Intent intent = new Intent(activity, SettingsActivity.class);
@@ -36,7 +32,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        mSharedPreferencesUtils = new SharedPreferencesUtils(this);
 
         setupViews();
     }
@@ -72,10 +67,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(DialogInterface dialogInterface, int option) {
         switch (option) {
             case 0:
-                mSharedPreferencesUtils.setSyncOnlyUpcoming(false);
                 break;
             case 1:
-                mSharedPreferencesUtils.setSyncOnlyUpcoming(true);
                 break;
         }
         setSyncModeValue();
@@ -100,10 +93,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void setSyncModeValue() {
-        if (mSharedPreferencesUtils.getSyncOnlyUpcoming()) {
-            tvSyncEventsValue.setText(R.string.textview_sync_events_value_upcoming);
-        } else {
-            tvSyncEventsValue.setText(R.string.textview_sync_events_value_all);
-        }
+
     }
 }

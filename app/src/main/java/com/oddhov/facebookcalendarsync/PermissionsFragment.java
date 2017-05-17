@@ -82,7 +82,7 @@ public class PermissionsFragment extends Fragment implements DialogInterface.OnC
                 return;
             }
 
-            if (mPermissionUtils.shouldShowRequestPermissionDialog()) {
+            if (mPermissionUtils.shouldShowRequestPermissionDialog(getActivity())) {
                 showRequestPermissionRationale(R.string.request_account_and_calendar_permission_description);
             }
         }

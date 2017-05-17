@@ -1,4 +1,4 @@
-package com.oddhov.facebookcalendarsync;
+package com.oddhov.facebookcalendarsync.app;
 
 import android.app.Application;
 
@@ -7,6 +7,11 @@ import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
+import com.oddhov.facebookcalendarsync.utils.UtilsModule;
+
+import org.greenrobot.eventbus.EventBus;
+
+import javax.inject.Inject;
 
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
@@ -50,14 +55,25 @@ import io.realm.RealmConfiguration;
  */
 public class FacebookCalendarSyncApplication extends Application {
     //region Fields
-    private AccountUtils mAccountUtils;
-    private DatabaseUtils mDatabaseUtils;
-    private SyncAdapterUtils mSyncAdapterUtils;
+    private ApplicationComponent mApplicationComponent;
     private RealmConfiguration mRealmConfiguration;
+    private DatabaseUtils mDatabaseUtils;
+
+    @Inject
+    AccountUtils mAccountUtils;
+    @Inject
+    SyncAdapterUtils mSyncAdapterUtils;
+    //endregion
 
     @Override
     public void onCreate() {
         super.onCreate();
+        this.mApplicationComponent = DaggerApplicationComponent.builder()
+                .applicationModule(new ApplicationModule(getApplicationContext(), EventBus.getDefault()))
+                .utilsModule(new UtilsModule())
+                .build();
+        this.mApplicationComponent.inject(this);
+
         Fabric.with(this, new Crashlytics());
 
         if (mRealmConfiguration == null) {
@@ -68,17 +84,14 @@ public class FacebookCalendarSyncApplication extends Application {
             Realm.setDefaultConfiguration(mRealmConfiguration);
         }
 
-        mDatabaseUtils = new DatabaseUtils(this);
+        mDatabaseUtils = new DatabaseUtils(getApplicationContext());
         try {
             mDatabaseUtils.setupUserData();
         } catch (RealmException e) {
             Crashlytics.logException(e);
         }
 
-        mAccountUtils = new AccountUtils(this);
         mAccountUtils.ensureAccountExists();
-
-        mSyncAdapterUtils = new SyncAdapterUtils();
         mSyncAdapterUtils.ensureSyncAdapterIsSetup();
     }
 }
