@@ -10,13 +10,12 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.models.ActivityTransition;
 
-public class SettingsActivity extends AppCompatActivity implements View.OnClickListener {
+public class SettingsActivity extends AppCompatActivity {
 
     public static void start(Activity activity, SettingsScreen settingsScreen, int enterAnim, int exitAnim) {
         Intent intent = new Intent(activity, SettingsActivity.class);
@@ -57,13 +56,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     }
     // endregion
 
-    // region Interface View.OnClickListener
-    @Override
-    public void onClick(View view) {
-
-    }
-    // endregion
-
     // region Helper methods UI
     private void setupViews(int screen) {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -90,7 +82,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 break;
         }
     }
-
 
     // region Helper methods
     private void replaceFragment(int containerId, Fragment fragment, String tag) {
