@@ -101,7 +101,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                         mCalendarUtils.ensureCalendarExists();
                         mUpdatedEvents = new ArrayList<>();
 
-                        if (SyncRange.values()[mDatabaseUtils.getSyncRange()] == SyncRange.SYNC_UPCOMING) {
+                        if (mDatabaseUtils.getSyncRange() == SyncRange.SYNC_UPCOMING) {
                             mNetworkUtils.fetchUpcomingEvents(this);
                         } else {
                             mNetworkUtils.fetchAllEvents(this);

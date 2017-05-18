@@ -1,10 +1,13 @@
 package com.oddhov.facebookcalendarsync.data.models.realm_models;
 
+import com.oddhov.facebookcalendarsync.data.models.CalendarColour;
+import com.oddhov.facebookcalendarsync.data.models.CustomTime;
+import com.oddhov.facebookcalendarsync.data.models.SyncRange;
+
 import io.realm.RealmList;
 import io.realm.RealmObject;
 
 public class UserData extends RealmObject {
-    // TODO set default values
     private long mLastSyncedTimeStamp;
     private boolean mIsSyncAdapterPaused;
     private boolean mSyncWifiOnly;
@@ -18,8 +21,9 @@ public class UserData extends RealmObject {
     private RealmList<EventReminder> mEventReminders;
 
     public UserData() {
-        setSyncInterval(1);
-        setShowNotifications(true);
+        setSyncInterval(CustomTime.ONE_HOUR.ordinal());
+        setSyncRange(SyncRange.SYNC_UPCOMING.ordinal());
+        setCalendarColor(CalendarColour.PURPLE.ordinal());
     }
 
     public long getLastSyncedTimeStamp() {

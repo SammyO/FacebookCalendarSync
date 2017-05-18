@@ -24,6 +24,7 @@
     settings.</string>
 
     <!--Sync Fragment-->
+    <string name="not_synced_yet">Not synced yet</string>
     <string name="button_sync_now">Sync now</string>
     <string name="no_network_title">No network</string>
     <string name="no_network_message">It seems that you don\'t have an active network connection. Please connect to the internet, so

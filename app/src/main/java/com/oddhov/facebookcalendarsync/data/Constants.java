@@ -6,26 +6,13 @@ public final class Constants {
     // Sync interval
     public static final long SECONDS_IN_HOUR = 3600L;
 
-    // Authorities
-    public static final String CALENDAR_AUTHORITY = "com.android.calendar";
-
     // Accounts
     public static final String ACCOUNT_TYPE = "com.oddhov.facebookcalendarsync";
     public static final String ACCOUNT_NAME = "FacebookCalendarSync";
 
     // Permissions
-    public static final int REQUEST_ACCOUNTS_PERMISSION = 952;
     public static final int REQUEST_READ_WRITE_CALENDAR_GET_ACCOUNT_PERMISSIONS = 9583;
     public static final int REQUEST_APP_SETTINGS = 1563;
-
-    // Request codes
-    public static final int LOGIN_ACTIVITY_REQUEST = 846;
-
-    //Bundle values
-    public static final String SYNC_ONLY_UPCOMING_EVENTS = "syc_only_upcoming_events";
-
-    // Authtoken type string.
-    public static final String AUTHTOKEN_TYPE = "com.oddhov.facebookcalendarsynctoken";
 
     // Calendar related constants
     public static final String[] GET_CALENDAR_PROJECTION = new String[]{

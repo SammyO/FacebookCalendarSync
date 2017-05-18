@@ -18,8 +18,9 @@ public class UtilsModule {
     @Provides
     @Singleton
     CalendarUtils provideCalendarUtils(Context context, NotificationUtils notificationUtils,
-                                       DatabaseUtils databaseUtils, TimeUtils timeUtils) {
-        return new CalendarUtils(context, notificationUtils, databaseUtils, timeUtils);
+                                       DatabaseUtils databaseUtils, TimeUtils timeUtils,
+                                       ColorUtils colorUtils) {
+        return new CalendarUtils(context, notificationUtils, databaseUtils, timeUtils, colorUtils);
     }
 
     @Provides
@@ -37,7 +38,7 @@ public class UtilsModule {
 
     @Provides
     @Singleton
-    NotificationUtils provideNotificationutils(Context context) {
+    NotificationUtils provideNotificationUtils(Context context) {
         return new NotificationUtils(context);
     }
 
@@ -49,13 +50,19 @@ public class UtilsModule {
 
     @Provides
     @Singleton
-    SyncAdapterUtils provideSyncAdapterUtils() {
-        return new SyncAdapterUtils();
+    SyncAdapterUtils provideSyncAdapterUtils(DatabaseUtils databaseUtils) {
+        return new SyncAdapterUtils(databaseUtils);
     }
 
     @Provides
     @Singleton
     TimeUtils provideTimeUtils() {
         return new TimeUtils();
+    }
+
+    @Provides
+    @Singleton
+    ColorUtils provideColorUtils() {
+        return new ColorUtils();
     }
 }

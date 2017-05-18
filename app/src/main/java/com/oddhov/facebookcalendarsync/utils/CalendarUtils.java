@@ -7,14 +7,17 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.provider.CalendarContract;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
+import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.RealmCalendarEvent;
 
 import java.text.ParseException;
@@ -27,12 +30,15 @@ public class CalendarUtils {
     private TimeUtils mTimeUtils;
     private NotificationUtils mNotificationUtils;
     private DatabaseUtils mDatabaseUtils;
+    private ColorUtils mColorUtils;
 
-    public CalendarUtils(Context context, NotificationUtils notificationUtils, DatabaseUtils databaseUtils, TimeUtils timeUtils) {
+    public CalendarUtils(Context context, NotificationUtils notificationUtils, DatabaseUtils databaseUtils,
+                         TimeUtils timeUtils, ColorUtils colorUtils) {
         this.mContext = context;
         this.mNotificationUtils = notificationUtils;
         this.mDatabaseUtils = databaseUtils;
         this.mTimeUtils = timeUtils;
+        this.mColorUtils = colorUtils;
     }
 
     public String ensureCalendarExists() {
@@ -153,23 +159,45 @@ public class CalendarUtils {
         }
     }
 
+    public int deleteCalendar() {
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+            mNotificationUtils.sendNotification(
+                    R.string.notification_syncing_problem_title,
+                    R.string.notification_missing_permissions_message_short,
+                    R.string.notification_missing_permissions_message_long);
+
+            Log.e("CalendarUtils", "No calendar permissions granted");
+            return 0;
+        }
+        Uri calendarUri = CalendarContract.Calendars.CONTENT_URI;
+        Uri uri = ContentUris.withAppendedId(calendarUri, Long.valueOf(getCalendarId()));
+        ContentResolver contentResolver = mContext.getContentResolver();
+        return contentResolver.delete(uri, null, null);
+    }
+
     private String createCalendar() {
-        Uri calendarUri = Uri.parse(CalendarContract.Calendars.CONTENT_URI.toString());
-        calendarUri = calendarUri.buildUpon().appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
-                .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, Constants.ACCOUNT_NAME)
-                .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_TYPE, Constants.ACCOUNT_TYPE).build();
+        try {
+            Uri calendarUri = Uri.parse(CalendarContract.Calendars.CONTENT_URI.toString());
+            calendarUri = calendarUri.buildUpon().appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
+                    .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, Constants.ACCOUNT_NAME)
+                    .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_TYPE, Constants.ACCOUNT_TYPE).build();
 
-        ContentValues vals = new ContentValues();
-        vals.put(CalendarContract.Calendars.ACCOUNT_NAME, Constants.ACCOUNT_NAME);
-        vals.put(CalendarContract.Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
-        vals.put(CalendarContract.Calendars.NAME, Constants.ACCOUNT_NAME);
-        vals.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, Constants.ACCOUNT_NAME);
-        vals.put(CalendarContract.Calendars.CALENDAR_COLOR, 0xffff0000);
-        vals.put(CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL, CalendarContract.Calendars.CAL_ACCESS_OWNER);
-        vals.put(CalendarContract.Calendars.SYNC_EVENTS, 1);
+            ContentValues vals = new ContentValues();
+            vals.put(CalendarContract.Calendars.ACCOUNT_NAME, Constants.ACCOUNT_NAME);
+            vals.put(CalendarContract.Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
+            vals.put(CalendarContract.Calendars.NAME, Constants.ACCOUNT_NAME);
+            vals.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, Constants.ACCOUNT_NAME);
+            vals.put(CalendarContract.Calendars.CALENDAR_COLOR,
+                    Color.parseColor(mColorUtils.getHexValueForColor(mDatabaseUtils.getCalendarColor())));
+            vals.put(CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL, CalendarContract.Calendars.CAL_ACCESS_OWNER);
+            vals.put(CalendarContract.Calendars.SYNC_EVENTS, 1);
 
-        Uri newCalendarUri = mContext.getContentResolver().insert(calendarUri, vals);
-        return String.valueOf(ContentUris.parseId(newCalendarUri));
+            Uri newCalendarUri = mContext.getContentResolver().insert(calendarUri, vals);
+            return String.valueOf(ContentUris.parseId(newCalendarUri));
+        } catch (RealmException e) {
+            Crashlytics.logException(e);
+        }
+        return null;
     }
 
     private int removeEventFromCalendar(String calendarId, String eventId) {

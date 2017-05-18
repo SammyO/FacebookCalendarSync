@@ -92,14 +92,14 @@ public class FacebookSettingsFragment extends Fragment implements RadioGroup.OnC
         switch (which) {
             case R.id.rbSyncRangeAll:
                 try {
-                    mDatabaseUtils.setSyncRange(SyncRange.SYNC_ALL.ordinal());
+                    mDatabaseUtils.setSyncRange(SyncRange.SYNC_ALL);
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
                 }
                 break;
             case R.id.rbSyncRangeUpcoming:
                 try {
-                    mDatabaseUtils.setSyncRange(SyncRange.SYNC_UPCOMING.ordinal());
+                    mDatabaseUtils.setSyncRange(SyncRange.SYNC_UPCOMING);
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
                 }
@@ -123,7 +123,7 @@ public class FacebookSettingsFragment extends Fragment implements RadioGroup.OnC
             swShowLinks.setChecked(mDatabaseUtils.getShowLinks());
 
             rgSyncRange.setOnCheckedChangeListener(this);
-            switch (SyncRange.values()[mDatabaseUtils.getSyncRange()]) {
+            switch (mDatabaseUtils.getSyncRange()) {
                 case SYNC_ALL:
                     rbSynAll.setChecked(true);
                     break;

@@ -7,6 +7,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,7 +72,7 @@ public class SyncFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        initializeInjector();
+        initialize();
     }
 
     @Override
@@ -127,18 +128,22 @@ public class SyncFragment extends Fragment {
         } catch (RealmException e) {
             Crashlytics.logException(e);
         }
-
     }
 
     // region Helper Methods Dagger
-    private void initializeInjector() {
+    private void initialize() {
         ((MainActivity) getActivity()).getComponent().inject(this);
 
         mSyncAdapterRanReceiver = new SyncAdapterRanReceiver();
         getActivity().registerReceiver(mSyncAdapterRanReceiver, new IntentFilter("com.oddhov.facebookcalendarsync"));
 
         try {
-            tvLastSynced.setText(mTimeUtils.convertEpochFormatToDate(mDatabaseUtils.getLastSynced()));
+            String lastSynced = mTimeUtils.convertEpochFormatToDate(mDatabaseUtils.getLastSynced());
+            if (TextUtils.isEmpty(lastSynced)) {
+                tvLastSynced.setText(R.string.not_synced_yet);
+            } else {
+                tvLastSynced.setText(lastSynced);
+            }
         } catch (RealmException e) {
             Crashlytics.logException(e);
         }

@@ -5,7 +5,10 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
+import com.oddhov.facebookcalendarsync.data.models.CalendarColour;
+import com.oddhov.facebookcalendarsync.data.models.CustomTime;
 import com.oddhov.facebookcalendarsync.data.models.Event;
+import com.oddhov.facebookcalendarsync.data.models.SyncRange;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.EventReminder;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.RealmCalendarEvent;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.UserData;
@@ -28,7 +31,7 @@ public class DatabaseUtils {
         }
     }
 
-    public void setupUserData() throws RealmException {
+    public void ensureUserDataIsSetup() throws RealmException {
         mRealm = Realm.getDefaultInstance();
         if (getUserData() == null) {
             final UserData userdata = new UserData();
@@ -133,22 +136,22 @@ public class DatabaseUtils {
         closeRealm();
     }
 
-    public int getSyncInterval() throws RealmException {
+    public CustomTime getSyncInterval() throws RealmException {
         mRealm = Realm.getDefaultInstance();
-        int syncInterval = getUserData().getSyncInterval();
+        CustomTime syncInterval = CustomTime.values()[getUserData().getSyncInterval()];
         closeRealm();
         Log.e("DatabaseUtils", "getSyncInterval: " + syncInterval);
         return syncInterval;
     }
 
-    public void setSyncInterval(final int syncInterval) throws RealmException {
+    public void setSyncInterval(final CustomTime syncInterval) throws RealmException {
         Log.e("DatabaseUtils", "setSyncInterval: " + syncInterval);
         mRealm = Realm.getDefaultInstance();
         final UserData userData = getUserData();
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                userData.setSyncInterval(syncInterval);
+                userData.setSyncInterval(syncInterval.ordinal());
             }
         });
         closeRealm();
@@ -196,22 +199,22 @@ public class DatabaseUtils {
         closeRealm();
     }
 
-    public int getSyncRange() throws RealmException {
+    public SyncRange getSyncRange() throws RealmException {
         mRealm = Realm.getDefaultInstance();
-        int syncRange = getUserData().getSyncRange();
+        SyncRange syncRange = SyncRange.values()[getUserData().getSyncRange()];
         closeRealm();
         Log.e("DatabaseUtils", "getSyncRange: " + syncRange);
         return syncRange;
     }
 
-    public void setSyncRange(final int syncRange) throws RealmException {
+    public void setSyncRange(final SyncRange syncRange) throws RealmException {
         Log.e("DatabaseUtils", "setSyncRange: " + syncRange);
         mRealm = Realm.getDefaultInstance();
         final UserData userData = getUserData();
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                userData.setSyncRange(syncRange);
+                userData.setSyncRange(syncRange.ordinal());
             }
         });
         closeRealm();
@@ -259,22 +262,22 @@ public class DatabaseUtils {
         closeRealm();
     }
 
-    public int getCalendarColor() throws RealmException {
+    public CalendarColour getCalendarColor() throws RealmException {
         mRealm = Realm.getDefaultInstance();
-        int calendarColor = getUserData().getCalendarColor();
+        CalendarColour calendarColor = CalendarColour.values()[getUserData().getCalendarColor()];
         closeRealm();
         Log.e("DatabaseUtils", "getCalendarColor: " + calendarColor);
         return calendarColor;
     }
 
-    public void setCalendarColor(final int calendarColor) throws RealmException {
+    public void setCalendarColor(final CalendarColour calendarColor) throws RealmException {
         Log.e("DatabaseUtils", "setCalendarColor: " + calendarColor);
         mRealm = Realm.getDefaultInstance();
         final UserData userData = getUserData();
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                userData.setCalendarColor(calendarColor);
+                userData.setCalendarColor(calendarColor.ordinal());
             }
         });
         closeRealm();
@@ -288,11 +291,13 @@ public class DatabaseUtils {
 
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
+        List<RealmCalendarEvent> updatedEventsCopy;
         List<RealmCalendarEvent> updatedEvents = realm.copyToRealmOrUpdate(realmCalendarEventsList);
+        updatedEventsCopy = realm.copyFromRealm(updatedEvents);
         realm.commitTransaction();
         realm.close(); //TODO
         if (!updatedEvents.isEmpty()) {
-            return updatedEvents;
+            return updatedEventsCopy;
         }
         return null;
     }

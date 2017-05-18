@@ -16,6 +16,7 @@ import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.exceptions.UnexpectedException;
+import com.oddhov.facebookcalendarsync.data.models.CustomTime;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 
@@ -81,7 +82,7 @@ public class SyncSettingsFragment extends Fragment implements DialogInterface.On
     }
 
     @OnClick(R.id.swWifiOnly)
-    public void onWifiOnlyCliced() {
+    public void onWifiOnlyClicked() {
         try {
             mDatabaseUtils.setSyncWifiOnly(swWifiOnly.isChecked());
         } catch (RealmException e) {
@@ -109,8 +110,8 @@ public class SyncSettingsFragment extends Fragment implements DialogInterface.On
         switch (option) {
             case 0:
                 try {
-                    mDatabaseUtils.setSyncInterval(1);
-                    mSyncAdapterUtils.setSyncAdapterRunInterval(1);
+                    mDatabaseUtils.setSyncInterval(CustomTime.ONE_HOUR);
+                    mSyncAdapterUtils.setSyncAdapterRunInterval(CustomTime.ONE_HOUR);
                     tvSyncInterval.setText(R.string.sync_settings_sync_interval_1hr);
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
@@ -118,8 +119,8 @@ public class SyncSettingsFragment extends Fragment implements DialogInterface.On
                 break;
             case 1:
                 try {
-                    mDatabaseUtils.setSyncInterval(6);
-                    mSyncAdapterUtils.setSyncAdapterRunInterval(6);
+                    mDatabaseUtils.setSyncInterval(CustomTime.SIX_HOURS);
+                    mSyncAdapterUtils.setSyncAdapterRunInterval(CustomTime.SIX_HOURS);
                     tvSyncInterval.setText(R.string.sync_settings_sync_interval_6hrs);
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
@@ -127,8 +128,8 @@ public class SyncSettingsFragment extends Fragment implements DialogInterface.On
                 break;
             case 2:
                 try {
-                    mDatabaseUtils.setSyncInterval(12);
-                    mSyncAdapterUtils.setSyncAdapterRunInterval(12);
+                    mDatabaseUtils.setSyncInterval(CustomTime.TWELVE_HOURS);
+                    mSyncAdapterUtils.setSyncAdapterRunInterval(CustomTime.TWELVE_HOURS);
                     tvSyncInterval.setText(R.string.sync_settings_sync_interval_12hrs);
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
@@ -136,8 +137,8 @@ public class SyncSettingsFragment extends Fragment implements DialogInterface.On
                 break;
             case 3:
                 try {
-                    mDatabaseUtils.setSyncInterval(24);
-                    mSyncAdapterUtils.setSyncAdapterRunInterval(24);
+                    mDatabaseUtils.setSyncInterval(CustomTime.TWENTY_FOUR_HOURS);
+                    mSyncAdapterUtils.setSyncAdapterRunInterval(CustomTime.TWENTY_FOUR_HOURS);
                     tvSyncInterval.setText(R.string.sync_settings_sync_interval_24hrs);
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
@@ -162,18 +163,18 @@ public class SyncSettingsFragment extends Fragment implements DialogInterface.On
 
             swShowNotifications.setChecked(mDatabaseUtils.getShowNotifications());
 
-            int syncInterval = mDatabaseUtils.getSyncInterval();
+            CustomTime syncInterval = mDatabaseUtils.getSyncInterval();
             switch (syncInterval) {
-                case 1:
+                case ONE_HOUR:
                     tvSyncInterval.setText(R.string.sync_settings_sync_interval_1hr);
                     break;
-                case 6:
+                case SIX_HOURS:
                     tvSyncInterval.setText(R.string.sync_settings_sync_interval_6hrs);
                     break;
-                case 12:
+                case TWELVE_HOURS:
                     tvSyncInterval.setText(R.string.sync_settings_sync_interval_12hrs);
                     break;
-                case 24:
+                case TWENTY_FOUR_HOURS:
                     tvSyncInterval.setText(R.string.sync_settings_sync_interval_24hrs);
                     break;
                 default:

@@ -17,7 +17,9 @@ import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.CalendarColour;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.EventReminder;
+import com.oddhov.facebookcalendarsync.utils.CalendarUtils;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
+import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 
 import javax.inject.Inject;
 
@@ -35,6 +37,10 @@ public class LocalCalendarSettingsFragment extends Fragment implements RadioGrou
 
     @Inject
     DatabaseUtils mDatabaseUtils;
+    @Inject
+    CalendarUtils mCalendarUtils;
+    @Inject
+    SyncAdapterUtils mSyncAdapterUtils;
 
     @BindView(R.id.swReminders)
     SwitchCompat swReminders;
@@ -105,27 +111,30 @@ public class LocalCalendarSettingsFragment extends Fragment implements RadioGrou
     // region Interface RadioGroup.OnCheckedChangeListener
     @Override
     public void onCheckedChanged(RadioGroup radioGroup, int which) {
-        int colorValue;
+        CalendarColour colorValue;
         switch (which) {
             case R.id.rbCalendarColorRed:
-                colorValue = CalendarColour.RED.ordinal();
+                colorValue = CalendarColour.RED;
                 break;
             case R.id.rbCalendarColorGreen:
-                colorValue = CalendarColour.GREEN.ordinal();
+                colorValue = CalendarColour.GREEN;
                 break;
             case R.id.rbCalendarColorOrange:
-                colorValue = CalendarColour.ORANGE.ordinal();
+                colorValue = CalendarColour.ORANGE;
                 break;
             case R.id.rbCalendarColorBlue:
-                colorValue = CalendarColour.BLUE.ordinal();
+                colorValue = CalendarColour.BLUE;
                 break;
             case R.id.rbCalendarColorPurple:
             default:
-                colorValue = CalendarColour.PURPLE.ordinal();
+                colorValue = CalendarColour.PURPLE;
                 break;
         }
         try {
             mDatabaseUtils.setCalendarColor(colorValue);
+            mCalendarUtils.deleteCalendar();
+            mCalendarUtils.ensureCalendarExists();
+            mSyncAdapterUtils.runSyncAdapterNow();
         } catch (RealmException e) {
             Crashlytics.logException(e);
         }
@@ -162,8 +171,7 @@ public class LocalCalendarSettingsFragment extends Fragment implements RadioGrou
                 llSetupReminderTime.setVisibility(View.GONE);
             }
 
-            rgCalendarColor.setOnCheckedChangeListener(this);
-            switch (CalendarColour.values()[mDatabaseUtils.getCalendarColor()]) {
+            switch (mDatabaseUtils.getCalendarColor()) {
                 case RED:
                     rbCalendarColorRed.setChecked(true);
                     break;
@@ -182,7 +190,7 @@ public class LocalCalendarSettingsFragment extends Fragment implements RadioGrou
                 default:
                     break;
             }
-
+            rgCalendarColor.setOnCheckedChangeListener(this);
         } catch (RealmException e) {
             e.printStackTrace();
         }

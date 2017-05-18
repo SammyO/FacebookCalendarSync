@@ -32,6 +32,7 @@ import io.realm.RealmConfiguration;
  *     - log out from Facebook
  *     - report a bug
  *
+ * Remove calendar
  * Navigation drawer footer with app version, and name etc.
  * MaterialDesign features like pull to refresh
  * How it works screen
@@ -86,7 +87,7 @@ public class FacebookCalendarSyncApplication extends Application {
         }
 
         try {
-            mDatabaseUtils.setupUserData();
+            mDatabaseUtils.ensureUserDataIsSetup();
         } catch (RealmException e) {
             Crashlytics.logException(e);
         }
