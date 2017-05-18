@@ -19,6 +19,8 @@ import com.oddhov.facebookcalendarsync.data.exceptions.UnexpectedException;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -28,10 +30,10 @@ public class SyncSettingsFragment extends Fragment implements DialogInterface.On
     // region Fields
     public static final String TAG = "SyncSettingsFragment";
 
-    private DatabaseUtils mDatabaseUtils;
-    private SyncAdapterUtils mSyncAdapterUtils;
-
-    private Unbinder mUnbinder;
+    @Inject
+    DatabaseUtils mDatabaseUtils;
+    @Inject
+    SyncAdapterUtils mSyncAdapterUtils;
 
     @BindView(R.id.swWifiOnly)
     SwitchCompat swWifiOnly;
@@ -41,19 +43,24 @@ public class SyncSettingsFragment extends Fragment implements DialogInterface.On
     LinearLayout llSyncInterval;
     @BindView(R.id.tvSyncInterval)
     TextView tvSyncInterval;
+
+    private Unbinder mUnbinder;
     // endregion
 
     // region Lifecycle methods
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mDatabaseUtils = new DatabaseUtils(getActivity());
-        mSyncAdapterUtils = new SyncAdapterUtils();
-
         View view = inflater.inflate(R.layout.fragment_sync_settings, container, false);
         mUnbinder = ButterKnife.bind(this, view);
-        setupViews(view);
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        initializeInjector();
+        setupViews();
     }
 
     @Override
@@ -142,8 +149,14 @@ public class SyncSettingsFragment extends Fragment implements DialogInterface.On
     }
     // endregion
 
+    // region Helper Methods Dagger
+    private void initializeInjector() {
+        ((SettingsActivity) getActivity()).getComponent().inject(this);
+    }
+    // endregion
+
     // region Helper Methods (UI)
-    private void setupViews(View view) {
+    private void setupViews() {
         try {
             swWifiOnly.setChecked(mDatabaseUtils.getSyncWifiOnly());
 

@@ -17,20 +17,9 @@ import io.realm.Realm;
 import io.realm.RealmList;
 
 public class DatabaseUtils {
-    private Context mContext;
     private Realm mRealm;
 
     public DatabaseUtils(Context context) {
-        this.mContext = context;
-        this.mRealm = Realm.getDefaultInstance();
-    }
-
-    public void openRealm() {
-        if (!mRealm.isClosed()) {
-            return;
-        }
-        mRealm = null;
-        mRealm = Realm.getDefaultInstance();
     }
 
     public void closeRealm() {
@@ -40,7 +29,7 @@ public class DatabaseUtils {
     }
 
     public void setupUserData() throws RealmException {
-        openRealm();
+        mRealm = Realm.getDefaultInstance();
         if (getUserData() == null) {
             final UserData userdata = new UserData();
 

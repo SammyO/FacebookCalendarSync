@@ -32,35 +32,39 @@ import com.oddhov.facebookcalendarsync.utils.NetworkUtils;
 import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
 import com.oddhov.facebookcalendarsync.utils.PermissionUtils;
 import com.oddhov.facebookcalendarsync.utils.TimeUtils;
+import com.oddhov.facebookcalendarsync.utils.UtilsModule;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
 
 class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Callback {
 
-    private Context mContext;
+    @Inject
+    NetworkUtils mNetworkUtils;
+    @Inject
+    CalendarUtils mCalendarUtils;
+    @Inject
+    NotificationUtils mNotificationUtils;
+    @Inject
+    DatabaseUtils mDatabaseUtils;
+    @Inject
+    TimeUtils mTimeUtils;
+    @Inject
+    PermissionUtils mPermissionUtils;
 
-    private NetworkUtils mNetworkUtils;
-    private CalendarUtils mCalendarUtils;
-    private NotificationUtils mNotificationUtils;
-    private DatabaseUtils mDatabaseUtils;
-    private TimeUtils mTimeUtils;
-    private PermissionUtils mPermissionUtils;
+    private SyncAdapterComponent mSyncAdapterComponent;
+    private Context mContext;
 
     private List<RealmCalendarEvent> mUpdatedEvents;
 
     SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
         mContext = context;
-        mTimeUtils = new TimeUtils();
-        mDatabaseUtils = new DatabaseUtils(mContext);
-        mNotificationUtils = new NotificationUtils(mContext);
-        mCalendarUtils = new CalendarUtils(mContext, mNotificationUtils, mDatabaseUtils, mTimeUtils);
-        mNetworkUtils = new NetworkUtils(mContext, mNotificationUtils, mDatabaseUtils);
-        mPermissionUtils = new PermissionUtils(mContext);
+        initializeInjector();
 
         FacebookSdk.sdkInitialize(getContext());
     }
@@ -161,6 +165,16 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
         }
     }
     //endregion
+
+    // region Helper Methods
+    private void initializeInjector() {
+        this.mSyncAdapterComponent = DaggerSyncAdapterComponent.builder()
+                .syncAdapterModule(new SyncAdapterModule(mContext))
+                .utilsModule(new UtilsModule())
+                .build();
+        this.mSyncAdapterComponent.inject(this);
+    }
+    // endregion
 
     //region Validation Helper Methods
     private EventsResponse parseAndValidateFacebookResponse(GraphResponse response) {

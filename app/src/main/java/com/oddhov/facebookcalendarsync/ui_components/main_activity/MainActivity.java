@@ -26,6 +26,8 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.oddhov.facebookcalendarsync.R;
+import com.oddhov.facebookcalendarsync.app.ActivityModule;
+import com.oddhov.facebookcalendarsync.app.FacebookCalendarSyncApplication;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.events.NavigateEvent;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
@@ -55,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     @Inject
     DatabaseUtils mDatabaseUtils;
 
+    private MainActivityComponent mMainActivityComponent;
+
     private Drawer mNavigationDrawer;
     private CallbackManager mCallbackManager;
     private Toolbar mToolbar;
@@ -65,9 +69,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mPermissionUtils = new PermissionUtils(this);
-        mSyncAdapterUtils = new SyncAdapterUtils();
-        mDatabaseUtils = new DatabaseUtils(this);
+        initializeInjector();
 
         setContentView(R.layout.activity_main);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -213,9 +215,22 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     }
     // endregion
 
+    // region Helper Methods Dagger
+    public MainActivityComponent getComponent() {
+        return this.mMainActivityComponent;
+    }
+
+    private void initializeInjector() {
+        mMainActivityComponent = DaggerMainActivityComponent.builder()
+                .applicationComponent(((FacebookCalendarSyncApplication) getApplication()).getApplicationComponent())
+                .activityModule(new ActivityModule(this))
+                .build();
+        mMainActivityComponent.inject(this);
+    }
+    // endregion
+
     // region Helper methods UI
     private void setupNavigationDrawer() {
-        // TODO change state of button based on start/stop state
         PrimaryDrawerItem startStopSync = new PrimaryDrawerItem().withIdentifier(Constants.STOP_START_SYNC).withName(
                 R.string.navigation_drawer_stop_sync).withIcon(R.drawable.ic_stop).withSelectable(false);
         PrimaryDrawerItem logOut;

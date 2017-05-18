@@ -5,7 +5,6 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -29,6 +28,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -40,12 +41,16 @@ public class SyncFragment extends Fragment {
     //endregion
 
     //region fields
-    private PermissionUtils mPermissionUtils;
-    private DatabaseUtils mDatabaseUtils;
-    private TimeUtils mTimeUtils;
-    private SyncAdapterUtils mSyncAdapterUtils;
-    private SyncAdapterRanReceiver mSyncAdapterRanReceiver;
+    @Inject
+    PermissionUtils mPermissionUtils;
+    @Inject
+    DatabaseUtils mDatabaseUtils;
+    @Inject
+    TimeUtils mTimeUtils;
+    @Inject
+    SyncAdapterUtils mSyncAdapterUtils;
 
+    private SyncAdapterRanReceiver mSyncAdapterRanReceiver;
     private Unbinder mUnbinder;
     //endregion
 
@@ -55,30 +60,18 @@ public class SyncFragment extends Fragment {
     //endregion
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mSyncAdapterRanReceiver = new SyncAdapterRanReceiver();
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mPermissionUtils = new PermissionUtils(getActivity());
-        mDatabaseUtils = new DatabaseUtils(getActivity());
-        mTimeUtils = new TimeUtils();
-        mSyncAdapterUtils = new SyncAdapterUtils();
-
-        getActivity().registerReceiver(mSyncAdapterRanReceiver, new IntentFilter("com.oddhov.facebookcalendarsync"));
         View view = inflater.inflate(R.layout.fragment_sync, container, false);
         mUnbinder = ButterKnife.bind(this, view);
 
-        try {
-            tvLastSynced.setText(mTimeUtils.convertEpochFormatToDate(mDatabaseUtils.getLastSynced()));
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
-        }
-
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        initializeInjector();
     }
 
     @Override
@@ -129,6 +122,21 @@ public class SyncFragment extends Fragment {
     // TODO replace with BroadcastReceiver
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onSyncAdapterRunEvent(SyncAdapterRanEvent event) {
+        try {
+            tvLastSynced.setText(mTimeUtils.convertEpochFormatToDate(mDatabaseUtils.getLastSynced()));
+        } catch (RealmException e) {
+            Crashlytics.logException(e);
+        }
+
+    }
+
+    // region Helper Methods Dagger
+    private void initializeInjector() {
+        ((MainActivity) getActivity()).getComponent().inject(this);
+
+        mSyncAdapterRanReceiver = new SyncAdapterRanReceiver();
+        getActivity().registerReceiver(mSyncAdapterRanReceiver, new IntentFilter("com.oddhov.facebookcalendarsync"));
+
         try {
             tvLastSynced.setText(mTimeUtils.convertEpochFormatToDate(mDatabaseUtils.getLastSynced()));
         } catch (RealmException e) {

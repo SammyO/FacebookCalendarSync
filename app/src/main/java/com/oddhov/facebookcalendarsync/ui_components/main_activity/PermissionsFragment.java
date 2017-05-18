@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
@@ -38,17 +40,24 @@ public class PermissionsFragment extends Fragment implements DialogInterface.OnC
 
     public static final String TAG = "PermissionsFragment";
 
-    private PermissionUtils mPermissionUtils;
+    @Inject
+    PermissionUtils mPermissionUtils;
+
     private Unbinder mUnbinder;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mPermissionUtils = new PermissionUtils(getActivity());
-
         View view = inflater.inflate(R.layout.fragment_permissions, container, false);
         mUnbinder = ButterKnife.bind(this, view);
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        ((MainActivity) getActivity()).getComponent().inject(this);
+        initializeInjector();
     }
 
     @Override
@@ -112,6 +121,12 @@ public class PermissionsFragment extends Fragment implements DialogInterface.OnC
         startSettingsActivity();
     }
     //endregion
+
+    // region Helper Methods Dagger
+    private void initializeInjector() {
+        ((MainActivity) getActivity()).getComponent().inject(this);
+    }
+    // endregion
 
     // region Helper methods UI
     private void showRequestPermissionRationale(int message) {

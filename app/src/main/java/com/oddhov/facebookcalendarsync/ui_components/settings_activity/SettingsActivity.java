@@ -12,10 +12,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import com.oddhov.facebookcalendarsync.R;
+import com.oddhov.facebookcalendarsync.app.ActivityModule;
+import com.oddhov.facebookcalendarsync.app.FacebookCalendarSyncApplication;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.models.ActivityTransition;
 
 public class SettingsActivity extends AppCompatActivity {
+
+    private SettingsActivityComponent mSettingsActivityComponent;
 
     public static void start(Activity activity, SettingsScreen settingsScreen, int enterAnim, int exitAnim) {
         Intent intent = new Intent(activity, SettingsActivity.class);
@@ -29,8 +33,9 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        initializeInjector();
 
+        setContentView(R.layout.activity_settings);
         setupViews(getIntent().getIntExtra(Constants.SETTINGS_SCREEN, 0));
     }
 
@@ -53,6 +58,20 @@ public class SettingsActivity extends AppCompatActivity {
         finish();
         ActivityTransition transition = ActivityTransition.BACK;
         overridePendingTransition(transition.getEnter(), transition.getExit());
+    }
+    // endregion
+
+    // region Helper Methods Dagger
+    public SettingsActivityComponent getComponent() {
+        return this.mSettingsActivityComponent;
+    }
+
+    private void initializeInjector() {
+        mSettingsActivityComponent = DaggerSettingsActivityComponent.builder()
+                .applicationComponent(((FacebookCalendarSyncApplication) getApplication()).getApplicationComponent())
+                .activityModule(new ActivityModule(this))
+                .build();
+        mSettingsActivityComponent.inject(this);
     }
     // endregion
 

@@ -19,6 +19,8 @@ import com.oddhov.facebookcalendarsync.data.models.CalendarColour;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.EventReminder;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -31,8 +33,8 @@ public class LocalCalendarSettingsFragment extends Fragment implements RadioGrou
     // region Fields
     public static final String TAG = "LocalCalendarSettingsFragment";
 
-    private DatabaseUtils mDatabaseUtils;
-    private Unbinder mUnbinder;
+    @Inject
+    DatabaseUtils mDatabaseUtils;
 
     @BindView(R.id.swReminders)
     SwitchCompat swReminders;
@@ -50,18 +52,24 @@ public class LocalCalendarSettingsFragment extends Fragment implements RadioGrou
     RadioButton rbCalendarColorPurple;
     @BindView(R.id.rbCalendarColorBlue)
     RadioButton rbCalendarColorBlue;
+
+    private Unbinder mUnbinder;
     // endregion
 
     // region Lifecycle methods
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mDatabaseUtils = new DatabaseUtils(getActivity());
-
         View view = inflater.inflate(R.layout.fragment_local_calendar_settings, container, false);
         mUnbinder = ButterKnife.bind(this, view);
-        setupViews(view);
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        initializeInjector();
+        setupViews();
     }
 
     @Override
@@ -137,8 +145,14 @@ public class LocalCalendarSettingsFragment extends Fragment implements RadioGrou
     }
     // endregion
 
+    // region Helper Methods Dagger
+    private void initializeInjector() {
+        ((SettingsActivity) getActivity()).getComponent().inject(this);
+    }
+    // endregion
+
     // region Helper Methods (UI)
-    private void setupViews(View view) {
+    private void setupViews() {
         try {
             swReminders.setChecked(mDatabaseUtils.getShowReminders());
 

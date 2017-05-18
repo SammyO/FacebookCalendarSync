@@ -3,7 +3,6 @@ package com.oddhov.facebookcalendarsync.ui_components.settings_activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SwitchCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +15,8 @@ import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.SyncRange;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -25,8 +26,8 @@ public class FacebookSettingsFragment extends Fragment implements RadioGroup.OnC
     // region Fields
     public static final String TAG = "FacebookSettingsFragment";
 
-    private DatabaseUtils mDatabaseUtils;
-    private Unbinder mUnbinder;
+    @Inject
+    DatabaseUtils mDatabaseUtils;
 
     @BindView(R.id.swSyncBirthdays)
     SwitchCompat swSyncBirthdays;
@@ -38,18 +39,24 @@ public class FacebookSettingsFragment extends Fragment implements RadioGroup.OnC
     RadioButton rbSynAll;
     @BindView(R.id.rbSyncRangeUpcoming)
     RadioButton rbSynUpcoming;
+
+    private Unbinder mUnbinder;
     // endregion
 
     // region Lifecycle methods
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mDatabaseUtils = new DatabaseUtils(getActivity());
-
         View view = inflater.inflate(R.layout.fragment_facebook_settings, container, false);
         mUnbinder = ButterKnife.bind(this, view);
-        setupViews(view);
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        initializeInjector();
+        setupViews();
     }
 
     @Override
@@ -82,8 +89,6 @@ public class FacebookSettingsFragment extends Fragment implements RadioGroup.OnC
     // region Interface RadioGroup.OnCheckedChangeListener
     @Override
     public void onCheckedChanged(RadioGroup radioGroup, int which) {
-        Log.e("FacebookSettings", "onCheckedChanged");
-
         switch (which) {
             case R.id.rbSyncRangeAll:
                 try {
@@ -105,8 +110,14 @@ public class FacebookSettingsFragment extends Fragment implements RadioGroup.OnC
     }
     // endregion
 
+    // region Helper Methods Dagger
+    private void initializeInjector() {
+        ((SettingsActivity) getActivity()).getComponent().inject(this);
+    }
+    // endregion
+
     // region Helper Methods (UI)
-    private void setupViews(View view) {
+    private void setupViews() {
         try {
             swSyncBirthdays.setChecked(mDatabaseUtils.getSyncBirthdays());
             swShowLinks.setChecked(mDatabaseUtils.getShowLinks());

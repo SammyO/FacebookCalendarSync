@@ -57,8 +57,9 @@ public class FacebookCalendarSyncApplication extends Application {
     //region Fields
     private ApplicationComponent mApplicationComponent;
     private RealmConfiguration mRealmConfiguration;
-    private DatabaseUtils mDatabaseUtils;
 
+    @Inject
+    DatabaseUtils mDatabaseUtils;
     @Inject
     AccountUtils mAccountUtils;
     @Inject
@@ -84,7 +85,6 @@ public class FacebookCalendarSyncApplication extends Application {
             Realm.setDefaultConfiguration(mRealmConfiguration);
         }
 
-        mDatabaseUtils = new DatabaseUtils(getApplicationContext());
         try {
             mDatabaseUtils.setupUserData();
         } catch (RealmException e) {
@@ -93,5 +93,9 @@ public class FacebookCalendarSyncApplication extends Application {
 
         mAccountUtils.ensureAccountExists();
         mSyncAdapterUtils.ensureSyncAdapterIsSetup();
+    }
+
+    public ApplicationComponent getApplicationComponent() {
+        return this.mApplicationComponent;
     }
 }
