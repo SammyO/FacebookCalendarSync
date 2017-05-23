@@ -7,7 +7,6 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -120,7 +119,6 @@ public class SyncFragment extends Fragment {
     // endregion
 
     // region EventBus methods
-    // TODO replace with BroadcastReceiver
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onSyncAdapterRunEvent(SyncAdapterRanEvent event) {
         try {
@@ -138,16 +136,14 @@ public class SyncFragment extends Fragment {
         getActivity().registerReceiver(mSyncAdapterRanReceiver, new IntentFilter("com.oddhov.facebookcalendarsync"));
 
         try {
-            String lastSynced = mTimeUtils.convertEpochFormatToDate(mDatabaseUtils.getLastSynced());
-            if (TextUtils.isEmpty(lastSynced)) {
+            if (mDatabaseUtils.getLastSynced() == 0) {
                 tvLastSynced.setText(R.string.not_synced_yet);
             } else {
-                tvLastSynced.setText(lastSynced);
+                tvLastSynced.setText(mTimeUtils.convertEpochFormatToDate(mDatabaseUtils.getLastSynced()));
             }
         } catch (RealmException e) {
             Crashlytics.logException(e);
         }
-
     }
 
     private boolean hasNetworkConnection() {
