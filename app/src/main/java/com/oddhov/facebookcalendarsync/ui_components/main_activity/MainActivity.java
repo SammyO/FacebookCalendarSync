@@ -231,6 +231,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
     // region Helper methods UI
     private void setupNavigationDrawer() {
+        // TODO chance start/stop icon based on state
         PrimaryDrawerItem startStopSync = new PrimaryDrawerItem().withIdentifier(Constants.STOP_START_SYNC).withName(
                 R.string.navigation_drawer_stop_sync).withIcon(R.drawable.ic_stop).withSelectable(false);
         PrimaryDrawerItem logOut;
