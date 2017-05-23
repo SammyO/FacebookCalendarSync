@@ -52,6 +52,7 @@ import io.realm.RealmConfiguration;
  * Events timezone
  * Rate app
  * Google Analytics
+ * https://developer.android.com/reference/android/support/annotation/package-summary.html
  *
  */
 public class FacebookCalendarSyncApplication extends Application {
