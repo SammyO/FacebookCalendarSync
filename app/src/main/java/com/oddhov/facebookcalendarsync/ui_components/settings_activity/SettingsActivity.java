@@ -15,7 +15,9 @@ import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.app.ActivityModule;
 import com.oddhov.facebookcalendarsync.app.FacebookCalendarSyncApplication;
 import com.oddhov.facebookcalendarsync.data.Constants;
-import com.oddhov.facebookcalendarsync.data.models.ActivityTransition;
+import com.oddhov.facebookcalendarsync.data.events.NavigateBackEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -36,16 +38,17 @@ public class SettingsActivity extends AppCompatActivity {
         initializeInjector();
 
         setContentView(R.layout.activity_settings);
-        setupViews(getIntent().getIntExtra(Constants.SETTINGS_SCREEN, 0));
+
+        if (savedInstanceState == null) {
+            setupViews(getIntent().getIntExtra(Constants.SETTINGS_SCREEN, 0));
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
-                ActivityTransition transition = ActivityTransition.BACK;
-                overridePendingTransition(transition.getEnter(), transition.getExit());
+                onBackPressed();
                 return true;
         }
         return false;
@@ -55,9 +58,7 @@ public class SettingsActivity extends AppCompatActivity {
     // region Activity methods
     @Override
     public void onBackPressed() {
-        finish();
-        ActivityTransition transition = ActivityTransition.BACK;
-        overridePendingTransition(transition.getEnter(), transition.getExit());
+        EventBus.getDefault().post(new NavigateBackEvent());
     }
     // endregion
 

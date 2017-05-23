@@ -40,16 +40,17 @@
     <string name="navigation_drawer_log_out">Log out from Facebook</string>
     <string name="navigation_drawer_log_in">Log in with Facebook</string>
     <string name="navigation_drawer_report_a_bug">Report a bug</string>
+    <string name="dialog_logout_title">Sure?</string>
+    <string name="dialog_logout_description">Are you sure you want to log out from Facebook? If you\'re logged out,
+        your Facebook events won\'t be synced with your local calendar anymore.</string>
 
     <!--Settings -->
     <string name="facebook_settings_title">Facebook settings</string>
     <string name="local_calendar_settings_title">Local calendar settings</string>
     <string name="sync_settings_title">Sync settings</string>
-    <string name="dialog_logout_title">Sure?</string>
-    <string name="dialog_logout_description">Are you sure you want to log out from Facebook? If you\'re logged out,
-        your Facebook events won\'t be synced with your local calendar anymore.</string>
-    <string name="button_settings">Settings</string>
-    <string name="button_logout">Log out from Facebook</string>
+    <string name="dialog_settings_changed_title">Sync now?</string>
+    <string name="dialog_settings_changed_description">You have changed your sync settings. Would you like
+    to run a sync with these new settings right now?</string>
 
     <!-- Sync Settings -->
     <string name="sync_settings_wifi">Wifi</string>

@@ -2,7 +2,6 @@ package com.oddhov.facebookcalendarsync.ui_components.settings_activity;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
@@ -14,12 +13,19 @@ import android.widget.RadioGroup;
 
 import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.R;
+import com.oddhov.facebookcalendarsync.data.Constants;
+import com.oddhov.facebookcalendarsync.data.events.NavigateBackEvent;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.CalendarColour;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.EventReminder;
+import com.oddhov.facebookcalendarsync.ui_components.settings_activity.base.SettingsBaseFragment;
 import com.oddhov.facebookcalendarsync.utils.CalendarUtils;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import javax.inject.Inject;
 
@@ -29,7 +35,7 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 import io.realm.RealmList;
 
-public class LocalCalendarSettingsFragment extends Fragment implements RadioGroup.OnCheckedChangeListener,
+public class LocalCalendarSettingsFragment extends SettingsBaseFragment implements RadioGroup.OnCheckedChangeListener,
         DialogInterface.OnMultiChoiceClickListener {
 
     // region Fields
@@ -60,6 +66,8 @@ public class LocalCalendarSettingsFragment extends Fragment implements RadioGrou
     RadioButton rbCalendarColorBlue;
 
     private Unbinder mUnbinder;
+
+    private boolean mSettingsChanged;
     // endregion
 
     // region Lifecycle methods
@@ -74,8 +82,29 @@ public class LocalCalendarSettingsFragment extends Fragment implements RadioGrou
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            mSettingsChanged = savedInstanceState.getBoolean(Constants.SETTINGS_CHANGED);
+        }
         initializeInjector();
         setupViews();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(Constants.SETTINGS_CHANGED, mSettingsChanged);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
     }
 
     @Override
@@ -100,6 +129,7 @@ public class LocalCalendarSettingsFragment extends Fragment implements RadioGrou
         } catch (RealmException e) {
             Crashlytics.logException(e);
         }
+        mSettingsChanged = true;
     }
 
     @OnClick(R.id.llSetupReminderTime)
@@ -130,6 +160,7 @@ public class LocalCalendarSettingsFragment extends Fragment implements RadioGrou
                 colorValue = CalendarColour.PURPLE;
                 break;
         }
+
         try {
             mDatabaseUtils.setCalendarColor(colorValue);
             mCalendarUtils.deleteCalendar();
@@ -138,6 +169,7 @@ public class LocalCalendarSettingsFragment extends Fragment implements RadioGrou
         } catch (RealmException e) {
             Crashlytics.logException(e);
         }
+        mSettingsChanged = true;
     }
     // endregion
 
@@ -150,6 +182,18 @@ public class LocalCalendarSettingsFragment extends Fragment implements RadioGrou
             }
         } catch (RealmException e) {
             e.printStackTrace();
+        }
+        mSettingsChanged = true;
+    }
+    // endregion
+
+    // region EventBus methods
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onNavigateBackEvent(NavigateBackEvent event) {
+        if (mSettingsChanged) {
+            showSettingsChangedDialog();
+        } else {
+            navigateBack();
         }
     }
     // endregion

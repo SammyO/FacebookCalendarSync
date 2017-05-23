@@ -41,4 +41,7 @@ public final class Constants {
     public static final int FACEBOOK_SETTINGS = 4;
     public static final int LOCAL_CALENDAR_SETTINGS = 5;
     public static final int SYNC_SETTINGS = 6;
+
+    // Saved state constants
+    public static final String SETTINGS_CHANGED = "SETTINGS_CHANGED";
 }

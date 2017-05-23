@@ -2,7 +2,6 @@ package com.oddhov.facebookcalendarsync.ui_components.settings_activity;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
@@ -14,11 +13,18 @@ import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.R;
+import com.oddhov.facebookcalendarsync.data.Constants;
+import com.oddhov.facebookcalendarsync.data.events.NavigateBackEvent;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.exceptions.UnexpectedException;
 import com.oddhov.facebookcalendarsync.data.models.CustomTime;
+import com.oddhov.facebookcalendarsync.ui_components.settings_activity.base.SettingsBaseFragment;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import javax.inject.Inject;
 
@@ -27,7 +33,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class SyncSettingsFragment extends Fragment implements DialogInterface.OnClickListener {
+public class SyncSettingsFragment extends SettingsBaseFragment implements DialogInterface.OnClickListener {
     // region Fields
     public static final String TAG = "SyncSettingsFragment";
 
@@ -46,6 +52,8 @@ public class SyncSettingsFragment extends Fragment implements DialogInterface.On
     TextView tvSyncInterval;
 
     private Unbinder mUnbinder;
+
+    private boolean mSettingsChanged;
     // endregion
 
     // region Lifecycle methods
@@ -60,8 +68,29 @@ public class SyncSettingsFragment extends Fragment implements DialogInterface.On
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            mSettingsChanged = savedInstanceState.getBoolean(Constants.SETTINGS_CHANGED);
+        }
         initializeInjector();
         setupViews();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(Constants.SETTINGS_CHANGED, mSettingsChanged);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
     }
 
     @Override
@@ -79,6 +108,7 @@ public class SyncSettingsFragment extends Fragment implements DialogInterface.On
         } catch (RealmException e) {
             Crashlytics.logException(e);
         }
+        mSettingsChanged = true;
     }
 
     @OnClick(R.id.swWifiOnly)
@@ -88,6 +118,7 @@ public class SyncSettingsFragment extends Fragment implements DialogInterface.On
         } catch (RealmException e) {
             Crashlytics.logException(e);
         }
+        mSettingsChanged = true;
     }
 
     @OnClick(R.id.llSyncInterval)
@@ -113,6 +144,7 @@ public class SyncSettingsFragment extends Fragment implements DialogInterface.On
                     mDatabaseUtils.setSyncInterval(CustomTime.ONE_HOUR);
                     mSyncAdapterUtils.setSyncAdapterRunInterval(CustomTime.ONE_HOUR);
                     tvSyncInterval.setText(R.string.sync_settings_sync_interval_1hr);
+                    mSettingsChanged = true;
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
                 }
@@ -122,6 +154,7 @@ public class SyncSettingsFragment extends Fragment implements DialogInterface.On
                     mDatabaseUtils.setSyncInterval(CustomTime.SIX_HOURS);
                     mSyncAdapterUtils.setSyncAdapterRunInterval(CustomTime.SIX_HOURS);
                     tvSyncInterval.setText(R.string.sync_settings_sync_interval_6hrs);
+                    mSettingsChanged = true;
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
                 }
@@ -131,6 +164,7 @@ public class SyncSettingsFragment extends Fragment implements DialogInterface.On
                     mDatabaseUtils.setSyncInterval(CustomTime.TWELVE_HOURS);
                     mSyncAdapterUtils.setSyncAdapterRunInterval(CustomTime.TWELVE_HOURS);
                     tvSyncInterval.setText(R.string.sync_settings_sync_interval_12hrs);
+                    mSettingsChanged = true;
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
                 }
@@ -140,12 +174,24 @@ public class SyncSettingsFragment extends Fragment implements DialogInterface.On
                     mDatabaseUtils.setSyncInterval(CustomTime.TWENTY_FOUR_HOURS);
                     mSyncAdapterUtils.setSyncAdapterRunInterval(CustomTime.TWENTY_FOUR_HOURS);
                     tvSyncInterval.setText(R.string.sync_settings_sync_interval_24hrs);
+                    mSettingsChanged = true;
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
                 }
                 break;
             default:
                 break;
+        }
+    }
+    // endregion
+
+    // region EventBus methods
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onNavigateBackEvent(NavigateBackEvent event) {
+        if (mSettingsChanged) {
+            showSettingsChangedDialog();
+        } else {
+            navigateBack();
         }
     }
     // endregion
