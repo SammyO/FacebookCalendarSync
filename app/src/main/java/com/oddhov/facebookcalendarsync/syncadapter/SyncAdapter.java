@@ -66,7 +66,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
         mContext = context;
         initializeInjector();
 
-        FacebookSdk.sdkInitialize(getContext());
+        FacebookSdk.sdkInitialize(mContext);
     }
 
     @Override
@@ -156,7 +156,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                      */
                     mCalendarUtils.insertOrUpdateCalendarEvents(mCalendarUtils.getCalendarId(), mUpdatedEvents);
                     mCalendarUtils.deleteMissingCalendarEvents(mCalendarUtils.getCalendarId(), mUpdatedEvents);
-                    Log.i(getContext().getString(R.string.app_name), "Updating events finished");
+                    Log.i(mContext.getString(R.string.app_name), "Updating events finished");
                 }
             } else {
                 Crashlytics.logException(new FacebookException("SyncAdapter", "Facebook response contained" +
@@ -184,7 +184,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
     private void sendSyncAdapterRanIntent() {
         Intent sendIntent = new Intent("com.oddhov.facebookcalendarsync");
         sendIntent.putExtra(Constants.SYNC_ADAPTER_RAN_EXTRA, true);
-        getContext().sendBroadcast(sendIntent);
+        mContext.sendBroadcast(sendIntent);
     }
     //endregion
 }

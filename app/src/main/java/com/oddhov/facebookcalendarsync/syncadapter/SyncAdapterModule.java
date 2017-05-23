@@ -9,15 +9,15 @@ import dagger.Provides;
 
 @Module
 public class SyncAdapterModule {
-    private Context mAppContext;
+    private Context mContext;
 
-    public SyncAdapterModule(Context appContext) {
-        mAppContext = appContext;
+    public SyncAdapterModule(Context context) {
+        mContext = context;
     }
 
     @Provides
     @Singleton
-    Context provideAppContext() {
-        return this.mAppContext;
+    Context provideContext() {
+        return this.mContext;
     }
 }
