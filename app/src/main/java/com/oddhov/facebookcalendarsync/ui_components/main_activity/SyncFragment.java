@@ -105,15 +105,26 @@ public class SyncFragment extends Fragment {
     // region VI methods
     @OnClick(R.id.btnSynNow)
     public void onSyncNowClicked() {
-        if (hasNetworkConnection()) {
-            mSyncAdapterUtils.runSyncAdapterNow();
-        } else {
+        if (!hasNetworkConnection()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.no_network_title);
             builder.setMessage(R.string.no_network_message);
             builder.setPositiveButton(android.R.string.ok, null);
             builder.setCancelable(true);
             builder.show();
+        } else try {
+            if (mDatabaseUtils.getSyncAdapterPaused()) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(R.string.sync_paused_title);
+                builder.setMessage(R.string.sync_paused_message);
+                builder.setPositiveButton(android.R.string.ok, null);
+                builder.setCancelable(true);
+                builder.show();
+            } else {
+                mSyncAdapterUtils.runSyncAdapterNow();
+            }
+        } catch (RealmException e) {
+            Crashlytics.logException(e);
         }
     }
     // endregion

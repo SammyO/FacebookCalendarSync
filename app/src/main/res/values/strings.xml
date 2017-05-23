@@ -29,6 +29,8 @@
     <string name="no_network_title">No network</string>
     <string name="no_network_message">It seems that you don\'t have an active network connection. Please connect to the internet, so
     your Facebook events can be synced.</string>
+    <string name="sync_paused_title">Sync paused</string>
+    <string name="sync_paused_message">Syncing is currently paused. You can change this in the menu on the left.</string>
 
     <!-- Navigation drawer -->
     <string name="navigation_drawer_header_settings">Settings</string>

@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -21,6 +22,7 @@ import com.facebook.login.LoginResult;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.holder.DimenHolder;
+import com.mikepenz.materialdrawer.holder.ImageHolder;
 import com.mikepenz.materialdrawer.holder.StringHolder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
@@ -149,14 +151,21 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
         switch ((int) drawerItem.getIdentifier()) {
             case Constants.STOP_START_SYNC:
                 try {
+                    Log.e("MainActivity", "getSyncAdapterPaused: " + mDatabaseUtils.getSyncAdapterPaused());
+                } catch (RealmException e) {
+                    e.printStackTrace();
+                }
+                try {
                     if (mDatabaseUtils.getSyncAdapterPaused()) {
                         mSyncAdapterUtils.setSyncAdapterRunnable(true);
                         mDatabaseUtils.setSyncAdapterPaused(false);
                         mNavigationDrawer.updateName(Constants.STOP_START_SYNC, new StringHolder(getString(R.string.navigation_drawer_stop_sync)));
+                        mNavigationDrawer.updateIcon(Constants.STOP_START_SYNC, new ImageHolder(R.drawable.ic_stop));
                     } else {
                         mSyncAdapterUtils.setSyncAdapterRunnable(false);
                         mDatabaseUtils.setSyncAdapterPaused(true);
                         mNavigationDrawer.updateName(Constants.STOP_START_SYNC, new StringHolder(getString(R.string.navigation_drawer_start_sync)));
+                        mNavigationDrawer.updateIcon(Constants.STOP_START_SYNC, new ImageHolder(R.drawable.ic_play));
                     }
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
@@ -231,9 +240,20 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
     // region Helper methods UI
     private void setupNavigationDrawer() {
+        Log.e("MainActivity", "setupNavigationDrawer");
         // TODO chance start/stop icon based on state
-        PrimaryDrawerItem startStopSync = new PrimaryDrawerItem().withIdentifier(Constants.STOP_START_SYNC).withName(
-                R.string.navigation_drawer_stop_sync).withIcon(R.drawable.ic_stop).withSelectable(false);
+        PrimaryDrawerItem startStopSync = null;
+        try {
+            startStopSync = new PrimaryDrawerItem().
+                    withIdentifier(Constants.STOP_START_SYNC)
+                    .withName(mDatabaseUtils.getSyncAdapterPaused() ? R.string.navigation_drawer_start_sync :
+                            R.string.navigation_drawer_stop_sync)
+                    .withIcon(mDatabaseUtils.getSyncAdapterPaused() ? R.drawable.ic_play : R.drawable.ic_stop)
+                    .withSelectable(false);
+        } catch (RealmException e) {
+            Crashlytics.logException(e);
+        }
+
         PrimaryDrawerItem logOut;
         if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
             logOut = new PrimaryDrawerItem().withIdentifier(Constants.LOG_IN_OUT).withName(
