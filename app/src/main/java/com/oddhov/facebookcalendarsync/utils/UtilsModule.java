@@ -31,6 +31,14 @@ public class UtilsModule {
 
     @Provides
     @Singleton
+    NavigationDrawerUtils provideNavigationDrawerUtils(Context context,
+                                                       DatabaseUtils databaseUtils,
+                                                       SyncAdapterUtils syncAdapterUtils) {
+        return new NavigationDrawerUtils(context, databaseUtils, syncAdapterUtils);
+    }
+
+    @Provides
+    @Singleton
     NetworkUtils provideNetworkUtils(Context context, NotificationUtils notificationUtils,
                                      DatabaseUtils databaseUtils) {
         return new NetworkUtils(context, notificationUtils, databaseUtils);

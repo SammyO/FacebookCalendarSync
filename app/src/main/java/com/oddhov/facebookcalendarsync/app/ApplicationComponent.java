@@ -3,6 +3,7 @@ package com.oddhov.facebookcalendarsync.app;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.CalendarUtils;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
+import com.oddhov.facebookcalendarsync.utils.NavigationDrawerUtils;
 import com.oddhov.facebookcalendarsync.utils.NetworkUtils;
 import com.oddhov.facebookcalendarsync.utils.NotificationUtils;
 import com.oddhov.facebookcalendarsync.utils.PermissionUtils;
@@ -25,6 +26,8 @@ public interface ApplicationComponent {
     CalendarUtils getCalendarUtils();
 
     DatabaseUtils getDatabaseUtils();
+
+    NavigationDrawerUtils getNavigationDrawerUtils();
 
     NetworkUtils getNetworkUtils();
 
