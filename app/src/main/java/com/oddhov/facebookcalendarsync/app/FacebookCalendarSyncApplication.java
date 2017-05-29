@@ -3,11 +3,13 @@ package com.oddhov.facebookcalendarsync.app;
 import android.app.Application;
 
 import com.crashlytics.android.Crashlytics;
+import com.oddhov.facebookcalendarsync.BuildConfig;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 import com.oddhov.facebookcalendarsync.utils.UtilsModule;
+import com.squareup.leakcanary.LeakCanary;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -71,6 +73,15 @@ public class FacebookCalendarSyncApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        if (BuildConfig.DEBUG) {
+            if (LeakCanary.isInAnalyzerProcess(this)) {
+                // This process is dedicated to LeakCanary for heap analysis.
+                return;
+            }
+            LeakCanary.install(this);
+        }
+
         this.mApplicationComponent = DaggerApplicationComponent.builder()
                 .applicationModule(new ApplicationModule(getApplicationContext(), EventBus.getDefault()))
                 .utilsModule(new UtilsModule())

@@ -125,7 +125,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
         } catch (RealmException e) {
             Crashlytics.logException(e);
         }
-
     }
 
 
@@ -142,6 +141,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                     response.getError().getErrorMessage()));
         } else {
             EventsResponse eventsResponse = parseAndValidateFacebookResponse(response);
+            Log.e("SyncAdapter", "Facebook response: " + response.getRawResponse());
             if (eventsResponse.getEvents().size() != 0) {
                 List<RealmCalendarEvent> updatedEvents = mDatabaseUtils.updateCalendarEvents(
                         mDatabaseUtils.convertToRealmCalendarEvents(eventsResponse.getEvents()));
