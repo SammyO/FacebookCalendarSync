@@ -13,8 +13,6 @@ public class UserData extends RealmObject {
     private boolean mSyncWifiOnly;
     private boolean mShowNotifications;
     private int mSyncInterval;
-    private boolean mSyncBirthdays;
-    private boolean mShowLinks;
     private int mSyncRange;
     private boolean mShowReminders;
     private int mCalendarColor;
@@ -64,22 +62,6 @@ public class UserData extends RealmObject {
 
     public void setSyncInterval(int syncInterval) {
         this.mSyncInterval = syncInterval;
-    }
-
-    public boolean getSyncBirthdays() {
-        return mSyncBirthdays;
-    }
-
-    public void setSyncBirthdays(boolean syncBirthdays) {
-        this.mSyncBirthdays = syncBirthdays;
-    }
-
-    public boolean getShowLinks() {
-        return mShowLinks;
-    }
-
-    public void setShowLinks(boolean showLinks) {
-        this.mShowLinks = showLinks;
     }
 
     public int getSyncRange() {

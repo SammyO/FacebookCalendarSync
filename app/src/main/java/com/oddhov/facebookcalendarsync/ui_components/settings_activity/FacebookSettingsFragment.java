@@ -1,7 +1,6 @@
 package com.oddhov.facebookcalendarsync.ui_components.settings_activity;
 
 import android.os.Bundle;
-import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +24,6 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import butterknife.Unbinder;
 
 public class FacebookSettingsFragment extends SettingsBaseFragment implements RadioGroup.OnCheckedChangeListener {
@@ -35,10 +33,6 @@ public class FacebookSettingsFragment extends SettingsBaseFragment implements Ra
     @Inject
     DatabaseUtils mDatabaseUtils;
 
-    @BindView(R.id.swSyncBirthdays)
-    SwitchCompat swSyncBirthdays;
-    @BindView(R.id.swShowLinks)
-    SwitchCompat swShowLinks;
     @BindView(R.id.rgSyncRange)
     RadioGroup rgSyncRange;
     @BindView(R.id.rbSyncRangeAll)
@@ -96,25 +90,7 @@ public class FacebookSettingsFragment extends SettingsBaseFragment implements Ra
     // endregion
 
     // region VI methods
-    @OnClick(R.id.swSyncBirthdays)
-    public void onSyncBirthdaysClicked() {
-        try {
-            mDatabaseUtils.setSyncBirthdays(swSyncBirthdays.isChecked());
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
-        }
-        mSettingsChanged = true;
-    }
 
-    @OnClick(R.id.swShowLinks)
-    public void onShowLinksClicked() {
-        try {
-            mDatabaseUtils.setShowLinks(swShowLinks.isChecked());
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
-        }
-        mSettingsChanged = true;
-    }
     // endregion
 
     // region Interface RadioGroup.OnCheckedChangeListener
@@ -163,9 +139,6 @@ public class FacebookSettingsFragment extends SettingsBaseFragment implements Ra
     // region Helper Methods (UI)
     private void setupViews() {
         try {
-            swSyncBirthdays.setChecked(mDatabaseUtils.getSyncBirthdays());
-            swShowLinks.setChecked(mDatabaseUtils.getShowLinks());
-
             switch (mDatabaseUtils.getSyncRange()) {
                 case SYNC_ALL:
                     rbSynAll.setChecked(true);
