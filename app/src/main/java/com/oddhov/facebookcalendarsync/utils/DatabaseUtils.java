@@ -4,13 +4,14 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.CalendarColour;
 import com.oddhov.facebookcalendarsync.data.models.CustomTime;
 import com.oddhov.facebookcalendarsync.data.models.Event;
-import com.oddhov.facebookcalendarsync.data.models.SyncRange;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.EventReminder;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.RealmCalendarEvent;
+import com.oddhov.facebookcalendarsync.data.models.realm_models.RsvpSyncPreference;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.UserData;
 
 import java.util.ArrayList;
@@ -43,8 +44,14 @@ public class DatabaseUtils {
             eventReminders.add(new EventReminder(false, 360));
             eventReminders.add(new EventReminder(false, 720));
             eventReminders.add(new EventReminder(false, 1440));
-
             userdata.setEventReminders(eventReminders);
+
+            final RealmList<RsvpSyncPreference> rsvpSyncPreferences = new RealmList<>();
+            rsvpSyncPreferences.add(new RsvpSyncPreference(true, Constants.ATTENDING));
+            rsvpSyncPreferences.add(new RsvpSyncPreference(true, Constants.MAYBE));
+            rsvpSyncPreferences.add(new RsvpSyncPreference(true, Constants.NOT_REPLIED));
+            rsvpSyncPreferences.add(new RsvpSyncPreference(false, Constants.DECLINED));
+            userdata.setRsvpSyncPreferences(rsvpSyncPreferences);
 
             mRealm.executeTransaction(new Realm.Transaction() {
                 @Override
@@ -77,7 +84,7 @@ public class DatabaseUtils {
 
     public boolean getSyncAdapterPaused() throws RealmException {
         mRealm = Realm.getDefaultInstance();
-        boolean isPaused = getUserData().isIsSyncAdapterPaused();
+        boolean isPaused = getUserData().isSyncAdapterPaused();
         closeRealm();
         return isPaused;
     }
@@ -88,7 +95,7 @@ public class DatabaseUtils {
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                userData.setIsSyncAdapterPaused(paused);
+                userData.setSyncAdapterPaused(paused);
             }
         });
         closeRealm();
@@ -157,22 +164,45 @@ public class DatabaseUtils {
         closeRealm();
     }
 
-    public SyncRange getSyncRange() throws RealmException {
+    public boolean isSyncOnlyUpcoming() throws RealmException {
         mRealm = Realm.getDefaultInstance();
-        SyncRange syncRange = SyncRange.values()[getUserData().getSyncRange()];
+        boolean syncRange = getUserData().isSyncOnlyUpcoming();
         closeRealm();
         Log.e("DatabaseUtils", "getSyncRange: " + syncRange);
         return syncRange;
     }
 
-    public void setSyncRange(final SyncRange syncRange) throws RealmException {
+    public void setSyncOnlyUpcoming(final boolean syncRange) throws RealmException {
         Log.e("DatabaseUtils", "setSyncRange: " + syncRange);
         mRealm = Realm.getDefaultInstance();
         final UserData userData = getUserData();
         mRealm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                userData.setSyncRange(syncRange.ordinal());
+                userData.setSyncOnlyUpcoming(syncRange);
+            }
+        });
+        closeRealm();
+    }
+
+    public List<RsvpSyncPreference> getRsvpSyncPreferences() throws RealmException {
+        mRealm = Realm.getDefaultInstance();
+        List<RsvpSyncPreference> rsvpStatusesCopy;
+        RealmList<RsvpSyncPreference> rsvpStatuses = getUserData().getRsvpSyncPreferences();
+        rsvpStatusesCopy = mRealm.copyFromRealm(rsvpStatuses);
+        closeRealm();
+        Log.e("DatabaseUtils", "getRsvpStatuses: " + rsvpStatuses.toString());
+        return rsvpStatusesCopy;
+    }
+
+    public void setRsvpSyncPreference(final int position, final boolean isSet) throws RealmException {
+        Log.e("DatabaseUtils", "setRsvpSyncPreference: " + position + " " + isSet);
+        mRealm = Realm.getDefaultInstance();
+        final UserData userData = getUserData();
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                userData.getRsvpSyncPreferences().get(position).setIsSet(isSet);
             }
         });
         closeRealm();
@@ -199,12 +229,14 @@ public class DatabaseUtils {
         closeRealm();
     }
 
-    public RealmList<EventReminder> getAllReminderTimes() throws RealmException {
+    public List<EventReminder> getAllReminderTimes() throws RealmException {
         mRealm = Realm.getDefaultInstance();
+        List<EventReminder> remindersCopy;
         RealmList<EventReminder> reminders = getUserData().getEventReminders();
+        remindersCopy = mRealm.copyFromRealm(reminders);
         closeRealm();
         Log.e("DatabaseUtils", "getAllReminderTimes: " + reminders.toString());
-        return reminders;
+        return remindersCopy;
     }
 
     public void setReminderTime(final int position, final boolean isSet) throws RealmException {

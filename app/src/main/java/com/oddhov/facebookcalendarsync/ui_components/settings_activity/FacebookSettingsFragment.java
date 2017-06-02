@@ -1,9 +1,12 @@
 package com.oddhov.facebookcalendarsync.ui_components.settings_activity;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
@@ -12,7 +15,7 @@ import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.events.NavigateBackEvent;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
-import com.oddhov.facebookcalendarsync.data.models.SyncRange;
+import com.oddhov.facebookcalendarsync.data.models.realm_models.RsvpSyncPreference;
 import com.oddhov.facebookcalendarsync.ui_components.settings_activity.base.SettingsBaseFragment;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 
@@ -20,19 +23,25 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
-public class FacebookSettingsFragment extends SettingsBaseFragment implements RadioGroup.OnCheckedChangeListener {
+public class FacebookSettingsFragment extends SettingsBaseFragment implements RadioGroup.OnCheckedChangeListener,
+        DialogInterface.OnMultiChoiceClickListener {
     // region Fields
     public static final String TAG = "FacebookSettingsFragment";
 
     @Inject
     DatabaseUtils mDatabaseUtils;
 
+    @BindView(R.id.llSetupRsvpRange)
+    LinearLayout llSetupRsvpRange;
     @BindView(R.id.rgSyncRange)
     RadioGroup rgSyncRange;
     @BindView(R.id.rbSyncRangeAll)
@@ -90,7 +99,10 @@ public class FacebookSettingsFragment extends SettingsBaseFragment implements Ra
     // endregion
 
     // region VI methods
-
+    @OnClick(R.id.llSetupRsvpRange)
+    public void onSetupRsvpRange() {
+        showRsvpOptionsDialog();
+    }
     // endregion
 
     // region Interface RadioGroup.OnCheckedChangeListener
@@ -99,7 +111,7 @@ public class FacebookSettingsFragment extends SettingsBaseFragment implements Ra
         switch (which) {
             case R.id.rbSyncRangeAll:
                 try {
-                    mDatabaseUtils.setSyncRange(SyncRange.SYNC_ALL);
+                    mDatabaseUtils.setSyncOnlyUpcoming(false);
                     mSettingsChanged = true;
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
@@ -107,7 +119,7 @@ public class FacebookSettingsFragment extends SettingsBaseFragment implements Ra
                 break;
             case R.id.rbSyncRangeUpcoming:
                 try {
-                    mDatabaseUtils.setSyncRange(SyncRange.SYNC_UPCOMING);
+                    mDatabaseUtils.setSyncOnlyUpcoming(true);
                     mSettingsChanged = true;
                 } catch (RealmException e) {
                     Crashlytics.logException(e);
@@ -116,6 +128,20 @@ public class FacebookSettingsFragment extends SettingsBaseFragment implements Ra
             default:
                 break;
         }
+    }
+    // endregion
+
+    // region DialogInterface.OnMultiChoiceClickListener
+    @Override
+    public void onClick(DialogInterface dialogInterface, int which, boolean isChecked) {
+        try {
+            if (which <= mDatabaseUtils.getRsvpSyncPreferences().size()) {
+                mDatabaseUtils.setRsvpSyncPreference(which, isChecked);
+            }
+        } catch (RealmException e) {
+            e.printStackTrace();
+        }
+        mSettingsChanged = true;
     }
     // endregion
 
@@ -139,21 +165,42 @@ public class FacebookSettingsFragment extends SettingsBaseFragment implements Ra
     // region Helper Methods (UI)
     private void setupViews() {
         try {
-            switch (mDatabaseUtils.getSyncRange()) {
-                case SYNC_ALL:
-                    rbSynAll.setChecked(true);
-                    break;
-                case SYNC_UPCOMING:
-                    rbSynUpcoming.setChecked(true);
-                    break;
-                default:
-                    break;
+            if (mDatabaseUtils.isSyncOnlyUpcoming()) {
+                rbSynUpcoming.setChecked(true);
+            } else {
+                rbSynAll.setChecked(true);
             }
             rgSyncRange.setOnCheckedChangeListener(this);
 
         } catch (RealmException e) {
             e.printStackTrace();
         }
+    }
+
+    private void showRsvpOptionsDialog() {
+        try {
+            final CharSequence[] rsvpOptions = {
+                    getString(R.string.facebook_settings_rsvp_range_attending),
+                    getString(R.string.facebook_settings_rsvp_range_interested),
+                    getString(R.string.facebook_settings_rsvp_range_not_replied),
+                    getString(R.string.facebook_settings_rsvp_range_declined)};
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.facebook_settings_rsvp_range);
+            List<RsvpSyncPreference> rsvpSyncPreferences = mDatabaseUtils.getRsvpSyncPreferences();
+            boolean[] rsvpSyncPreferencesBooleans = new boolean[rsvpSyncPreferences.size()];
+            int i = 0;
+            for (RsvpSyncPreference rsvpSyncPreference : rsvpSyncPreferences) {
+                rsvpSyncPreferencesBooleans[i++] = rsvpSyncPreference.isSet();
+            }
+            builder.setMultiChoiceItems(rsvpOptions, rsvpSyncPreferencesBooleans, this);
+            builder.setPositiveButton(android.R.string.ok, null);
+            builder.setNegativeButton(android.R.string.cancel, null);
+            builder.show();
+        } catch (RealmException e) {
+            Crashlytics.logException(e);
+        }
+
     }
     // endregion
 }

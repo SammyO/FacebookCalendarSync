@@ -102,7 +102,7 @@ public class CalendarUtils {
         ContentValues[] bulkToInsert;
         for (int i = 0; i < realmCalendarEventsList.size(); i++) {
             RealmCalendarEvent event = realmCalendarEventsList.get(i);
-                if (TextUtils.isEmpty(event.getName()) || event.getStartTime() == null) {
+            if (TextUtils.isEmpty(event.getName()) || event.getStartTime() == null) {
                 continue;
             }
 
@@ -110,6 +110,7 @@ public class CalendarUtils {
                 try {
                     mDatabaseUtils.setEventEndTime(event, TimeUtils.addOneHourToTimeStamp(event.getStartTime()));
                 } catch (ParseException e) {
+                    // TODO add logging to local file
                     continue;
                 }
             }
@@ -118,10 +119,13 @@ public class CalendarUtils {
             if (eventExists) {
                 updateEvent(event);
             } else {
+                String eventDescription = String.format("%s\n\nRSVP status: %s",
+                        event.getDescription(),
+                        event.getRsvpStatus());
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(CalendarContract.Events._ID, event.getId());
                 contentValues.put(CalendarContract.Events.TITLE, event.getName());
-                contentValues.put(CalendarContract.Events.DESCRIPTION, event.getDescription());
+                contentValues.put(CalendarContract.Events.DESCRIPTION, eventDescription);
                 contentValues.put(CalendarContract.Events.DTSTART, mTimeUtils.convertDateToEpochFormat(event.getStartTime()));
                 contentValues.put(CalendarContract.Events.DTEND, mTimeUtils.convertDateToEpochFormat(event.getEndTime()));
                 contentValues.put(CalendarContract.Events.EVENT_TIMEZONE, "NL");
@@ -267,9 +271,13 @@ public class CalendarUtils {
         Uri uri = CalendarContract.Events.CONTENT_URI;
         String selection = "(" + CalendarContract.Events._ID + " = ?)";
         String[] selectionArgs = new String[]{event.getId()};
+
+        String eventDescription = String.format("%s\n\nRSVP status: %s",
+                event.getDescription(),
+                event.getRsvpStatus());
         ContentValues contentValues = new ContentValues();
         contentValues.put(CalendarContract.Events.TITLE, event.getName());
-        contentValues.put(CalendarContract.Events.DESCRIPTION, event.getDescription());
+        contentValues.put(CalendarContract.Events.DESCRIPTION, eventDescription);
         contentValues.put(CalendarContract.Events.DTSTART, mTimeUtils.convertDateToEpochFormat(event.getStartTime()));
         contentValues.put(CalendarContract.Events.DTEND, mTimeUtils.convertDateToEpochFormat(event.getEndTime()));
         contentValues.put(CalendarContract.Events.EVENT_TIMEZONE, "NL"); // TODO

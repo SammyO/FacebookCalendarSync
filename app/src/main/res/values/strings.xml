@@ -67,11 +67,14 @@
     <string name="sync_settings_sync_interval_24hrs">24 hours</string>
 
     <!-- Facebook Settings -->
-    <string name="facebook_settings_birthdays">Birthdays</string>
-    <string name="facebook_settings_birthdays_description">Sync Facebook birthdays to local calendar as well.</string>
-    <string name="facebook_settings_show_link">Show Facebook link</string>
-    <string name="facebook_settings_show_link_description">Show a link to the Facebook event in the event description.</string>
+    <string name="facebook_settings_rsvp_range">"Attending" status</string>
+    <string name="facebook_settings_rsvp_range_description">Choose which events are synced</string>
+    <string name="facebook_settings_rsvp_range_attending">Attending</string>
+    <string name="facebook_settings_rsvp_range_interested">Interested</string>
+    <string name="facebook_settings_rsvp_range_not_replied">Not replied</string>
+    <string name="facebook_settings_rsvp_range_declined">Declined</string>
     <string name="facebook_settings_sync_range">Syncing range</string>
+    <string name="facebook_settings_sync_range_description">Should all events, or only upcoming events be synced?</string>
     <string name="facebook_settings_sync_range_all">All events</string>
     <string name="facebook_settings_sync_range_upcoming">Upcoming events</string>
 

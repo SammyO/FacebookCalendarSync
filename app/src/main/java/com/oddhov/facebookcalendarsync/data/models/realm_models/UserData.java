@@ -2,25 +2,24 @@ package com.oddhov.facebookcalendarsync.data.models.realm_models;
 
 import com.oddhov.facebookcalendarsync.data.models.CalendarColour;
 import com.oddhov.facebookcalendarsync.data.models.CustomTime;
-import com.oddhov.facebookcalendarsync.data.models.SyncRange;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
 
 public class UserData extends RealmObject {
     private long mLastSyncedTimeStamp;
-    private boolean mIsSyncAdapterPaused;
+    private boolean mSyncAdapterPaused;
     private boolean mSyncWifiOnly;
     private boolean mShowNotifications;
     private int mSyncInterval;
-    private int mSyncRange;
+    private boolean mSyncOnlyUpcoming;
     private boolean mShowReminders;
     private int mCalendarColor;
     private RealmList<EventReminder> mEventReminders;
+    private RealmList<RsvpSyncPreference> mRsvpSyncPreferences;
 
     public UserData() {
         setSyncInterval(CustomTime.ONE_HOUR.ordinal());
-        setSyncRange(SyncRange.SYNC_UPCOMING.ordinal());
         setCalendarColor(CalendarColour.PURPLE.ordinal());
     }
 
@@ -32,12 +31,12 @@ public class UserData extends RealmObject {
         this.mLastSyncedTimeStamp = lastSyncedTimeStamp;
     }
 
-    public boolean isIsSyncAdapterPaused() {
-        return mIsSyncAdapterPaused;
+    public boolean isSyncAdapterPaused() {
+        return mSyncAdapterPaused;
     }
 
-    public void setIsSyncAdapterPaused(boolean isSyncAdapterPaused) {
-        this.mIsSyncAdapterPaused = isSyncAdapterPaused;
+    public void setSyncAdapterPaused(boolean isSyncAdapterPaused) {
+        this.mSyncAdapterPaused = isSyncAdapterPaused;
     }
 
     public boolean isSyncWifiOnly() {
@@ -64,12 +63,12 @@ public class UserData extends RealmObject {
         this.mSyncInterval = syncInterval;
     }
 
-    public int getSyncRange() {
-        return mSyncRange;
+    public boolean isSyncOnlyUpcoming() {
+        return mSyncOnlyUpcoming;
     }
 
-    public void setSyncRange(int syncRange) {
-        this.mSyncRange = syncRange;
+    public void setSyncOnlyUpcoming(boolean syncOnlyUpcoming) {
+        this.mSyncOnlyUpcoming = syncOnlyUpcoming;
     }
 
     public boolean getShowReminders() {
@@ -94,5 +93,13 @@ public class UserData extends RealmObject {
 
     public void setEventReminders(RealmList<EventReminder> reminders) {
         this.mEventReminders = reminders;
+    }
+
+    public RealmList<RsvpSyncPreference> getRsvpSyncPreferences() {
+        return mRsvpSyncPreferences;
+    }
+
+    public void setRsvpSyncPreferences(RealmList<RsvpSyncPreference> rsvpSyncPreferences) {
+        this.mRsvpSyncPreferences = rsvpSyncPreferences;
     }
 }

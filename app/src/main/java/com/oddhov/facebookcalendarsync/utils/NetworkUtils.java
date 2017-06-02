@@ -18,15 +18,13 @@ import com.oddhov.facebookcalendarsync.R;
 public class NetworkUtils {
     private Context mContext;
     private NotificationUtils mNotificationUtils;
-    private DatabaseUtils mDatabaseUtils;
 
-    public NetworkUtils(Context context, NotificationUtils notificationUtils, DatabaseUtils databaseUtils) {
+    public NetworkUtils(Context context, NotificationUtils notificationUtils) {
         this.mContext = context;
         this.mNotificationUtils = notificationUtils;
-        this.mDatabaseUtils = databaseUtils;
     }
 
-    public void fetchUpcomingEvents(GraphRequest.Callback callback) {
+    public void fetchEvents(GraphRequest.Callback callback, boolean fetchOnlyUpcoming, String rsvpPreferenceStatusValue) {
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
             mNotificationUtils.sendNotification(
                     R.string.notification_syncing_problem_title,
@@ -35,40 +33,18 @@ public class NetworkUtils {
             Log.e("CalendarUtils", "No account permissions granted");
             return;
         }
-
         FacebookSdk.sdkInitialize(mContext);
 
         String accessToken = AccessToken.getCurrentAccessToken().getToken();
         Bundle parameters = new Bundle();
         parameters.putString("access_token", accessToken);
         parameters.putString("limit", "25");
-        parameters.putString("since", Long.toString(System.currentTimeMillis() / 1000));
-
-        new GraphRequest(
-                AccessToken.getCurrentAccessToken(),
-                "/" + Profile.getCurrentProfile().getId() + "/events",
-                parameters,
-                HttpMethod.GET,
-                callback)
-                .executeAsync();
-    }
-
-    public void fetchAllEvents(GraphRequest.Callback callback) {
-        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
-            mNotificationUtils.sendNotification(
-                    R.string.notification_syncing_problem_title,
-                    R.string.notification_missing_permissions_message_short,
-                    R.string.notification_missing_permissions_message_long);
-            Log.e("CalendarUtils", "No account permissions granted");
-            return;
+        if (fetchOnlyUpcoming) {
+            parameters.putString("since", Long.toString(System.currentTimeMillis() / 1000));
         }
-
-        FacebookSdk.sdkInitialize(mContext);
-
-        String accessToken = AccessToken.getCurrentAccessToken().getToken();
-        Bundle parameters = new Bundle();
-        parameters.putString("access_token", accessToken);
-        parameters.putString("limit", "25");
+        if (rsvpPreferenceStatusValue != null) {
+            parameters.putString("type", rsvpPreferenceStatusValue);
+        }
 
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),

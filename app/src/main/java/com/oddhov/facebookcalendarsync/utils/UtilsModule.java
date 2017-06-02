@@ -39,9 +39,8 @@ public class UtilsModule {
 
     @Provides
     @Singleton
-    NetworkUtils provideNetworkUtils(Context context, NotificationUtils notificationUtils,
-                                     DatabaseUtils databaseUtils) {
-        return new NetworkUtils(context, notificationUtils, databaseUtils);
+    NetworkUtils provideNetworkUtils(Context context, NotificationUtils notificationUtils) {
+        return new NetworkUtils(context, notificationUtils);
     }
 
     @Provides
