@@ -3,6 +3,7 @@ package com.oddhov.facebookcalendarsync.ui_components.settings_activity;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,7 @@ import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.events.NavigateBackEvent;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
-import com.oddhov.facebookcalendarsync.data.models.realm_models.RsvpSyncPreference;
+import com.oddhov.facebookcalendarsync.data.models.realm_models.RealmRsvpSyncPreference;
 import com.oddhov.facebookcalendarsync.ui_components.settings_activity.base.SettingsBaseFragment;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 
@@ -36,10 +37,11 @@ public class FacebookSettingsFragment extends SettingsBaseFragment implements Ra
         DialogInterface.OnMultiChoiceClickListener {
     // region Fields
     public static final String TAG = "FacebookSettingsFragment";
-
     @Inject
     DatabaseUtils mDatabaseUtils;
 
+    @BindView(R.id.swShowLinks)
+    SwitchCompat swShowLinks;
     @BindView(R.id.llSetupRsvpRange)
     LinearLayout llSetupRsvpRange;
     @BindView(R.id.rgSyncRange)
@@ -99,6 +101,16 @@ public class FacebookSettingsFragment extends SettingsBaseFragment implements Ra
     // endregion
 
     // region VI methods
+    @OnClick(R.id.swShowLinks)
+    public void onShowLinksClicked() {
+        try {
+            mDatabaseUtils.setShowLinks(swShowLinks.isChecked());
+        } catch (RealmException e) {
+            Crashlytics.logException(e);
+        }
+        mSettingsChanged = true;
+    }
+
     @OnClick(R.id.llSetupRsvpRange)
     public void onSetupRsvpRange() {
         showRsvpOptionsDialog();
@@ -165,6 +177,8 @@ public class FacebookSettingsFragment extends SettingsBaseFragment implements Ra
     // region Helper Methods (UI)
     private void setupViews() {
         try {
+            swShowLinks.setChecked(mDatabaseUtils.getShowLinks());
+
             if (mDatabaseUtils.isSyncOnlyUpcoming()) {
                 rbSynUpcoming.setChecked(true);
             } else {
@@ -187,10 +201,10 @@ public class FacebookSettingsFragment extends SettingsBaseFragment implements Ra
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.facebook_settings_rsvp_range);
-            List<RsvpSyncPreference> rsvpSyncPreferences = mDatabaseUtils.getRsvpSyncPreferences();
+            List<RealmRsvpSyncPreference> rsvpSyncPreferences = mDatabaseUtils.getRsvpSyncPreferences();
             boolean[] rsvpSyncPreferencesBooleans = new boolean[rsvpSyncPreferences.size()];
             int i = 0;
-            for (RsvpSyncPreference rsvpSyncPreference : rsvpSyncPreferences) {
+            for (RealmRsvpSyncPreference rsvpSyncPreference : rsvpSyncPreferences) {
                 rsvpSyncPreferencesBooleans[i++] = rsvpSyncPreference.isSet();
             }
             builder.setMultiChoiceItems(rsvpOptions, rsvpSyncPreferencesBooleans, this);

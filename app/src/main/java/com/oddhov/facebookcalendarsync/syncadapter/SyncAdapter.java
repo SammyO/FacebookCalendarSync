@@ -23,7 +23,7 @@ import com.oddhov.facebookcalendarsync.data.exceptions.FacebookException;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.EventsResponse;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.RealmCalendarEvent;
-import com.oddhov.facebookcalendarsync.data.models.realm_models.RsvpSyncPreference;
+import com.oddhov.facebookcalendarsync.data.models.realm_models.RealmRsvpSyncPreference;
 import com.oddhov.facebookcalendarsync.events.FacebookGetUserWithEventsResponse;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.CalendarUtils;
@@ -101,11 +101,11 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                         mCalendarUtils.ensureCalendarExists();
                         mUpdatedEvents = new ArrayList<>();
 
-                        for (RsvpSyncPreference rsvpSyncPreference : mDatabaseUtils.getRsvpSyncPreferences()) {
+                        for (RealmRsvpSyncPreference rsvpSyncPreference : mDatabaseUtils.getRsvpSyncPreferences()) {
                             if (rsvpSyncPreference.isSet()) {
                                 mNetworkUtils.fetchEvents(this,
                                         mDatabaseUtils.isSyncOnlyUpcoming(),
-                                        rsvpSyncPreference.getRsvpStatusValue());
+                                        rsvpSyncPreference.getEnum().getFacebookParameter());
                             }
                         }
 

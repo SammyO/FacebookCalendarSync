@@ -1,17 +1,19 @@
 package com.oddhov.facebookcalendarsync.data.models.realm_models;
 
+import com.oddhov.facebookcalendarsync.data.models.CustomTime;
+
 import io.realm.RealmObject;
 
 public class EventReminder extends RealmObject {
     private boolean mIsSet;
-    private int mTimeInMinutes;
+    private String enumDescription;
 
     public EventReminder() {
     }
 
-    public EventReminder(boolean isSet, int timeInMinutes) {
+    public EventReminder(boolean isSet, CustomTime timeInMinutes) {
         this.mIsSet = isSet;
-        this.mTimeInMinutes = timeInMinutes;
+        this.enumDescription = timeInMinutes.getTimeInMinutesString();
     }
 
     public boolean isIsSet() {
@@ -22,11 +24,7 @@ public class EventReminder extends RealmObject {
         this.mIsSet = isSet;
     }
 
-    public int getTimeInMinutes() {
-        return mTimeInMinutes;
-    }
-
-    public void setTimeInMinutes(int timeInMinutes) {
-        this.mTimeInMinutes = timeInMinutes;
+    public CustomTime getEnum() {
+        return CustomTime.getEnumValueFromTimeInMinutesString(enumDescription);
     }
 }

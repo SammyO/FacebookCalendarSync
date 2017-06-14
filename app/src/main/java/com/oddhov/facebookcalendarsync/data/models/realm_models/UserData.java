@@ -15,8 +15,9 @@ public class UserData extends RealmObject {
     private boolean mSyncOnlyUpcoming;
     private boolean mShowReminders;
     private int mCalendarColor;
+    private boolean mShowLinks;
     private RealmList<EventReminder> mEventReminders;
-    private RealmList<RsvpSyncPreference> mRsvpSyncPreferences;
+    private RealmList<RealmRsvpSyncPreference> mRsvpSyncPreferences;
 
     public UserData() {
         setSyncInterval(CustomTime.ONE_HOUR.ordinal());
@@ -95,11 +96,19 @@ public class UserData extends RealmObject {
         this.mEventReminders = reminders;
     }
 
-    public RealmList<RsvpSyncPreference> getRsvpSyncPreferences() {
+    public boolean getShowLinks() {
+        return mShowLinks;
+    }
+
+    public void setShowLinks(boolean showLinks) {
+        this.mShowLinks = showLinks;
+    }
+
+    public RealmList<RealmRsvpSyncPreference> getRsvpSyncPreferences() {
         return mRsvpSyncPreferences;
     }
 
-    public void setRsvpSyncPreferences(RealmList<RsvpSyncPreference> rsvpSyncPreferences) {
+    public void setRsvpSyncPreferences(RealmList<RealmRsvpSyncPreference> rsvpSyncPreferences) {
         this.mRsvpSyncPreferences = rsvpSyncPreferences;
     }
 }

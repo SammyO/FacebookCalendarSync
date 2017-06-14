@@ -67,6 +67,8 @@
     <string name="sync_settings_sync_interval_24hrs">24 hours</string>
 
     <!-- Facebook Settings -->
+    <string name="facebook_settings_show_link">Show Facebook link</string>
+    <string name="facebook_settings_show_link_description">Show a link to the Facebook event in the event description.</string>
     <string name="facebook_settings_rsvp_range">"Attending" status</string>
     <string name="facebook_settings_rsvp_range_description">Choose which events are synced</string>
     <string name="facebook_settings_rsvp_range_attending">Attending</string>

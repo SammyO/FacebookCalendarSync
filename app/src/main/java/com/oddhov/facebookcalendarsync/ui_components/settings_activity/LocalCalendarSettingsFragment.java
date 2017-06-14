@@ -27,6 +27,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -243,23 +244,21 @@ public class LocalCalendarSettingsFragment extends SettingsBaseFragment implemen
 
     private void showReminderTimesDialog() {
         try {
-            final CharSequence[] reminderTimes = {
-                    getString(R.string.local_calendar_settings_reminder_time_05h),
-                    getString(R.string.local_calendar_settings_reminder_time_1h),
-                    getString(R.string.local_calendar_settings_reminder_time_2hrs),
-                    getString(R.string.local_calendar_settings_reminder_time_6hrs),
-                    getString(R.string.local_calendar_settings_reminder_time_12hrs),
-                    getString(R.string.local_calendar_settings_reminder_time_24hrs)};
+            final List<CharSequence> reminderTimes = new ArrayList<>();
+            List<EventReminder> eventReminders = mDatabaseUtils.getAllReminderTimes();
+            for (EventReminder eventReminder : eventReminders) {
+                reminderTimes.add(eventReminder.getEnum().getTimeInMinutesDisplayString());
+            }
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.sync_settings_sync_interval);
-            List<EventReminder> eventReminders = mDatabaseUtils.getAllReminderTimes();
             boolean[] eventReminderBooleans = new boolean[eventReminders.size()];
             int i = 0;
             for (EventReminder eventReminder : eventReminders) {
                 eventReminderBooleans[i++] = eventReminder.isIsSet();
             }
-            builder.setMultiChoiceItems(reminderTimes, eventReminderBooleans, this);
+            builder.setMultiChoiceItems(reminderTimes.toArray(new CharSequence[reminderTimes.size()]),
+                    eventReminderBooleans, this);
             builder.setPositiveButton(android.R.string.ok, null);
             builder.setNegativeButton(android.R.string.cancel, null);
             builder.show();

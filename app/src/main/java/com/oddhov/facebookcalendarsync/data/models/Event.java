@@ -17,7 +17,7 @@ public class Event {
     private String startTime;
     private String id;
     @SerializedName("rsvp_status")
-    private String rsvpStatus;
+    private RsvpStatus rsvpStatus;
     private Map<String, Object> additionalProperties = new HashMap<>();
 
     public String getDescription() {
@@ -68,11 +68,11 @@ public class Event {
         this.id = id;
     }
 
-    public String getRsvpStatus() {
+    public RsvpStatus getRsvpStatus() {
         return rsvpStatus;
     }
 
-    public void setRsvpStatus(String rsvpStatus) {
+    public void setRsvpStatus(RsvpStatus rsvpStatus) {
         this.rsvpStatus = rsvpStatus;
     }
 

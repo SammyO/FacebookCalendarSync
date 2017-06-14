@@ -119,13 +119,10 @@ public class CalendarUtils {
             if (eventExists) {
                 updateEvent(event);
             } else {
-                String eventDescription = String.format("%s\n\nRSVP status: %s",
-                        event.getDescription(),
-                        event.getRsvpStatus());
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(CalendarContract.Events._ID, event.getId());
                 contentValues.put(CalendarContract.Events.TITLE, event.getName());
-                contentValues.put(CalendarContract.Events.DESCRIPTION, eventDescription);
+                contentValues.put(CalendarContract.Events.DESCRIPTION, getEventDescription(event));
                 contentValues.put(CalendarContract.Events.DTSTART, mTimeUtils.convertDateToEpochFormat(event.getStartTime()));
                 contentValues.put(CalendarContract.Events.DTEND, mTimeUtils.convertDateToEpochFormat(event.getEndTime()));
                 contentValues.put(CalendarContract.Events.EVENT_TIMEZONE, "NL");
@@ -272,12 +269,9 @@ public class CalendarUtils {
         String selection = "(" + CalendarContract.Events._ID + " = ?)";
         String[] selectionArgs = new String[]{event.getId()};
 
-        String eventDescription = String.format("%s\n\nRSVP status: %s",
-                event.getDescription(),
-                event.getRsvpStatus());
         ContentValues contentValues = new ContentValues();
         contentValues.put(CalendarContract.Events.TITLE, event.getName());
-        contentValues.put(CalendarContract.Events.DESCRIPTION, eventDescription);
+        contentValues.put(CalendarContract.Events.DESCRIPTION, getEventDescription(event));
         contentValues.put(CalendarContract.Events.DTSTART, mTimeUtils.convertDateToEpochFormat(event.getStartTime()));
         contentValues.put(CalendarContract.Events.DTEND, mTimeUtils.convertDateToEpochFormat(event.getEndTime()));
         contentValues.put(CalendarContract.Events.EVENT_TIMEZONE, "NL"); // TODO
@@ -312,5 +306,23 @@ public class CalendarUtils {
             cursor.close();
         }
         return eventIds;
+    }
+
+    private String getEventDescription(RealmCalendarEvent event) {
+        try {
+            if (mDatabaseUtils.getShowLinks()) {
+                return String.format("%s\n\nRSVP status: %s\n\nFacebook event link: www.facebook.com/%s",
+                        event.getDescription(),
+                        event.getRsvpStatus().getDisplayString(),
+                        event.getId());
+            } else {
+                return String.format("%s\n\nRSVP status: %s",
+                        event.getDescription(),
+                        event.getRsvpStatus().getDisplayString());
+            }
+        } catch (RealmException e) {
+            Crashlytics.logException(e);
+            return event.getDescription();
+        }
     }
 }

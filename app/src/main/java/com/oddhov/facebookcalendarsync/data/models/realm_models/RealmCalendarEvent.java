@@ -1,5 +1,7 @@
 package com.oddhov.facebookcalendarsync.data.models.realm_models;
 
+import com.oddhov.facebookcalendarsync.data.models.RsvpStatus;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -16,13 +18,14 @@ public class RealmCalendarEvent extends RealmObject {
     public RealmCalendarEvent() {
     }
 
-    public RealmCalendarEvent(String id, String name, String description, String startTime, String endTime, String rsvpStatus) {
+    public RealmCalendarEvent(String id, String name, String description, String startTime, String endTime,
+                              RsvpStatus rsvpStatus) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.rsvpStatus = rsvpStatus;
+        this.rsvpStatus = rsvpStatus.getFacebookParameter();
     }
 
     public String getId() {
@@ -65,11 +68,7 @@ public class RealmCalendarEvent extends RealmObject {
         this.endTime = endTime;
     }
 
-    public String getRsvpStatus() {
-        return rsvpStatus;
-    }
-
-    public void setRsvpStatus(String rsvpStatus) {
-        this.rsvpStatus = rsvpStatus;
+    public RsvpStatus getRsvpStatus() {
+        return RsvpStatus.getEnumFromFacebookParameter(rsvpStatus);
     }
 }

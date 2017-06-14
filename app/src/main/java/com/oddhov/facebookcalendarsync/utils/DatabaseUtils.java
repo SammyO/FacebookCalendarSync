@@ -4,14 +4,14 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.CalendarColour;
 import com.oddhov.facebookcalendarsync.data.models.CustomTime;
 import com.oddhov.facebookcalendarsync.data.models.Event;
+import com.oddhov.facebookcalendarsync.data.models.RsvpStatus;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.EventReminder;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.RealmCalendarEvent;
-import com.oddhov.facebookcalendarsync.data.models.realm_models.RsvpSyncPreference;
+import com.oddhov.facebookcalendarsync.data.models.realm_models.RealmRsvpSyncPreference;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.UserData;
 
 import java.util.ArrayList;
@@ -38,19 +38,19 @@ public class DatabaseUtils {
             final UserData userdata = new UserData();
 
             final RealmList<EventReminder> eventReminders = new RealmList<>();
-            eventReminders.add(new EventReminder(false, 30));
-            eventReminders.add(new EventReminder(false, 60));
-            eventReminders.add(new EventReminder(false, 120));
-            eventReminders.add(new EventReminder(false, 360));
-            eventReminders.add(new EventReminder(false, 720));
-            eventReminders.add(new EventReminder(false, 1440));
+            eventReminders.add(new EventReminder(false, CustomTime.HALF_HOUR));
+            eventReminders.add(new EventReminder(false, CustomTime.ONE_HOUR));
+            eventReminders.add(new EventReminder(false, CustomTime.TWO_HOURS));
+            eventReminders.add(new EventReminder(false, CustomTime.SIX_HOURS));
+            eventReminders.add(new EventReminder(false, CustomTime.TWELVE_HOURS));
+            eventReminders.add(new EventReminder(false, CustomTime.TWENTY_FOUR_HOURS));
             userdata.setEventReminders(eventReminders);
 
-            final RealmList<RsvpSyncPreference> rsvpSyncPreferences = new RealmList<>();
-            rsvpSyncPreferences.add(new RsvpSyncPreference(true, Constants.ATTENDING));
-            rsvpSyncPreferences.add(new RsvpSyncPreference(true, Constants.MAYBE));
-            rsvpSyncPreferences.add(new RsvpSyncPreference(true, Constants.NOT_REPLIED));
-            rsvpSyncPreferences.add(new RsvpSyncPreference(false, Constants.DECLINED));
+            final RealmList<RealmRsvpSyncPreference> rsvpSyncPreferences = new RealmList<>();
+            rsvpSyncPreferences.add(new RealmRsvpSyncPreference(true, RsvpStatus.ATTENDING));
+            rsvpSyncPreferences.add(new RealmRsvpSyncPreference(true, RsvpStatus.MAYBE));
+            rsvpSyncPreferences.add(new RealmRsvpSyncPreference(true, RsvpStatus.NOT_REPLIED));
+            rsvpSyncPreferences.add(new RealmRsvpSyncPreference(false, RsvpStatus.DECLINED));
             userdata.setRsvpSyncPreferences(rsvpSyncPreferences);
 
             mRealm.executeTransaction(new Realm.Transaction() {
@@ -105,12 +105,10 @@ public class DatabaseUtils {
         mRealm = Realm.getDefaultInstance();
         boolean wifiOnly = getUserData().isSyncWifiOnly();
         closeRealm();
-        Log.e("DatabaseUtils", "getSyncWifiOnly: " + wifiOnly);
         return wifiOnly;
     }
 
     public void setSyncWifiOnly(final boolean wifiOnly) throws RealmException {
-        Log.e("DatabaseUtils", "setSyncWifiOnly: " + wifiOnly);
         mRealm = Realm.getDefaultInstance();
         final UserData userData = getUserData();
         mRealm.executeTransaction(new Realm.Transaction() {
@@ -126,12 +124,10 @@ public class DatabaseUtils {
         mRealm = Realm.getDefaultInstance();
         boolean showNotifications = getUserData().isShowNotifications();
         closeRealm();
-        Log.e("DatabaseUtils", "getShowNotifications: " + showNotifications);
         return showNotifications;
     }
 
     public void setShowNotifications(final boolean showNotifications) throws RealmException {
-        Log.e("DatabaseUtils", "setShowNotifications: " + showNotifications);
         mRealm = Realm.getDefaultInstance();
         final UserData userData = getUserData();
         mRealm.executeTransaction(new Realm.Transaction() {
@@ -147,12 +143,10 @@ public class DatabaseUtils {
         mRealm = Realm.getDefaultInstance();
         CustomTime syncInterval = CustomTime.values()[getUserData().getSyncInterval()];
         closeRealm();
-        Log.e("DatabaseUtils", "getSyncInterval: " + syncInterval);
         return syncInterval;
     }
 
     public void setSyncInterval(final CustomTime syncInterval) throws RealmException {
-        Log.e("DatabaseUtils", "setSyncInterval: " + syncInterval);
         mRealm = Realm.getDefaultInstance();
         final UserData userData = getUserData();
         mRealm.executeTransaction(new Realm.Transaction() {
@@ -168,7 +162,6 @@ public class DatabaseUtils {
         mRealm = Realm.getDefaultInstance();
         boolean syncRange = getUserData().isSyncOnlyUpcoming();
         closeRealm();
-        Log.e("DatabaseUtils", "getSyncRange: " + syncRange);
         return syncRange;
     }
 
@@ -185,18 +178,35 @@ public class DatabaseUtils {
         closeRealm();
     }
 
-    public List<RsvpSyncPreference> getRsvpSyncPreferences() throws RealmException {
+    public boolean getShowLinks() throws RealmException {
         mRealm = Realm.getDefaultInstance();
-        List<RsvpSyncPreference> rsvpStatusesCopy;
-        RealmList<RsvpSyncPreference> rsvpStatuses = getUserData().getRsvpSyncPreferences();
+        boolean showLinks = getUserData().getShowLinks();
+        closeRealm();
+        return showLinks;
+    }
+
+    public void setShowLinks(final boolean showLinks) throws RealmException {
+        mRealm = Realm.getDefaultInstance();
+        final UserData userData = getUserData();
+        mRealm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                userData.setShowLinks(showLinks);
+            }
+        });
+        closeRealm();
+    }
+
+    public List<RealmRsvpSyncPreference> getRsvpSyncPreferences() throws RealmException {
+        mRealm = Realm.getDefaultInstance();
+        List<RealmRsvpSyncPreference> rsvpStatusesCopy;
+        RealmList<RealmRsvpSyncPreference> rsvpStatuses = getUserData().getRsvpSyncPreferences();
         rsvpStatusesCopy = mRealm.copyFromRealm(rsvpStatuses);
         closeRealm();
-        Log.e("DatabaseUtils", "getRsvpStatuses: " + rsvpStatuses.toString());
         return rsvpStatusesCopy;
     }
 
     public void setRsvpSyncPreference(final int position, final boolean isSet) throws RealmException {
-        Log.e("DatabaseUtils", "setRsvpSyncPreference: " + position + " " + isSet);
         mRealm = Realm.getDefaultInstance();
         final UserData userData = getUserData();
         mRealm.executeTransaction(new Realm.Transaction() {
@@ -212,12 +222,10 @@ public class DatabaseUtils {
         mRealm = Realm.getDefaultInstance();
         boolean showReminders = getUserData().getShowReminders();
         closeRealm();
-        Log.e("DatabaseUtils", "getShowReminders: " + showReminders);
         return showReminders;
     }
 
     public void setShowReminders(final boolean showReminders) throws RealmException {
-        Log.e("DatabaseUtils", "setShowReminders: " + showReminders);
         mRealm = Realm.getDefaultInstance();
         final UserData userData = getUserData();
         mRealm.executeTransaction(new Realm.Transaction() {
@@ -235,12 +243,10 @@ public class DatabaseUtils {
         RealmList<EventReminder> reminders = getUserData().getEventReminders();
         remindersCopy = mRealm.copyFromRealm(reminders);
         closeRealm();
-        Log.e("DatabaseUtils", "getAllReminderTimes: " + reminders.toString());
         return remindersCopy;
     }
 
     public void setReminderTime(final int position, final boolean isSet) throws RealmException {
-        Log.e("DatabaseUtils", "setReminderTIme: " + position + " " + isSet);
         mRealm = Realm.getDefaultInstance();
         final UserData userData = getUserData();
         mRealm.executeTransaction(new Realm.Transaction() {
@@ -256,12 +262,10 @@ public class DatabaseUtils {
         mRealm = Realm.getDefaultInstance();
         CalendarColour calendarColor = CalendarColour.values()[getUserData().getCalendarColor()];
         closeRealm();
-        Log.e("DatabaseUtils", "getCalendarColor: " + calendarColor);
         return calendarColor;
     }
 
     public void setCalendarColor(final CalendarColour calendarColor) throws RealmException {
-        Log.e("DatabaseUtils", "setCalendarColor: " + calendarColor);
         mRealm = Realm.getDefaultInstance();
         final UserData userData = getUserData();
         mRealm.executeTransaction(new Realm.Transaction() {
