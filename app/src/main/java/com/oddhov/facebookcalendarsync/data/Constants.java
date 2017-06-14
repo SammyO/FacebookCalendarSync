@@ -45,4 +45,5 @@ public final class Constants {
     // Facebook event constants
     // Saved state constants
     public static final String SETTINGS_CHANGED = "SETTINGS_CHANGED";
+    public static final String DIALOG = "DIALOG";
 }

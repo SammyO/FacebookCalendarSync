@@ -12,6 +12,11 @@ import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
 import javax.inject.Inject;
 
 public class SettingsBaseFragment extends Fragment implements Dialog.OnClickListener {
+    //region Fields
+    private static final int DIALOG_MULTIPLE_SYNC_NOW = 109;
+    protected int mDialog;
+    //endregion
+
     // region Fields
     @Inject
     SyncAdapterUtils mSyncAdapterUtils;
@@ -20,10 +25,12 @@ public class SettingsBaseFragment extends Fragment implements Dialog.OnClickList
     // region Dialog.OnClickListener interface
     @Override
     public void onClick(DialogInterface dialogInterface, int which) {
-        if (which == DialogInterface.BUTTON_POSITIVE) {
-            mSyncAdapterUtils.runSyncAdapterNow();
+        if (mDialog == DIALOG_MULTIPLE_SYNC_NOW) {
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                mSyncAdapterUtils.runSyncAdapterNow();
+            }
+            navigateBack();
         }
-        navigateBack();
     }
     // endregion
 
@@ -35,6 +42,7 @@ public class SettingsBaseFragment extends Fragment implements Dialog.OnClickList
                 .setPositiveButton(android.R.string.yes, this)
                 .setNegativeButton(android.R.string.no, this)
                 .show();
+        mDialog = DIALOG_MULTIPLE_SYNC_NOW;
     }
     // endregion
 

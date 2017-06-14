@@ -36,6 +36,7 @@ import butterknife.Unbinder;
 public class SyncSettingsFragment extends SettingsBaseFragment implements DialogInterface.OnClickListener {
     // region Fields
     public static final String TAG = "SyncSettingsFragment";
+    private static final int DIALOG_MULTIPLE_CHOICE = 1;
 
     @Inject
     DatabaseUtils mDatabaseUtils;
@@ -70,6 +71,7 @@ public class SyncSettingsFragment extends SettingsBaseFragment implements Dialog
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
             mSettingsChanged = savedInstanceState.getBoolean(Constants.SETTINGS_CHANGED);
+            mDialog = savedInstanceState.getInt(Constants.DIALOG);
         }
         initializeInjector();
         setupViews();
@@ -79,6 +81,7 @@ public class SyncSettingsFragment extends SettingsBaseFragment implements Dialog
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(Constants.SETTINGS_CHANGED, mSettingsChanged);
+        outState.putInt(Constants.DIALOG, mDialog);
     }
 
     @Override
@@ -132,12 +135,18 @@ public class SyncSettingsFragment extends SettingsBaseFragment implements Dialog
         builder.setTitle(R.string.sync_settings_sync_interval);
         builder.setItems(syncIntervals, this);
         builder.show();
+        mDialog = DIALOG_MULTIPLE_CHOICE;
     }
     // endregion
 
     // region interface DialogInterface.OnClickListener
     @Override
     public void onClick(DialogInterface dialogInterface, int option) {
+        if (mDialog != DIALOG_MULTIPLE_CHOICE) {
+            super.onClick(dialogInterface, option);
+            return;
+        }
+
         switch (option) {
             case 0:
                 try {
