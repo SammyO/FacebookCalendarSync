@@ -39,8 +39,8 @@ public class SettingsBaseFragment extends Fragment implements Dialog.OnClickList
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.dialog_settings_changed_title)
                 .setMessage(R.string.dialog_settings_changed_description)
-                .setPositiveButton(android.R.string.yes, this)
-                .setNegativeButton(android.R.string.no, this)
+                .setPositiveButton(R.string.word_yes, this)
+                .setNegativeButton(R.string.word_no, this)
                 .show();
         mDialog = DIALOG_MULTIPLE_SYNC_NOW;
     }

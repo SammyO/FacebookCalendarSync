@@ -102,6 +102,7 @@
 
     <!--Words-->
     <string name="word_yes">Yes</string>
+    <string name="word_no">No</string>
     <string name="word_cancel">Cancel</string>
     <string name="word_app_info">App info</string>
     <string name="title_activity_main2">Main2Activity</string>

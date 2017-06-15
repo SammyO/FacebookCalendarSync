@@ -22,6 +22,7 @@ import org.greenrobot.eventbus.EventBus;
 public class SettingsActivity extends AppCompatActivity {
 
     private SettingsActivityComponent mSettingsActivityComponent;
+    private int mTitle;
 
     public static void start(Activity activity, SettingsScreen settingsScreen, int enterAnim, int exitAnim) {
         Intent intent = new Intent(activity, SettingsActivity.class);
@@ -39,11 +40,23 @@ public class SettingsActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_settings);
 
+        setupToolbar();
         if (savedInstanceState == null) {
-            setupViews(getIntent().getIntExtra(Constants.SETTINGS_SCREEN, 0));
+            setupScreen(getIntent().getIntExtra(Constants.SETTINGS_SCREEN, 0));
+        } else {
+            mTitle = savedInstanceState.getInt(Constants.TITLE);
+            setTitle(mTitle);
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(Constants.TITLE, mTitle);
+    }
+    // endregion
+
+    // region Activity methods
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -53,9 +66,6 @@ public class SettingsActivity extends AppCompatActivity {
         }
         return false;
     }
-    // endregion
-
-    // region Activity methods
     @Override
     public void onBackPressed() {
         EventBus.getDefault().post(new NavigateBackEvent());
@@ -77,7 +87,7 @@ public class SettingsActivity extends AppCompatActivity {
     // endregion
 
     // region Helper methods UI
-    private void setupViews(int screen) {
+    private void setupToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -85,19 +95,24 @@ public class SettingsActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+    }
 
+    private void setupScreen(int screen) {
         switch (SettingsScreen.values()[screen]) {
             case FACEBOOK_SETTINGS:
-                setTitle(R.string.facebook_settings_title);
+                mTitle = R.string.facebook_settings_title;
+                setTitle(mTitle);
                 replaceFragment(R.id.fragment_container, new FacebookSettingsFragment(), FacebookSettingsFragment.TAG);
                 break;
             case LOCAL_CALENDAR_SETTINGS:
-                setTitle(R.string.local_calendar_settings_title);
+                mTitle = R.string.local_calendar_settings_title;
+                setTitle(mTitle);
                 replaceFragment(R.id.fragment_container, new LocalCalendarSettingsFragment(), LocalCalendarSettingsFragment.TAG);
                 break;
             case SYNC_SETTINGS:
             default:
-                setTitle(R.string.sync_settings_title);
+                mTitle = R.string.sync_settings_title;
+                setTitle(mTitle);
                 replaceFragment(R.id.fragment_container, new SyncSettingsFragment(), SyncSettingsFragment.TAG);
                 break;
         }

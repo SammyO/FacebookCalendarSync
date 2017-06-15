@@ -42,8 +42,8 @@ public final class Constants {
     public static final int LOCAL_CALENDAR_SETTINGS = 5;
     public static final int SYNC_SETTINGS = 6;
 
-    // Facebook event constants
     // Saved state constants
     public static final String SETTINGS_CHANGED = "SETTINGS_CHANGED";
     public static final String DIALOG = "DIALOG";
+    public static final String TITLE = "title";
 }
