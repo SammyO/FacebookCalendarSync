@@ -251,7 +251,7 @@ public class LocalCalendarSettingsFragment extends SettingsBaseFragment implemen
             }
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.sync_settings_sync_interval);
+            builder.setTitle(R.string.local_calendar_settings_reminder_times);
             boolean[] eventReminderBooleans = new boolean[eventReminders.size()];
             int i = 0;
             for (EventReminder eventReminder : eventReminders) {

@@ -4,10 +4,10 @@ import android.text.TextUtils;
 
 public enum CustomTime {
     HALF_HOUR(0.5, "30 minutes"),
-    ONE_HOUR(1, "One hour"),
-    TWO_HOURS(2, "Two hours"),
-    SIX_HOURS(6, "Six hours"),
-    TWELVE_HOURS(12, "Twelve hours"),
+    ONE_HOUR(1, "1 hour"),
+    TWO_HOURS(2, "2 hours"),
+    SIX_HOURS(6, "6 hours"),
+    TWELVE_HOURS(12, "12 hours"),
     TWENTY_FOUR_HOURS(24, "24 hours");
 
     private final double mValue;

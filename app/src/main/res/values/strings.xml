@@ -93,6 +93,8 @@
     <string name="local_calendar_settings_calendar_colour_orange">Orange</string>
     <string name="local_calendar_settings_calendar_colour_purple">Purple</string>
     <string name="local_calendar_settings_calendar_colour_blue">Blue</string>
+
+    <string name="local_calendar_settings_reminder_times">Set reminders</string>
     <string name="local_calendar_settings_reminder_time_05h">0.5 hour</string>
     <string name="local_calendar_settings_reminder_time_1h">1 hour</string>
     <string name="local_calendar_settings_reminder_time_2hrs">2 hours</string>
