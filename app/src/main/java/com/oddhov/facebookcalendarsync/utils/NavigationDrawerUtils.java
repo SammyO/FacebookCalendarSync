@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 
-import com.crashlytics.android.Crashlytics;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.login.LoginManager;
@@ -21,7 +20,6 @@ import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
-import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.ActivityTransition;
 import com.oddhov.facebookcalendarsync.ui_components.settings_activity.SettingsActivity;
 import com.oddhov.facebookcalendarsync.ui_components.settings_activity.SettingsScreen;
@@ -66,22 +64,18 @@ public class NavigationDrawerUtils {
     }
 
     public void onStartStopClicked(Drawer navigationDrawer) {
-        try {
-            if (mDatabaseUtils.getSyncAdapterPaused()) {
-                mSyncAdapterUtils.setSyncAdapterRunnable(true);
-                mDatabaseUtils.setSyncAdapterPaused(false);
-                navigationDrawer.updateName(Constants.STOP_START_SYNC,
-                        new StringHolder(mContext.getString(R.string.navigation_drawer_stop_sync)));
-                navigationDrawer.updateIcon(Constants.STOP_START_SYNC, new ImageHolder(R.drawable.ic_stop));
-            } else {
-                mSyncAdapterUtils.setSyncAdapterRunnable(false);
-                mDatabaseUtils.setSyncAdapterPaused(true);
-                navigationDrawer.updateName(Constants.STOP_START_SYNC,
-                        new StringHolder(mContext.getString(R.string.navigation_drawer_start_sync)));
-                navigationDrawer.updateIcon(Constants.STOP_START_SYNC, new ImageHolder(R.drawable.ic_play));
-            }
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
+        if (mDatabaseUtils.getSyncAdapterPaused()) {
+            mSyncAdapterUtils.setSyncAdapterRunnable(true);
+            mDatabaseUtils.setSyncAdapterPaused(false);
+            navigationDrawer.updateName(Constants.STOP_START_SYNC,
+                    new StringHolder(mContext.getString(R.string.navigation_drawer_stop_sync)));
+            navigationDrawer.updateIcon(Constants.STOP_START_SYNC, new ImageHolder(R.drawable.ic_stop));
+        } else {
+            mSyncAdapterUtils.setSyncAdapterRunnable(false);
+            mDatabaseUtils.setSyncAdapterPaused(true);
+            navigationDrawer.updateName(Constants.STOP_START_SYNC,
+                    new StringHolder(mContext.getString(R.string.navigation_drawer_start_sync)));
+            navigationDrawer.updateIcon(Constants.STOP_START_SYNC, new ImageHolder(R.drawable.ic_play));
         }
     }
 
@@ -122,16 +116,12 @@ public class NavigationDrawerUtils {
     // region helper methods
     private IDrawerItem getStartStopSyncItem() {
         PrimaryDrawerItem startStopSync = null;
-        try {
-            startStopSync = new PrimaryDrawerItem().
-                    withIdentifier(Constants.STOP_START_SYNC)
-                    .withName(mDatabaseUtils.getSyncAdapterPaused() ? R.string.navigation_drawer_start_sync :
-                            R.string.navigation_drawer_stop_sync)
-                    .withIcon(mDatabaseUtils.getSyncAdapterPaused() ? R.drawable.ic_play : R.drawable.ic_stop)
-                    .withSelectable(false);
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
-        }
+        startStopSync = new PrimaryDrawerItem().
+                withIdentifier(Constants.STOP_START_SYNC)
+                .withName(mDatabaseUtils.getSyncAdapterPaused() ? R.string.navigation_drawer_start_sync :
+                        R.string.navigation_drawer_stop_sync)
+                .withIcon(mDatabaseUtils.getSyncAdapterPaused() ? R.drawable.ic_play : R.drawable.ic_stop)
+                .withSelectable(false);
         return startStopSync;
     }
 

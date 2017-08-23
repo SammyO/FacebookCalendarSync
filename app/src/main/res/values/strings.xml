@@ -110,6 +110,10 @@
     <string name="title_activity_main2">Main2Activity</string>
 
     <!-- Notifications -->
+    <string name="notification_syncing_done_title">Syncing done</string>
+    <string name="notification_syncing_done_message_short">Just performed a sync</string>
+    <string name="notification_syncing_done_message_long">Just performed a sync. Current sync interval: %s</string>
+
     <string name="notification_syncing_problem_title">Syncing problem</string>
 
     <string name="notification_facebook_problem_message_short">There was a problem syncing your calendar</string>

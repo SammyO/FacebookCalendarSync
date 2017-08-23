@@ -4,7 +4,6 @@ import android.app.Application;
 
 import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.BuildConfig;
-import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
 import com.oddhov.facebookcalendarsync.utils.SyncAdapterUtils;
@@ -98,11 +97,7 @@ public class FacebookCalendarSyncApplication extends Application {
             Realm.setDefaultConfiguration(mRealmConfiguration);
         }
 
-        try {
-            mDatabaseUtils.ensureUserDataIsSetup();
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
-        }
+        mDatabaseUtils.ensureUserDataIsSetup();
 
         mAccountUtils.ensureAccountExists();
         mSyncAdapterUtils.ensureSyncAdapterIsSetup();

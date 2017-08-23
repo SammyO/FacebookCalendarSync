@@ -12,11 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.events.NavigateEvent;
 import com.oddhov.facebookcalendarsync.data.events.SyncAdapterRanEvent;
-import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.syncadapter.SyncAdapterRanReceiver;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
@@ -112,19 +110,15 @@ public class SyncFragment extends Fragment {
             builder.setPositiveButton(android.R.string.ok, null);
             builder.setCancelable(true);
             builder.show();
-        } else try {
-            if (mDatabaseUtils.getSyncAdapterPaused()) {
+        } else if (mDatabaseUtils.getSyncAdapterPaused()) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle(R.string.sync_paused_title);
                 builder.setMessage(R.string.sync_paused_message);
                 builder.setPositiveButton(android.R.string.ok, null);
                 builder.setCancelable(true);
                 builder.show();
-            } else {
-                mSyncAdapterUtils.runSyncAdapterNow();
-            }
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
+        } else {
+            mSyncAdapterUtils.runSyncAdapterNow();
         }
     }
     // endregion
@@ -132,11 +126,7 @@ public class SyncFragment extends Fragment {
     // region EventBus methods
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onSyncAdapterRunEvent(SyncAdapterRanEvent event) {
-        try {
-            tvLastSynced.setText(mTimeUtils.convertEpochFormatToDate(mDatabaseUtils.getLastSynced()));
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
-        }
+        tvLastSynced.setText(mTimeUtils.convertEpochFormatToDate(mDatabaseUtils.getLastSynced()));
     }
 
     // region Helper Methods Dagger
@@ -146,14 +136,10 @@ public class SyncFragment extends Fragment {
         mSyncAdapterRanReceiver = new SyncAdapterRanReceiver();
         getActivity().registerReceiver(mSyncAdapterRanReceiver, new IntentFilter("com.oddhov.facebookcalendarsync"));
 
-        try {
-            if (mDatabaseUtils.getLastSynced() == 0) {
-                tvLastSynced.setText(R.string.not_synced_yet);
-            } else {
-                tvLastSynced.setText(mTimeUtils.convertEpochFormatToDate(mDatabaseUtils.getLastSynced()));
-            }
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
+        if (mDatabaseUtils.getLastSynced() == 0) {
+            tvLastSynced.setText(R.string.not_synced_yet);
+        } else {
+            tvLastSynced.setText(mTimeUtils.convertEpochFormatToDate(mDatabaseUtils.getLastSynced()));
         }
     }
 

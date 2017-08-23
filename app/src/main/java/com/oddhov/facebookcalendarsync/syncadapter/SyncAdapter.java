@@ -20,7 +20,6 @@ import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.events.SyncAdapterRanEvent;
 import com.oddhov.facebookcalendarsync.data.exceptions.FacebookException;
-import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.EventsResponse;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.RealmCalendarEvent;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.RealmRsvpSyncPreference;
@@ -82,50 +81,47 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
                     R.string.notification_missing_permissions_message_long);
         }
 
-        try {
-            ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-            if (activeNetwork != null) {
-                if ((activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) ||
-                        ((activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) && !mDatabaseUtils.getSyncWifiOnly())) {
-                    /*
-                     * User is connected to wifi, or on a mobile data connection,
-                     * but the sync-wifi-only option hasn't been set, so we can sync
-                     */
-                    if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
-                        mNotificationUtils.sendNotification(
-                                R.string.notification_syncing_problem_title,
-                                R.string.notification_facebook_problem_message_short,
-                                R.string.notification_facebook_problem_message_long);
-                    } else {
-                        mCalendarUtils.ensureCalendarExists();
-                        mUpdatedEvents = new ArrayList<>();
+        ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        if (activeNetwork != null) {
+            if ((activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) ||
+                    ((activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) && !mDatabaseUtils.getSyncWifiOnly())) {
+                /*
+                 * User is connected to wifi, or on a mobile data connection,
+                 * but the sync-wifi-only option hasn't been set, so we can sync
+                 */
+                if (AccountUtils.hasEmptyOrExpiredAccessToken()) {
+                    mNotificationUtils.sendNotification(
+                            R.string.notification_syncing_problem_title,
+                            R.string.notification_facebook_problem_message_short,
+                            R.string.notification_facebook_problem_message_long);
+                } else {
+                    mCalendarUtils.ensureCalendarExists();
+                    mUpdatedEvents = new ArrayList<>();
 
-                        for (RealmRsvpSyncPreference rsvpSyncPreference : mDatabaseUtils.getRsvpSyncPreferences()) {
-                            if (rsvpSyncPreference.isSet()) {
-                                mNetworkUtils.fetchEvents(this,
-                                        mDatabaseUtils.isSyncOnlyUpcoming(),
-                                        rsvpSyncPreference.getEnum().getFacebookParameter());
-                            }
+                    for (RealmRsvpSyncPreference rsvpSyncPreference : mDatabaseUtils.getRsvpSyncPreferences()) {
+                        if (rsvpSyncPreference.isSet()) {
+                            mNetworkUtils.fetchEvents(this,
+                                    mDatabaseUtils.isSyncOnlyUpcoming(),
+                                    rsvpSyncPreference.getEnum().getFacebookParameter());
                         }
-
-                        String dateAndTime = mTimeUtils.getCurrentDateAndTime();
-                        Long dateAndTimeLong = mTimeUtils.convertDateToEpochFormat(dateAndTime);
-                        mDatabaseUtils.setLastSynced(dateAndTimeLong);
-
-                        sendSyncAdapterRanIntent();
-                        EventBus.getDefault().post(new SyncAdapterRanEvent());
-
-                        // TODO remove this, just for testing
-                        mNotificationUtils.sendNotification(
-                                "Syncing done",
-                                "Just performed a sync",
-                                "Current sync interval: " + mDatabaseUtils.getSyncInterval());
                     }
+
+                    String dateAndTime = mTimeUtils.getCurrentDateAndTime();
+                    Long dateAndTimeLong = mTimeUtils.convertDateToEpochFormat(dateAndTime);
+                    mDatabaseUtils.setLastSynced(dateAndTimeLong);
+
+                    sendSyncAdapterRanIntent();
+                    EventBus.getDefault().post(new SyncAdapterRanEvent());
+
+                    // TODO remove this, just for testing
+                    mNotificationUtils.sendNotification(
+                            R.string.notification_syncing_done_title,
+                            R.string.notification_syncing_done_message_short,
+                            getContext().getString(R.string.notification_syncing_done_message_long
+                                    , mDatabaseUtils.getSyncInterval().getTimeInMinutesDisplayString()));
                 }
             }
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
         }
     }
 

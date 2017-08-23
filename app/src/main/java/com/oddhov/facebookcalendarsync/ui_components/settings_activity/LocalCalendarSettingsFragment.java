@@ -11,11 +11,9 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.events.NavigateBackEvent;
-import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.CalendarColour;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.EventReminder;
 import com.oddhov.facebookcalendarsync.ui_components.settings_activity.base.SettingsBaseFragment;
@@ -119,17 +117,13 @@ public class LocalCalendarSettingsFragment extends SettingsBaseFragment implemen
     // region VI methods
     @OnClick(R.id.swReminders)
     public void onShowRemindersClicked() {
-        try {
-            if (swReminders.isChecked()) {
-                mDatabaseUtils.setShowReminders(true);
-                llSetupReminderTime.setVisibility(View.VISIBLE);
+        if (swReminders.isChecked()) {
+            mDatabaseUtils.setShowReminders(true);
+            llSetupReminderTime.setVisibility(View.VISIBLE);
 
-            } else {
-                mDatabaseUtils.setShowReminders(false);
-                llSetupReminderTime.setVisibility(View.GONE);
-            }
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
+        } else {
+            mDatabaseUtils.setShowReminders(false);
+            llSetupReminderTime.setVisibility(View.GONE);
         }
         mSettingsChanged = true;
     }
@@ -163,14 +157,10 @@ public class LocalCalendarSettingsFragment extends SettingsBaseFragment implemen
                 break;
         }
 
-        try {
-            mDatabaseUtils.setCalendarColor(colorValue);
-            mCalendarUtils.deleteCalendar();
-            mCalendarUtils.ensureCalendarExists();
-            mSyncAdapterUtils.runSyncAdapterNow();
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
-        }
+        mDatabaseUtils.setCalendarColor(colorValue);
+        mCalendarUtils.deleteCalendar();
+        mCalendarUtils.ensureCalendarExists();
+        mSyncAdapterUtils.runSyncAdapterNow();
         mSettingsChanged = true;
     }
     // endregion
@@ -178,12 +168,8 @@ public class LocalCalendarSettingsFragment extends SettingsBaseFragment implemen
     // region DialogInterface.OnMultiChoiceClickListener
     @Override
     public void onClick(DialogInterface dialogInterface, int which, boolean isChecked) {
-        try {
-            if (which <= mDatabaseUtils.getAllReminderTimes().size()) {
-                mDatabaseUtils.setReminderTime(which, isChecked);
-            }
-        } catch (RealmException e) {
-            e.printStackTrace();
+        if (which <= mDatabaseUtils.getAllReminderTimes().size()) {
+            mDatabaseUtils.setReminderTime(which, isChecked);
         }
         mSettingsChanged = true;
     }
@@ -208,63 +194,55 @@ public class LocalCalendarSettingsFragment extends SettingsBaseFragment implemen
 
     // region Helper Methods (UI)
     private void setupViews() {
-        try {
-            swReminders.setChecked(mDatabaseUtils.getShowReminders());
+        swReminders.setChecked(mDatabaseUtils.getShowReminders());
 
-            if (mDatabaseUtils.getShowReminders()) {
-                llSetupReminderTime.setVisibility(View.VISIBLE);
-            } else {
-                llSetupReminderTime.setVisibility(View.GONE);
-            }
-
-            switch (mDatabaseUtils.getCalendarColor()) {
-                case RED:
-                    rbCalendarColorRed.setChecked(true);
-                    break;
-                case GREEN:
-                    rbCalendarColorGreen.setChecked(true);
-                    break;
-                case ORANGE:
-                    rbCalendarColorOrange.setChecked(true);
-                    break;
-                case PURPLE:
-                    rbCalendarColorPurple.setChecked(true);
-                    break;
-                case BLUE:
-                    rbCalendarColorBlue.setChecked(true);
-                    break;
-                default:
-                    break;
-            }
-            rgCalendarColor.setOnCheckedChangeListener(this);
-        } catch (RealmException e) {
-            e.printStackTrace();
+        if (mDatabaseUtils.getShowReminders()) {
+            llSetupReminderTime.setVisibility(View.VISIBLE);
+        } else {
+            llSetupReminderTime.setVisibility(View.GONE);
         }
+
+        switch (mDatabaseUtils.getCalendarColor()) {
+            case RED:
+                rbCalendarColorRed.setChecked(true);
+                break;
+            case GREEN:
+                rbCalendarColorGreen.setChecked(true);
+                break;
+            case ORANGE:
+                rbCalendarColorOrange.setChecked(true);
+                break;
+            case PURPLE:
+                rbCalendarColorPurple.setChecked(true);
+                break;
+            case BLUE:
+                rbCalendarColorBlue.setChecked(true);
+                break;
+            default:
+                break;
+        }
+        rgCalendarColor.setOnCheckedChangeListener(this);
     }
 
     private void showReminderTimesDialog() {
-        try {
-            final List<CharSequence> reminderTimes = new ArrayList<>();
-            List<EventReminder> eventReminders = mDatabaseUtils.getAllReminderTimes();
-            for (EventReminder eventReminder : eventReminders) {
-                reminderTimes.add(eventReminder.getEnum().getTimeInMinutesDisplayString());
-            }
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.local_calendar_settings_reminder_times);
-            boolean[] eventReminderBooleans = new boolean[eventReminders.size()];
-            int i = 0;
-            for (EventReminder eventReminder : eventReminders) {
-                eventReminderBooleans[i++] = eventReminder.isIsSet();
-            }
-            builder.setMultiChoiceItems(reminderTimes.toArray(new CharSequence[reminderTimes.size()]),
-                    eventReminderBooleans, this);
-            builder.setPositiveButton(android.R.string.ok, null);
-            builder.setNegativeButton(android.R.string.cancel, null);
-            builder.show();
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
+        final List<CharSequence> reminderTimes = new ArrayList<>();
+        List<EventReminder> eventReminders = mDatabaseUtils.getAllReminderTimes();
+        for (EventReminder eventReminder : eventReminders) {
+            reminderTimes.add(eventReminder.getEnum().getTimeInMinutesDisplayString());
         }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.local_calendar_settings_reminder_times);
+        boolean[] eventReminderBooleans = new boolean[eventReminders.size()];
+        int i = 0;
+        for (EventReminder eventReminder : eventReminders) {
+            eventReminderBooleans[i++] = eventReminder.isIsSet();
+        }
+        builder.setMultiChoiceItems(reminderTimes.toArray(new CharSequence[reminderTimes.size()]),
+                eventReminderBooleans, this);
+        builder.setPositiveButton(android.R.string.ok, null);
+        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.show();
     }
     // endregion
 }

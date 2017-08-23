@@ -45,8 +45,8 @@ public class UtilsModule {
 
     @Provides
     @Singleton
-    NotificationUtils provideNotificationUtils(Context context) {
-        return new NotificationUtils(context);
+    NotificationUtils provideNotificationUtils(Context context, DatabaseUtils databaseUtils) {
+        return new NotificationUtils(context, databaseUtils);
     }
 
     @Provides

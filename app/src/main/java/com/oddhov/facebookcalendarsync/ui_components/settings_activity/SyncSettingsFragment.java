@@ -15,7 +15,6 @@ import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.events.NavigateBackEvent;
-import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.exceptions.UnexpectedException;
 import com.oddhov.facebookcalendarsync.data.models.CustomTime;
 import com.oddhov.facebookcalendarsync.ui_components.settings_activity.base.SettingsBaseFragment;
@@ -106,21 +105,13 @@ public class SyncSettingsFragment extends SettingsBaseFragment implements Dialog
     // region VI methods
     @OnClick(R.id.swShowNotifications)
     public void onShowNotificationsClicked() {
-        try {
-            mDatabaseUtils.setShowNotifications(swShowNotifications.isChecked());
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
-        }
+        mDatabaseUtils.setShowNotifications(swShowNotifications.isChecked());
         mSettingsChanged = true;
     }
 
     @OnClick(R.id.swWifiOnly)
     public void onWifiOnlyClicked() {
-        try {
-            mDatabaseUtils.setSyncWifiOnly(swWifiOnly.isChecked());
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
-        }
+        mDatabaseUtils.setSyncWifiOnly(swWifiOnly.isChecked());
         mSettingsChanged = true;
     }
 
@@ -149,44 +140,28 @@ public class SyncSettingsFragment extends SettingsBaseFragment implements Dialog
 
         switch (option) {
             case 0:
-                try {
-                    mDatabaseUtils.setSyncInterval(CustomTime.ONE_HOUR);
-                    mSyncAdapterUtils.setSyncAdapterRunInterval(CustomTime.ONE_HOUR);
-                    tvSyncInterval.setText(R.string.sync_settings_sync_interval_1hr);
-                    mSettingsChanged = true;
-                } catch (RealmException e) {
-                    Crashlytics.logException(e);
-                }
+                mDatabaseUtils.setSyncInterval(CustomTime.ONE_HOUR);
+                mSyncAdapterUtils.setSyncAdapterRunInterval(CustomTime.ONE_HOUR);
+                tvSyncInterval.setText(R.string.sync_settings_sync_interval_1hr);
+                mSettingsChanged = true;
                 break;
             case 1:
-                try {
-                    mDatabaseUtils.setSyncInterval(CustomTime.SIX_HOURS);
-                    mSyncAdapterUtils.setSyncAdapterRunInterval(CustomTime.SIX_HOURS);
-                    tvSyncInterval.setText(R.string.sync_settings_sync_interval_6hrs);
-                    mSettingsChanged = true;
-                } catch (RealmException e) {
-                    Crashlytics.logException(e);
-                }
+                mDatabaseUtils.setSyncInterval(CustomTime.SIX_HOURS);
+                mSyncAdapterUtils.setSyncAdapterRunInterval(CustomTime.SIX_HOURS);
+                tvSyncInterval.setText(R.string.sync_settings_sync_interval_6hrs);
+                mSettingsChanged = true;
                 break;
             case 2:
-                try {
-                    mDatabaseUtils.setSyncInterval(CustomTime.TWELVE_HOURS);
-                    mSyncAdapterUtils.setSyncAdapterRunInterval(CustomTime.TWELVE_HOURS);
-                    tvSyncInterval.setText(R.string.sync_settings_sync_interval_12hrs);
-                    mSettingsChanged = true;
-                } catch (RealmException e) {
-                    Crashlytics.logException(e);
-                }
+                mDatabaseUtils.setSyncInterval(CustomTime.TWELVE_HOURS);
+                mSyncAdapterUtils.setSyncAdapterRunInterval(CustomTime.TWELVE_HOURS);
+                tvSyncInterval.setText(R.string.sync_settings_sync_interval_12hrs);
+                mSettingsChanged = true;
                 break;
             case 3:
-                try {
-                    mDatabaseUtils.setSyncInterval(CustomTime.TWENTY_FOUR_HOURS);
-                    mSyncAdapterUtils.setSyncAdapterRunInterval(CustomTime.TWENTY_FOUR_HOURS);
-                    tvSyncInterval.setText(R.string.sync_settings_sync_interval_24hrs);
-                    mSettingsChanged = true;
-                } catch (RealmException e) {
-                    Crashlytics.logException(e);
-                }
+                mDatabaseUtils.setSyncInterval(CustomTime.TWENTY_FOUR_HOURS);
+                mSyncAdapterUtils.setSyncAdapterRunInterval(CustomTime.TWENTY_FOUR_HOURS);
+                tvSyncInterval.setText(R.string.sync_settings_sync_interval_24hrs);
+                mSettingsChanged = true;
                 break;
             default:
                 break;
@@ -213,33 +188,29 @@ public class SyncSettingsFragment extends SettingsBaseFragment implements Dialog
 
     // region Helper Methods (UI)
     private void setupViews() {
-        try {
-            swWifiOnly.setChecked(mDatabaseUtils.getSyncWifiOnly());
+        swWifiOnly.setChecked(mDatabaseUtils.getSyncWifiOnly());
 
-            swShowNotifications.setChecked(mDatabaseUtils.getShowNotifications());
+        swShowNotifications.setChecked(mDatabaseUtils.getShowNotifications());
 
-            CustomTime syncInterval = mDatabaseUtils.getSyncInterval();
-            switch (syncInterval) {
-                case ONE_HOUR:
-                    tvSyncInterval.setText(R.string.sync_settings_sync_interval_1hr);
-                    break;
-                case SIX_HOURS:
-                    tvSyncInterval.setText(R.string.sync_settings_sync_interval_6hrs);
-                    break;
-                case TWELVE_HOURS:
-                    tvSyncInterval.setText(R.string.sync_settings_sync_interval_12hrs);
-                    break;
-                case TWENTY_FOUR_HOURS:
-                    tvSyncInterval.setText(R.string.sync_settings_sync_interval_24hrs);
-                    break;
-                default:
-                    Log.e("SyncSettingsFragment", "Unexpected sync interval in Realm");
-                    Crashlytics.logException(new UnexpectedException("SyncSettingsFragment",
-                            "Unexpected sync interval in Realm"));
-                    break;
-            }
-        } catch (RealmException e) {
-            e.printStackTrace();
+        CustomTime syncInterval = mDatabaseUtils.getSyncInterval();
+        switch (syncInterval) {
+            case ONE_HOUR:
+                tvSyncInterval.setText(R.string.sync_settings_sync_interval_1hr);
+                break;
+            case SIX_HOURS:
+                tvSyncInterval.setText(R.string.sync_settings_sync_interval_6hrs);
+                break;
+            case TWELVE_HOURS:
+                tvSyncInterval.setText(R.string.sync_settings_sync_interval_12hrs);
+                break;
+            case TWENTY_FOUR_HOURS:
+                tvSyncInterval.setText(R.string.sync_settings_sync_interval_24hrs);
+                break;
+            default:
+                Log.e("SyncSettingsFragment", "Unexpected sync interval in Realm");
+                Crashlytics.logException(new UnexpectedException("SyncSettingsFragment",
+                        "Unexpected sync interval in Realm"));
+                break;
         }
     }
     // endregion

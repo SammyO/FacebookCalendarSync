@@ -11,11 +11,9 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.events.NavigateBackEvent;
-import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.RealmRsvpSyncPreference;
 import com.oddhov.facebookcalendarsync.ui_components.settings_activity.base.SettingsBaseFragment;
 import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
@@ -103,11 +101,7 @@ public class FacebookSettingsFragment extends SettingsBaseFragment implements Ra
     // region VI methods
     @OnClick(R.id.swShowLinks)
     public void onShowLinksClicked() {
-        try {
-            mDatabaseUtils.setShowLinks(swShowLinks.isChecked());
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
-        }
+        mDatabaseUtils.setShowLinks(swShowLinks.isChecked());
         mSettingsChanged = true;
     }
 
@@ -122,20 +116,12 @@ public class FacebookSettingsFragment extends SettingsBaseFragment implements Ra
     public void onCheckedChanged(RadioGroup radioGroup, int which) {
         switch (which) {
             case R.id.rbSyncRangeAll:
-                try {
-                    mDatabaseUtils.setSyncOnlyUpcoming(false);
-                    mSettingsChanged = true;
-                } catch (RealmException e) {
-                    Crashlytics.logException(e);
-                }
+                mDatabaseUtils.setSyncOnlyUpcoming(false);
+                mSettingsChanged = true;
                 break;
             case R.id.rbSyncRangeUpcoming:
-                try {
-                    mDatabaseUtils.setSyncOnlyUpcoming(true);
-                    mSettingsChanged = true;
-                } catch (RealmException e) {
-                    Crashlytics.logException(e);
-                }
+                mDatabaseUtils.setSyncOnlyUpcoming(true);
+                mSettingsChanged = true;
                 break;
             default:
                 break;
@@ -146,12 +132,8 @@ public class FacebookSettingsFragment extends SettingsBaseFragment implements Ra
     // region DialogInterface.OnMultiChoiceClickListener
     @Override
     public void onClick(DialogInterface dialogInterface, int which, boolean isChecked) {
-        try {
-            if (which <= mDatabaseUtils.getRsvpSyncPreferences().size()) {
-                mDatabaseUtils.setRsvpSyncPreference(which, isChecked);
-            }
-        } catch (RealmException e) {
-            e.printStackTrace();
+        if (which <= mDatabaseUtils.getRsvpSyncPreferences().size()) {
+            mDatabaseUtils.setRsvpSyncPreference(which, isChecked);
         }
         mSettingsChanged = true;
     }
@@ -176,45 +158,35 @@ public class FacebookSettingsFragment extends SettingsBaseFragment implements Ra
 
     // region Helper Methods (UI)
     private void setupViews() {
-        try {
-            swShowLinks.setChecked(mDatabaseUtils.getShowLinks());
+        swShowLinks.setChecked(mDatabaseUtils.getShowLinks());
 
-            if (mDatabaseUtils.isSyncOnlyUpcoming()) {
-                rbSynUpcoming.setChecked(true);
-            } else {
-                rbSynAll.setChecked(true);
-            }
-            rgSyncRange.setOnCheckedChangeListener(this);
-
-        } catch (RealmException e) {
-            e.printStackTrace();
+        if (mDatabaseUtils.isSyncOnlyUpcoming()) {
+            rbSynUpcoming.setChecked(true);
+        } else {
+            rbSynAll.setChecked(true);
         }
+        rgSyncRange.setOnCheckedChangeListener(this);
     }
 
     private void showRsvpOptionsDialog() {
-        try {
-            final CharSequence[] rsvpOptions = {
-                    getString(R.string.facebook_settings_rsvp_range_attending),
-                    getString(R.string.facebook_settings_rsvp_range_interested),
-                    getString(R.string.facebook_settings_rsvp_range_not_replied),
-                    getString(R.string.facebook_settings_rsvp_range_declined)};
+        final CharSequence[] rsvpOptions = {
+                getString(R.string.facebook_settings_rsvp_range_attending),
+                getString(R.string.facebook_settings_rsvp_range_interested),
+                getString(R.string.facebook_settings_rsvp_range_not_replied),
+                getString(R.string.facebook_settings_rsvp_range_declined)};
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.facebook_settings_rsvp_range);
-            List<RealmRsvpSyncPreference> rsvpSyncPreferences = mDatabaseUtils.getRsvpSyncPreferences();
-            boolean[] rsvpSyncPreferencesBooleans = new boolean[rsvpSyncPreferences.size()];
-            int i = 0;
-            for (RealmRsvpSyncPreference rsvpSyncPreference : rsvpSyncPreferences) {
-                rsvpSyncPreferencesBooleans[i++] = rsvpSyncPreference.isSet();
-            }
-            builder.setMultiChoiceItems(rsvpOptions, rsvpSyncPreferencesBooleans, this);
-            builder.setPositiveButton(android.R.string.ok, null);
-            builder.setNegativeButton(android.R.string.cancel, null);
-            builder.show();
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.facebook_settings_rsvp_range);
+        List<RealmRsvpSyncPreference> rsvpSyncPreferences = mDatabaseUtils.getRsvpSyncPreferences();
+        boolean[] rsvpSyncPreferencesBooleans = new boolean[rsvpSyncPreferences.size()];
+        int i = 0;
+        for (RealmRsvpSyncPreference rsvpSyncPreference : rsvpSyncPreferences) {
+            rsvpSyncPreferencesBooleans[i++] = rsvpSyncPreference.isSet();
         }
-
+        builder.setMultiChoiceItems(rsvpOptions, rsvpSyncPreferencesBooleans, this);
+        builder.setPositiveButton(android.R.string.ok, null);
+        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.show();
     }
     // endregion
 }

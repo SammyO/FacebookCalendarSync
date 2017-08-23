@@ -17,65 +17,42 @@ public class NotificationUtils {
     private static final int REQUEST_CODE = 5;
 
     private Context mContext;
+    private DatabaseUtils mDatabaseUtils;
 
-    public NotificationUtils(Context context) {
+    public NotificationUtils(Context context, DatabaseUtils databaseUtils) {
         this.mContext = context;
+        this.mDatabaseUtils = databaseUtils;
     }
 
     public void sendNotification(int title, int shortMessage, int longMessage) {
-
-        Intent intent = new Intent(mContext, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, REQUEST_CODE, intent, 0);
-        // TODO update notification
-
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mContext)
-                .setContentTitle(mContext.getString(title))
-                .setContentText(mContext.getString(shortMessage))
-                .setSmallIcon(R.drawable.ic_sync)
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true);
-
-
-        NotificationCompat.BigTextStyle style =
-                new NotificationCompat.BigTextStyle();
-        style.setBigContentTitle(mContext.getString(title));
-        style.bigText(mContext.getString(longMessage));
-
-        mBuilder.setStyle(style);
-        Notification notification = mBuilder.build();
-
-        NotificationManager notificationManager =
-                (NotificationManager) mContext.getSystemService(NOTIFICATION_SERVICE);
-
-        notificationManager.notify(Constants.NOTIFICATION_ID, notification);
+        sendNotification(title, shortMessage, mContext.getString(longMessage));
     }
 
-    // TODO this needs to go. For testing only
-    public void sendNotification(String title, String shortMessage, String longMessage) {
+    public void sendNotification(int title, int shortMessage, String longMessage) {
+        if (mDatabaseUtils.getShowNotifications()) {
+            Intent intent = new Intent(mContext, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(mContext, REQUEST_CODE, intent, 0);
+            // TODO update notification
 
-        Intent intent = new Intent(mContext, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, REQUEST_CODE, intent, 0);
-        // TODO update notification
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mContext)
+                    .setContentTitle(mContext.getString(title))
+                    .setContentText(mContext.getString(shortMessage))
+                    .setSmallIcon(R.drawable.ic_sync)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true);
 
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mContext)
-                .setContentTitle(title)
-                .setContentText(shortMessage)
-                .setSmallIcon(R.drawable.ic_sync)
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true);
+            NotificationCompat.BigTextStyle style =
+                    new NotificationCompat.BigTextStyle();
+            style.setBigContentTitle(mContext.getString(title));
+            style.bigText(longMessage);
 
+            mBuilder.setStyle(style);
+            Notification notification = mBuilder.build();
 
-        NotificationCompat.BigTextStyle style =
-                new NotificationCompat.BigTextStyle();
-        style.setBigContentTitle(title);
-        style.bigText(longMessage);
+            NotificationManager notificationManager =
+                    (NotificationManager) mContext.getSystemService(NOTIFICATION_SERVICE);
 
-        mBuilder.setStyle(style);
-        Notification notification = mBuilder.build();
-
-        NotificationManager notificationManager =
-                (NotificationManager) mContext.getSystemService(NOTIFICATION_SERVICE);
-
-        notificationManager.notify(Constants.NOTIFICATION_ID, notification);
+            notificationManager.notify(Constants.NOTIFICATION_ID, notification);
+        }
     }
 }

@@ -14,10 +14,8 @@ import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
-import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.EventReminder;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.RealmCalendarEvent;
 
@@ -132,25 +130,21 @@ public class CalendarUtils {
                 contentValues.put(CalendarContract.Events.EVENT_TIMEZONE, "NL");
                 contentValues.put(CalendarContract.Events.CALENDAR_ID, calendarId);
 
-                try {
-                    if (mDatabaseUtils.getShowReminders()) {
-                        contentValues.put(CalendarContract.Events.HAS_ALARM, true);
+                if (mDatabaseUtils.getShowReminders()) {
+                    contentValues.put(CalendarContract.Events.HAS_ALARM, true);
 
-                        for (EventReminder eventReminder : mDatabaseUtils.getAllReminderTimes()) {
-                            if (eventReminder.isIsSet()) {
-                                ContentValues contentValuesReminders = new ContentValues();
-                                contentValuesReminders.put(CalendarContract.Reminders.EVENT_ID, eventId);
-                                contentValuesReminders.put(CalendarContract.Reminders.METHOD,
-                                        CalendarContract.Reminders.METHOD_ALERT);
-                                contentValuesReminders.put(CalendarContract.Reminders.MINUTES,
-                                        eventReminder.getEnum().getTimeInMinutes());
-                                mContext.getContentResolver().insert(CalendarContract.Reminders.CONTENT_URI,
-                                        contentValuesReminders);
-                            }
+                    for (EventReminder eventReminder : mDatabaseUtils.getAllReminderTimes()) {
+                        if (eventReminder.isIsSet()) {
+                            ContentValues contentValuesReminders = new ContentValues();
+                            contentValuesReminders.put(CalendarContract.Reminders.EVENT_ID, eventId);
+                            contentValuesReminders.put(CalendarContract.Reminders.METHOD,
+                                    CalendarContract.Reminders.METHOD_ALERT);
+                            contentValuesReminders.put(CalendarContract.Reminders.MINUTES,
+                                    eventReminder.getEnum().getTimeInMinutes());
+                            mContext.getContentResolver().insert(CalendarContract.Reminders.CONTENT_URI,
+                                    contentValuesReminders);
                         }
                     }
-                } catch (RealmException e) {
-                    Crashlytics.logException(e);
                 }
 
                 contentValuesList.add(contentValues);
@@ -185,50 +179,23 @@ public class CalendarUtils {
     }
 
     private String createCalendar() {
-        try {
-            Uri calendarUri = Uri.parse(CalendarContract.Calendars.CONTENT_URI.toString());
-            calendarUri = calendarUri.buildUpon().appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
-                    .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, Constants.ACCOUNT_NAME)
-                    .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_TYPE, Constants.ACCOUNT_TYPE).build();
+        Uri calendarUri = Uri.parse(CalendarContract.Calendars.CONTENT_URI.toString());
+        calendarUri = calendarUri.buildUpon().appendQueryParameter(CalendarContract.CALLER_IS_SYNCADAPTER, "true")
+                .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_NAME, Constants.ACCOUNT_NAME)
+                .appendQueryParameter(CalendarContract.Calendars.ACCOUNT_TYPE, Constants.ACCOUNT_TYPE).build();
 
-            ContentValues vals = new ContentValues();
-            vals.put(CalendarContract.Calendars.ACCOUNT_NAME, Constants.ACCOUNT_NAME);
-            vals.put(CalendarContract.Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
-            vals.put(CalendarContract.Calendars.NAME, Constants.ACCOUNT_NAME);
-            vals.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, Constants.ACCOUNT_NAME);
-            vals.put(CalendarContract.Calendars.CALENDAR_COLOR,
-                    Color.parseColor(mColorUtils.getHexValueForColor(mDatabaseUtils.getCalendarColor())));
-            vals.put(CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL, CalendarContract.Calendars.CAL_ACCESS_OWNER);
-            vals.put(CalendarContract.Calendars.SYNC_EVENTS, 1);
+        ContentValues vals = new ContentValues();
+        vals.put(CalendarContract.Calendars.ACCOUNT_NAME, Constants.ACCOUNT_NAME);
+        vals.put(CalendarContract.Calendars.ACCOUNT_TYPE, CalendarContract.ACCOUNT_TYPE_LOCAL);
+        vals.put(CalendarContract.Calendars.NAME, Constants.ACCOUNT_NAME);
+        vals.put(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME, Constants.ACCOUNT_NAME);
+        vals.put(CalendarContract.Calendars.CALENDAR_COLOR,
+                Color.parseColor(mColorUtils.getHexValueForColor(mDatabaseUtils.getCalendarColor())));
+        vals.put(CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL, CalendarContract.Calendars.CAL_ACCESS_OWNER);
+        vals.put(CalendarContract.Calendars.SYNC_EVENTS, 1);
 
-            Uri newCalendarUri = mContext.getContentResolver().insert(calendarUri, vals);
-            return String.valueOf(ContentUris.parseId(newCalendarUri));
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
-        }
-        return null;
-    }
-
-    private int removeEventFromCalendar(String calendarId, String eventId) {
-        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-            mNotificationUtils.sendNotification(
-                    R.string.notification_syncing_problem_title,
-                    R.string.notification_missing_permissions_message_short,
-                    R.string.notification_missing_permissions_message_long);
-
-            Log.e("CalendarUtils", "No calendar permissions granted");
-            return 0;
-        }
-
-        Uri uri = CalendarContract.Events.CONTENT_URI;
-        String selection = "((" +
-                CalendarContract.Events._ID + " = ?)" +
-                " AND (" +
-                CalendarContract.Events.CALENDAR_ID + " = ?)" +
-                ")";
-        String[] selectionArgs = new String[]{eventId, calendarId};
-        ContentResolver contentResolver = mContext.getContentResolver();
-        return contentResolver.delete(uri, selection, selectionArgs);
+        Uri newCalendarUri = mContext.getContentResolver().insert(calendarUri, vals);
+        return String.valueOf(ContentUris.parseId(newCalendarUri));
     }
 
     public void removeEventsFromCalendar(String calendarId) {
@@ -271,49 +238,16 @@ public class CalendarUtils {
         return false;
     }
 
-    private List<String> getCalendarEventIds(String calendarId) {
-        List<String> eventIds = new ArrayList<>();
-
-        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-            mNotificationUtils.sendNotification(
-                    R.string.notification_syncing_problem_title,
-                    R.string.notification_missing_permissions_message_short,
-                    R.string.notification_missing_permissions_message_long);
-
-            Log.e("CalendarUtils", "No calendar permissions granted");
-            return eventIds;
-        }
-
-        Uri uri = CalendarContract.Events.CONTENT_URI;
-        String selection = "(" + CalendarContract.Events.CALENDAR_ID + " = ?)";
-        String[] selectionArgs = new String[]{calendarId};
-        String[] projection = new String[]{CalendarContract.Events._ID, CalendarContract.Events.TITLE};
-        ContentResolver contentResolver = mContext.getContentResolver();
-        Cursor cursor = contentResolver.query(uri, projection, selection, selectionArgs, null);
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                eventIds.add(cursor.getString(0));
-            }
-            cursor.close();
-        }
-        return eventIds;
-    }
-
     private String getEventDescription(RealmCalendarEvent event) {
-        try {
-            if (mDatabaseUtils.getShowLinks()) {
-                return String.format("%s\n\nRSVP status: %s\n\nFacebook event link: www.facebook.com/%s",
-                        TextUtils.isEmpty(event.getDescription()) ? "" : event.getDescription(),
-                        event.getRsvpStatus().getDisplayString(),
-                        event.getId());
-            } else {
-                return String.format("%s\n\nRSVP status: %s",
-                        TextUtils.isEmpty(event.getDescription()) ? "" : event.getDescription(),
-                        event.getRsvpStatus().getDisplayString());
-            }
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
-            return event.getDescription();
+        if (mDatabaseUtils.getShowLinks()) {
+            return String.format("%s\n\nRSVP status: %s\n\nFacebook event link: www.facebook.com/%s",
+                    TextUtils.isEmpty(event.getDescription()) ? "" : event.getDescription(),
+                    event.getRsvpStatus().getDisplayString(),
+                    event.getId());
+        } else {
+            return String.format("%s\n\nRSVP status: %s",
+                    TextUtils.isEmpty(event.getDescription()) ? "" : event.getDescription(),
+                    event.getRsvpStatus().getDisplayString());
         }
     }
 }
