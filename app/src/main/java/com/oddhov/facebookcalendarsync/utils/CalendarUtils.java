@@ -18,11 +18,11 @@ import com.crashlytics.android.Crashlytics;
 import com.oddhov.facebookcalendarsync.R;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.exceptions.RealmException;
+import com.oddhov.facebookcalendarsync.data.models.realm_models.EventReminder;
 import com.oddhov.facebookcalendarsync.data.models.realm_models.RealmCalendarEvent;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class CalendarUtils {
@@ -119,14 +119,40 @@ public class CalendarUtils {
             if (eventExists) {
                 Log.e("CalendarUtils", "Event with ID " + event.getId() + " exists already. Skipping.");
             } else {
+                int eventId = Math.abs(String.valueOf(event.getId()).hashCode());
+
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(CalendarContract.Events._ID, Math.abs(String.valueOf(event.getId()).hashCode()));
+                contentValues.put(CalendarContract.Events._ID, eventId);
                 contentValues.put(CalendarContract.Events.TITLE, event.getName());
                 contentValues.put(CalendarContract.Events.DESCRIPTION, getEventDescription(event));
-                contentValues.put(CalendarContract.Events.DTSTART, mTimeUtils.convertDateToEpochFormat(event.getStartTime()));
-                contentValues.put(CalendarContract.Events.DTEND, mTimeUtils.convertDateToEpochFormat(event.getEndTime()));
+                contentValues.put(CalendarContract.Events.DTSTART, mTimeUtils.convertDateToEpochFormat(
+                        event.getStartTime()));
+                contentValues.put(CalendarContract.Events.DTEND, mTimeUtils.convertDateToEpochFormat(
+                        event.getEndTime()));
                 contentValues.put(CalendarContract.Events.EVENT_TIMEZONE, "NL");
                 contentValues.put(CalendarContract.Events.CALENDAR_ID, calendarId);
+
+                try {
+                    if (mDatabaseUtils.getShowReminders()) {
+                        contentValues.put(CalendarContract.Events.HAS_ALARM, true);
+
+                        for (EventReminder eventReminder : mDatabaseUtils.getAllReminderTimes()) {
+                            if (eventReminder.isIsSet()) {
+                                ContentValues contentValuesReminders = new ContentValues();
+                                contentValuesReminders.put(CalendarContract.Reminders.EVENT_ID, eventId);
+                                contentValuesReminders.put(CalendarContract.Reminders.METHOD,
+                                        CalendarContract.Reminders.METHOD_ALERT);
+                                contentValuesReminders.put(CalendarContract.Reminders.MINUTES,
+                                        eventReminder.getEnum().getTimeInMinutes());
+                                mContext.getContentResolver().insert(CalendarContract.Reminders.CONTENT_URI,
+                                        contentValuesReminders);
+                            }
+                        }
+                    }
+                } catch (RealmException e) {
+                    Crashlytics.logException(e);
+                }
+
                 contentValuesList.add(contentValues);
 
                 if (contentValuesList.size() >= 10) {
@@ -140,24 +166,6 @@ public class CalendarUtils {
         bulkToInsert = new ContentValues[contentValuesList.size()];
         contentValuesList.toArray(bulkToInsert);
         mContext.getContentResolver().bulkInsert(CalendarContract.Events.CONTENT_URI, bulkToInsert);
-    }
-
-    public void deleteMissingCalendarEvents(String calendarId, List<RealmCalendarEvent> serverEvents) {
-        if (serverEvents.size() == 0) {
-            return;
-        }
-
-        final HashSet<String> serverEventIds = new HashSet<>();
-        for (RealmCalendarEvent calendarEvent : serverEvents) {
-            serverEventIds.add(calendarEvent.getId());
-        }
-
-        List<String> localEvents = getCalendarEventIds(calendarId);
-        for (String localId : localEvents) {
-            if (!serverEventIds.contains(localId)) {
-                removeEventFromCalendar(calendarId, localId);
-            }
-        }
     }
 
     public int deleteCalendar() {
@@ -263,32 +271,6 @@ public class CalendarUtils {
         return false;
     }
 
-    private void updateEvent(RealmCalendarEvent event) {
-        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-            mNotificationUtils.sendNotification(
-                    R.string.notification_syncing_problem_title,
-                    R.string.notification_missing_permissions_message_short,
-                    R.string.notification_missing_permissions_message_long);
-
-            Log.e("CalendarUtils", "No calendar permissions granted");
-            return;
-        }
-
-        Uri uri = CalendarContract.Events.CONTENT_URI;
-        String selection = "(" + CalendarContract.Events._ID + " = ?)";
-        String[] selectionArgs = new String[]{event.getId()};
-
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(CalendarContract.Events.TITLE, event.getName());
-        contentValues.put(CalendarContract.Events.DESCRIPTION, getEventDescription(event));
-        contentValues.put(CalendarContract.Events.DTSTART, mTimeUtils.convertDateToEpochFormat(event.getStartTime()));
-        contentValues.put(CalendarContract.Events.DTEND, mTimeUtils.convertDateToEpochFormat(event.getEndTime()));
-        contentValues.put(CalendarContract.Events.EVENT_TIMEZONE, "NL"); // TODO
-
-        ContentResolver contentResolver = mContext.getContentResolver();
-        contentResolver.update(uri, contentValues, selection, selectionArgs);
-    }
-
     private List<String> getCalendarEventIds(String calendarId) {
         List<String> eventIds = new ArrayList<>();
 
@@ -321,12 +303,12 @@ public class CalendarUtils {
         try {
             if (mDatabaseUtils.getShowLinks()) {
                 return String.format("%s\n\nRSVP status: %s\n\nFacebook event link: www.facebook.com/%s",
-                        event.getDescription(),
+                        TextUtils.isEmpty(event.getDescription()) ? "" : event.getDescription(),
                         event.getRsvpStatus().getDisplayString(),
                         event.getId());
             } else {
                 return String.format("%s\n\nRSVP status: %s",
-                        event.getDescription(),
+                        TextUtils.isEmpty(event.getDescription()) ? "" : event.getDescription(),
                         event.getRsvpStatus().getDisplayString());
             }
         } catch (RealmException e) {

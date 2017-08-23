@@ -18,8 +18,8 @@ public enum CustomTime {
         this.mDisplayString = displayString;
     }
 
-    public long getTimeInMinutes() {
-        return (long) (mValue * 3600); //TODO make sure this works for 0.5 hour
+    public int getTimeInMinutes() {
+        return (int) (mValue * 3600); //TODO make sure this works for 0.5 hour
     }
 
     public String getTimeInMinutesString() {
