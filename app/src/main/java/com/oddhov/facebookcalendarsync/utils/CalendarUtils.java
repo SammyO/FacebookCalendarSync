@@ -85,7 +85,7 @@ public class CalendarUtils {
         return "";
     }
 
-    public void insertOrUpdateCalendarEvents(String calendarId, List<RealmCalendarEvent> realmCalendarEventsList) {
+    public void insertCalendarEvents(String calendarId, List<RealmCalendarEvent> realmCalendarEventsList) {
         if (realmCalendarEventsList.size() == 0) {
             return;
         }
@@ -117,10 +117,10 @@ public class CalendarUtils {
 
             boolean eventExists = doesEventExist(event.getId(), calendarId);
             if (eventExists) {
-                updateEvent(event);
+                Log.e("CalendarUtils", "Event with ID " + event.getId() + " exists already. Skipping.");
             } else {
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(CalendarContract.Events._ID, event.getId());
+                contentValues.put(CalendarContract.Events._ID, Math.abs(String.valueOf(event.getId()).hashCode()));
                 contentValues.put(CalendarContract.Events.TITLE, event.getName());
                 contentValues.put(CalendarContract.Events.DESCRIPTION, getEventDescription(event));
                 contentValues.put(CalendarContract.Events.DTSTART, mTimeUtils.convertDateToEpochFormat(event.getStartTime()));
@@ -221,6 +221,15 @@ public class CalendarUtils {
         String[] selectionArgs = new String[]{eventId, calendarId};
         ContentResolver contentResolver = mContext.getContentResolver();
         return contentResolver.delete(uri, selection, selectionArgs);
+    }
+
+    public void removeEventsFromCalendar(String calendarId) {
+        if (!TextUtils.isEmpty(calendarId)) {
+            Uri eventsContentUri = Uri.parse("content://com.android.calendar/events");
+            String where = "calendar_id=?";
+            String[] selectionArgs = new String[]{calendarId};
+            mContext.getContentResolver().delete(eventsContentUri, where, selectionArgs);
+        }
     }
 
     private boolean doesEventExist(String eventId, String calendarId) {

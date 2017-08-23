@@ -154,10 +154,13 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
 
                 if (!mNetworkUtils.requestNextPage(response, this)) {
                     /*
-                     * This was the last page of events, so we can continue with updating the calendar
+                     * This was the last page of events, so we can continue with updating the calendar.
+                     * We wipe the existing events in the local calendar and insert the new ones.
+                     * The logic to update events instead of clearing and re-adding them proved too
+                     * complicated for what it's worth.
                      */
-                    mCalendarUtils.insertOrUpdateCalendarEvents(mCalendarUtils.getCalendarId(), mUpdatedEvents);
-                    mCalendarUtils.deleteMissingCalendarEvents(mCalendarUtils.getCalendarId(), mUpdatedEvents);
+                    mCalendarUtils.removeEventsFromCalendar(mCalendarUtils.getCalendarId());
+                    mCalendarUtils.insertCalendarEvents(mCalendarUtils.getCalendarId(), mUpdatedEvents);
                     Log.i(mContext.getString(R.string.app_name), "Updating events finished");
                 }
             } else {
