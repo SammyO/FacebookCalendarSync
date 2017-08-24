@@ -33,6 +33,9 @@ public class NetworkUtils {
             Log.e("CalendarUtils", "No account permissions granted");
             return;
         }
+
+        //graph.facebook.com/me?access_token=EAACEdEose0cBAHkVCqFQ1tadqT00rMHEh5T8GPozAiUkadOBjzKaa02rp0SKYAbQmZBHZBHrbkRNXKq2E6qchpSQjtT6VkxjZBDw5f4BEdmsybThaoQtOKPZBdQ3OpZATC7xhh2EauM1CpFeCM6hCWmXEtzs3hGIv02HNenfux4zrRxuk7zgkaGdPZAyhiJW4ZD&fields=id,name,events
+
         FacebookSdk.sdkInitialize(mContext);
 
         String accessToken = AccessToken.getCurrentAccessToken().getToken();
