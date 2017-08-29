@@ -19,6 +19,7 @@ import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmList;
+import io.realm.RealmResults;
 
 public class DatabaseUtils {
     private Realm mRealm;
@@ -294,6 +295,31 @@ public class DatabaseUtils {
             return updatedEventsCopy;
         }
         return null;
+    }
+
+    public void convertAndStore(Event event) {
+        if (event != null) {
+            RealmCalendarEvent realmCalendarEvent = new RealmCalendarEvent(
+                    event.getId(),
+                    event.getName(),
+                    event.getDescription(),
+                    event.getStartTime(),
+                    event.getEndTime(),
+                    event.getRsvpStatus()
+            );
+
+            Realm realm = Realm.getDefaultInstance();
+            realm.executeTransaction(realm1 -> realm1.copyToRealmOrUpdate(realmCalendarEvent));
+            realm.close();
+        }
+    }
+
+    public List<RealmCalendarEvent> getAllEvents() {
+        mRealm = Realm.getDefaultInstance();
+        RealmResults<RealmCalendarEvent> calendarEvents = mRealm.where(RealmCalendarEvent.class).findAll();
+        List<RealmCalendarEvent> calendarEventsCopy = mRealm.copyFromRealm(calendarEvents);
+        closeRealm();
+        return calendarEventsCopy;
     }
 
     public List<RealmCalendarEvent> convertToRealmCalendarEvents(List<Event> events) {

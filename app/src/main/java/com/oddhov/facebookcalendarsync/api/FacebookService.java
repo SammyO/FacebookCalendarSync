@@ -1,14 +1,14 @@
 package com.oddhov.facebookcalendarsync.api;
 
 
-import com.oddhov.facebookcalendarsync.data.models.Event;
+import android.util.Log;
 
-import java.util.List;
+import com.oddhov.facebookcalendarsync.utils.DatabaseUtils;
+
 import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -18,8 +18,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class FacebookService {
     private static final int DEFAULT_TIMEOUT = 10;
     private FacebookApi mFacebookApi;
+    private DatabaseUtils mDatabaseUtils;
 
-    public FacebookService() {
+    public FacebookService(DatabaseUtils databaseUtils) {
+        this.mDatabaseUtils = databaseUtils;
         createFacebookService();
     }
 
@@ -61,10 +63,17 @@ public class FacebookService {
 //        }
 //    }
 
-    public Single<List<Event>> getEvents(String accessToken) {
+    public Completable getEvents(String accessToken) {
         return mFacebookApi.getEvents(accessToken)
-                .flatMap(eventResponse -> Single.just(eventResponse.getEvents()))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .flatMapObservable(eventsResponse -> {
+                    Log.e("FacebooKService", "flatMapObservable, eventSize: " + eventsResponse.getEvents().getEvents().size());
+                    return Observable.just(eventsResponse.getEvents().getEvents());
+                })
+                .flatMapIterable(events -> events)
+                .flatMapCompletable(event -> {
+                    mDatabaseUtils.convertAndStore(event);
+                    return Completable.complete();
+                });
     }
+
 }

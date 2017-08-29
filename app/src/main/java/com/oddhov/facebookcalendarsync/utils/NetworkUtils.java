@@ -16,10 +16,12 @@ import com.oddhov.facebookcalendarsync.api.FacebookService;
 public class NetworkUtils {
     private Context mContext;
     private NotificationUtils mNotificationUtils;
+    private DatabaseUtils mDatabaseUtils;
 
-    public NetworkUtils(Context context, NotificationUtils notificationUtils) {
+    public NetworkUtils(Context context, NotificationUtils notificationUtils, DatabaseUtils databaseUtils) {
         this.mContext = context;
         this.mNotificationUtils = notificationUtils;
+        this.mDatabaseUtils = databaseUtils;
     }
 
     public void fetchEvents(GraphRequest.Callback callback, boolean fetchOnlyUpcoming, String rsvpPreferenceStatusValue) {
@@ -35,13 +37,15 @@ public class NetworkUtils {
         //graph.facebook.com/me?access_token=EAACEdEose0cBAHkVCqFQ1tadqT00rMHEh5T8GPozAiUkadOBjzKaa02rp0SKYAbQmZBHZBHrbkRNXKq2E6qchpSQjtT6VkxjZBDw5f4BEdmsybThaoQtOKPZBdQ3OpZATC7xhh2EauM1CpFeCM6hCWmXEtzs3hGIv02HNenfux4zrRxuk7zgkaGdPZAyhiJW4ZD&fields=id,name,events
 
         Log.e("NetworkUtils", "Fetching events...");
-        FacebookService facebookService = new FacebookService();
+        FacebookService facebookService = new FacebookService(mDatabaseUtils);
         facebookService.getEvents(AccessToken.getCurrentAccessToken().getToken())
                 .subscribe(
-                        eventList -> {
-
+                        () -> {
+                            Log.e("NetworkUtils", "getEvents success. " +
+//                                    mDatabaseUtils.getAllEvents().size() + " events in Realm");
+                                    mDatabaseUtils.getAllEvents().size() + " events in Realm");
                         }, throwable -> {
-
+                            Log.e("NetworkUtils", "getEvents error. ");
                         }
                 );
 

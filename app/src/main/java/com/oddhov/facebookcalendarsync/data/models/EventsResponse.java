@@ -3,40 +3,26 @@ package com.oddhov.facebookcalendarsync.data.models;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class EventsResponse {
 
-    @SerializedName("data")
-    private List<Event> events = new ArrayList<>();
-    private Paging paging;
-    private Map<String, Object> additionalProperties = new HashMap<>();
+    @SerializedName("events")
+    private Events events;
+    @SerializedName("id")
+    private String id;
 
-    public List<Event> getEvents() {
+    public Events getEvents() {
         return events;
     }
 
-    public void setEvents(List<Event> data) {
-        this.events = data;
+    public void setEvents(Events events) {
+        this.events = events;
     }
 
-    public Paging getPaging() {
-        return paging;
+    public String getId() {
+        return id;
     }
 
-    public void setPaging(Paging paging) {
-        this.paging = paging;
+    public void setId(String id) {
+        this.id = id;
     }
-
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
-
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-    }
-
 }

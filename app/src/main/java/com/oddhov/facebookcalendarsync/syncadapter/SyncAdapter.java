@@ -140,9 +140,9 @@ class SyncAdapter extends AbstractThreadedSyncAdapter implements GraphRequest.Ca
         } else {
             EventsResponse eventsResponse = parseAndValidateFacebookResponse(response);
             Log.e("SyncAdapter", "Facebook response: " + response.getRawResponse());
-            if (eventsResponse.getEvents().size() != 0) {
+            if (eventsResponse.getEvents().getEvents().size() != 0) {
                 List<RealmCalendarEvent> updatedEvents = mDatabaseUtils.updateCalendarEvents(
-                        mDatabaseUtils.convertToRealmCalendarEvents(eventsResponse.getEvents()));
+                        mDatabaseUtils.convertToRealmCalendarEvents(eventsResponse.getEvents().getEvents()));
 
                 if (updatedEvents != null) {
                     mUpdatedEvents.addAll(updatedEvents);
