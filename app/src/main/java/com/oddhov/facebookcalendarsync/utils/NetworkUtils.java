@@ -8,12 +8,10 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.facebook.AccessToken;
-import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
-import com.facebook.Profile;
 import com.oddhov.facebookcalendarsync.R;
+import com.oddhov.facebookcalendarsync.api.FacebookService;
 
 public class NetworkUtils {
     private Context mContext;
@@ -36,26 +34,37 @@ public class NetworkUtils {
 
         //graph.facebook.com/me?access_token=EAACEdEose0cBAHkVCqFQ1tadqT00rMHEh5T8GPozAiUkadOBjzKaa02rp0SKYAbQmZBHZBHrbkRNXKq2E6qchpSQjtT6VkxjZBDw5f4BEdmsybThaoQtOKPZBdQ3OpZATC7xhh2EauM1CpFeCM6hCWmXEtzs3hGIv02HNenfux4zrRxuk7zgkaGdPZAyhiJW4ZD&fields=id,name,events
 
-        FacebookSdk.sdkInitialize(mContext);
+        Log.e("NetworkUtils", "Fetching events...");
+        FacebookService facebookService = new FacebookService();
+        facebookService.getEvents(AccessToken.getCurrentAccessToken().getToken())
+                .subscribe(
+                        eventList -> {
 
-        String accessToken = AccessToken.getCurrentAccessToken().getToken();
-        Bundle parameters = new Bundle();
-        parameters.putString("access_token", accessToken);
-        parameters.putString("limit", "25");
-        if (fetchOnlyUpcoming) {
-            parameters.putString("since", Long.toString(System.currentTimeMillis() / 1000));
-        }
-        if (rsvpPreferenceStatusValue != null) {
-            parameters.putString("type", rsvpPreferenceStatusValue);
-        }
+                        }, throwable -> {
 
-        new GraphRequest(
-                AccessToken.getCurrentAccessToken(),
-                "/" + Profile.getCurrentProfile().getId() + "/events",
-                parameters,
-                HttpMethod.GET,
-                callback)
-                .executeAsync();
+                        }
+                );
+
+//        FacebookSdk.sdkInitialize(mContext);
+//
+//        String accessToken = AccessToken.getCurrentAccessToken().getToken();
+//        Bundle parameters = new Bundle();
+//        parameters.putString("access_token", accessToken);
+//        parameters.putString("limit", "25");
+//        if (fetchOnlyUpcoming) {
+//            parameters.putString("since", Long.toString(System.currentTimeMillis() / 1000));
+//        }
+//        if (rsvpPreferenceStatusValue != null) {
+//            parameters.putString("type", rsvpPreferenceStatusValue);
+//        }
+//
+//        new GraphRequest(
+//                AccessToken.getCurrentAccessToken(),
+//                "/" + Profile.getCurrentProfile().getId() + "/events",
+//                parameters,
+//                HttpMethod.GET,
+//                callback)
+//                .executeAsync();
     }
 
     public boolean requestNextPage(GraphResponse response, GraphRequest.Callback callback) {
