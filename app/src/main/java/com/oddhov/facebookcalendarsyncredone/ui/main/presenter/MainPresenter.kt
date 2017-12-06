@@ -1,6 +1,7 @@
 package com.oddhov.facebookcalendarsyncredone.ui.main.presenter
 
 import android.Manifest
+import com.facebook.login.LoginResult
 import com.oddhov.facebookcalendarsyncredone.ui.main.MainContract
 import com.tbruyelle.rxpermissions2.RxPermissions
 import javax.inject.Inject
@@ -37,12 +38,12 @@ constructor(private val view: MainContract.View, private val rxPermissions: RxPe
                 }
     }
 
-    override fun onFacebookLoginClicked() {
+    override fun onSyncNowClicked() {
 
     }
 
-    override fun onSyncNowClicked() {
-
+    override fun facebookLoginSuccess(result: LoginResult?) {
+        determineViewState()
     }
     //endregion
 

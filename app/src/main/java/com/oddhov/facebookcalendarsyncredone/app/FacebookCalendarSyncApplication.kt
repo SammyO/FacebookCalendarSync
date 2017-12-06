@@ -1,10 +1,12 @@
 package com.oddhov.facebookcalendarsyncredone.app
 
 import android.app.Application
+import com.oddhov.facebookcalendarsync.BuildConfig
 import com.oddhov.facebookcalendarsyncredone.app.di.ApplicationComponent
 import com.oddhov.facebookcalendarsyncredone.app.di.ApplicationModule
 import com.oddhov.facebookcalendarsyncredone.app.di.DaggerApplicationComponent
 import com.oddhov.facebookcalendarsyncredone.app.di.FacebookCalendarSyncContract
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -22,16 +24,27 @@ class FacebookCalendarSyncApplication : Application(), FacebookCalendarSyncContr
     override fun onCreate() {
         super.onCreate()
 
-        this.mApplicationComponent = DaggerApplicationComponent.builder()
-                .applicationModule(ApplicationModule(this))
-                .build()
-        this.mApplicationComponent.inject(this)
+        setupDi()
+        setupTimber()
     }
     //endregion
 
     //region Helper Methods
     fun getApplicationComponent(): ApplicationComponent {
         return this.mApplicationComponent
+    }
+
+    private fun setupDi() {
+        this.mApplicationComponent = DaggerApplicationComponent.builder()
+                .applicationModule(ApplicationModule(this))
+                .build()
+        this.mApplicationComponent.inject(this)
+    }
+
+    private fun setupTimber() {
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
     }
     //endregion
 }

@@ -1,5 +1,6 @@
 package com.oddhov.facebookcalendarsyncredone.ui.main
 
+import com.facebook.login.LoginResult
 import com.oddhov.facebookcalendarsyncredone.ui.base.BasePresenter
 
 /**
@@ -11,12 +12,15 @@ interface MainContract {
         fun showFacebookLoginView()
         fun showMainSyncView()
         fun showPermissionRationale()
+
+        fun facebookLogin()
     }
 
     interface Presenter : BasePresenter {
         fun onGrantPermissionsClicked()
-        fun onFacebookLoginClicked()
         fun onSyncNowClicked()
+
+        fun facebookLoginSuccess(result: LoginResult?)
     }
 
     interface Repo {
