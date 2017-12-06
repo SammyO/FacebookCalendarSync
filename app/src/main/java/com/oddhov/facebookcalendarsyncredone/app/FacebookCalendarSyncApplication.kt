@@ -5,11 +5,15 @@ import com.oddhov.facebookcalendarsyncredone.app.di.ApplicationComponent
 import com.oddhov.facebookcalendarsyncredone.app.di.ApplicationModule
 import com.oddhov.facebookcalendarsyncredone.app.di.DaggerApplicationComponent
 import com.oddhov.facebookcalendarsyncredone.app.di.FacebookCalendarSyncContract
+import javax.inject.Inject
 
 /**
  * Created by sammy on 06/12/2017.
  */
 class FacebookCalendarSyncApplication : Application(), FacebookCalendarSyncContract.View {
+    @Inject
+    lateinit var presenter: FacebookCalendarSyncContract.Presenter
+
     //region Fields
     private lateinit var mApplicationComponent: ApplicationComponent
     //endregion

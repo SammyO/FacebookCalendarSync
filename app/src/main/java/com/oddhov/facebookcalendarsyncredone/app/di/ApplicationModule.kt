@@ -1,6 +1,5 @@
 package com.oddhov.facebookcalendarsyncredone.app.di
 
-import android.app.Application
 import com.oddhov.facebookcalendarsyncredone.app.FacebookCalendarSyncPresenter
 import com.oddhov.facebookcalendarsyncredone.data.dagger.PerApp
 import dagger.Module
@@ -12,9 +11,14 @@ import dagger.Provides
 @PerApp
 @Module
 class ApplicationModule
-constructor(private val application : Application) {
+constructor(private val application : FacebookCalendarSyncContract.View) {
     @Provides
-    fun bindPresenter(presenter : FacebookCalendarSyncPresenter): FacebookCalendarSyncContract.Presenter {
+    internal fun provideView(): FacebookCalendarSyncContract.View {
+        return application
+    }
+
+    @Provides
+    fun providePresenter(presenter: FacebookCalendarSyncPresenter): FacebookCalendarSyncContract.Presenter {
         return presenter
     }
 }

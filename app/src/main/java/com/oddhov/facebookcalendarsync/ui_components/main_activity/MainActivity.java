@@ -20,8 +20,6 @@ import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.holder.StringHolder;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.oddhov.facebookcalendarsync.R;
-import com.oddhov.facebookcalendarsync.app.ActivityModule;
-import com.oddhov.facebookcalendarsync.app.FacebookCalendarSyncApplication;
 import com.oddhov.facebookcalendarsync.data.Constants;
 import com.oddhov.facebookcalendarsync.data.events.NavigateEvent;
 import com.oddhov.facebookcalendarsync.utils.AccountUtils;
@@ -62,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
 
         initializeInjector();
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_old);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 

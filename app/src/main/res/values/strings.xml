@@ -10,7 +10,7 @@
     <!--Permissions Fragment-->
     <string name="missing_permissions_title">Missing permissions.</string>
     <string name="missing_permissions_description">This app can only be used when account and calendar permissions are given.</string>
-    <string name="button_grant_permission">Grant permission</string>
+    <string name="button_grant_permissions">Grant permissions</string>
 
     <string name="request_permissions_title">We need your permission</string>
     <string name="request_accounts_permission_description">In order to sync your Facebook events with your local

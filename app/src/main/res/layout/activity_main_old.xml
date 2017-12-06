@@ -21,24 +21,10 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/vfMain"
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <include
-            android:id="@+id/clPermission"
-            layout="@layout/layout_permission_request" />
-
-        <include
-            android:id="@+id/clFacebookLogin"
-            layout="@layout/layout_facebook_login" />
-
-        <include
-            android:id="@+id/clMainSync"
-            layout="@layout/layout_main_sync" />
-
-    </ViewFlipper>
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
 </android.support.design.widget.CoordinatorLayout>
