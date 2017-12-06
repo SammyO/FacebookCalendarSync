@@ -1,6 +1,9 @@
 package com.oddhov.facebookcalendarsyncredone.ui.main.view
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.support.v7.app.AppCompatActivity
 import com.oddhov.facebookcalendarsync.R
 import com.oddhov.facebookcalendarsyncredone.app.FacebookCalendarSyncApplication
@@ -9,6 +12,10 @@ import com.oddhov.facebookcalendarsyncredone.ui.main.di.DaggerMainComponent
 import com.oddhov.facebookcalendarsyncredone.ui.main.di.MainModule
 import kotlinx.android.synthetic.main.activity_main.toolbar
 import kotlinx.android.synthetic.main.activity_main.vfMain
+import kotlinx.android.synthetic.main.fragment_sync.btnSynNow
+import kotlinx.android.synthetic.main.layout_facebook_login.btnLoginFacebook
+import kotlinx.android.synthetic.main.layout_permission_request.btnGrantPermissions
+import org.jetbrains.anko.alert
 import javax.inject.Inject
 
 /**
@@ -23,8 +30,11 @@ class MainActivity : AppCompatActivity(), MainContract.View {
         super.onCreate(savedInstanceState)
 
         setupDi()
+
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
+        setOnClickListeners()
     }
 
     override fun onStart() {
@@ -50,6 +60,17 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     override fun showMainSyncView() {
         changeScreenState(R.id.clMainSync)
     }
+
+    override fun showPermissionRationale() {
+        alert(R.string.permission_rationale_description,
+                R.string.request_permissions_title) {
+            positiveButton(R.string.alert_allow_permission_app_info, {
+                startActivityForResult(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.parse("package:" + packageName)), 0)
+            })
+            negativeButton(R.string.word_cancel, {})
+        }.show()
+    }
     //endregion
 
     //region Helper Methods (DI)
@@ -65,6 +86,12 @@ class MainActivity : AppCompatActivity(), MainContract.View {
     //region Helper Methods (UI)
     private fun changeScreenState(state: Int) {
         vfMain.displayedChild = vfMain.indexOfChild(vfMain.findViewById(state))
+    }
+
+    private fun setOnClickListeners() {
+        btnGrantPermissions.setOnClickListener{ presenter::onGrantPermissionsClicked.invoke() }
+        btnLoginFacebook.setOnClickListener { presenter::onFacebookLoginClicked.invoke() }
+        btnSynNow.setOnClickListener{ presenter::onSyncNowClicked.invoke() }
     }
     //endregion
 }

@@ -19,9 +19,10 @@
     <string name="request_calendar_permission_description">In order to sync your Facebook events with your local
     calendar, we need permission to access your calendar. You can enable these permissions in your app
     settings.</string>
-    <string name="request_account_and_calendar_permission_description">In order to sync your Facebook events with your local
+    <string name="permission_rationale_description">In order to sync your Facebook events with your local
     calendar, we need permission to access your calendar and your accounts. You can enable these permissions in your app
     settings.</string>
+    <string name="alert_allow_permission_app_info">App settings</string>
 
     <!--Sync Fragment-->
     <string name="not_synced_yet">Not synced yet</string>

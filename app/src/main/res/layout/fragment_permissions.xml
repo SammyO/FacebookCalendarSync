@@ -9,7 +9,6 @@
         android:text="@string/missing_permissions_description"/>
 
     <Button
-        android:id="@+id/btnGrantPermissions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"

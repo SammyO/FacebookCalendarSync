@@ -10,14 +10,17 @@ interface MainContract {
         fun showPermissionsView()
         fun showFacebookLoginView()
         fun showMainSyncView()
+        fun showPermissionRationale()
     }
 
     interface Presenter : BasePresenter {
-
+        fun onGrantPermissionsClicked()
+        fun onFacebookLoginClicked()
+        fun onSyncNowClicked()
     }
 
     interface Repo {
-
+        fun hasEmptyOrExpiredAccessToken(): Boolean
     }
 
 }
