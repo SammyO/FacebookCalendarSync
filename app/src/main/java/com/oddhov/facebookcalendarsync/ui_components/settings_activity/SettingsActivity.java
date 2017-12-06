@@ -68,11 +68,11 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void initializeInjector() {
-        mSettingsActivityComponent = DaggerSettingsActivityComponent.builder()
-                .applicationComponent(((FacebookCalendarSyncApplication) getApplication()).getApplicationComponent())
-                .activityModule(new ActivityModule(this))
-                .build();
-        mSettingsActivityComponent.inject(this);
+//        mSettingsActivityComponent = DaggerSettingsActivityComponent.builder()
+//                .applicationComponent(((FacebookCalendarSyncApplication) getApplication()).getApplicationComponent())
+//                .activityModule(new ActivityModule(this))
+//                .build();
+//        mSettingsActivityComponent.inject(this);
     }
     // endregion
 

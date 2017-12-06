@@ -57,7 +57,7 @@ import io.realm.RealmConfiguration;
  * https://developer.android.com/reference/android/support/annotation/package-summary.html
  *
  */
-public class FacebookCalendarSyncApplication extends Application {
+public class FacebookCalendarSyncApplication {
     //region Fields
     private ApplicationComponent mApplicationComponent;
     private RealmConfiguration mRealmConfiguration;
@@ -70,43 +70,43 @@ public class FacebookCalendarSyncApplication extends Application {
     SyncAdapterUtils mSyncAdapterUtils;
     //endregion
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        if (BuildConfig.DEBUG) {
-            if (LeakCanary.isInAnalyzerProcess(this)) {
-                // This process is dedicated to LeakCanary for heap analysis.
-                return;
-            }
-            LeakCanary.install(this);
-        }
-
-        this.mApplicationComponent = DaggerApplicationComponent.builder()
-                .applicationModule(new ApplicationModule(getApplicationContext(), EventBus.getDefault()))
-                .utilsModule(new UtilsModule())
-                .build();
-        this.mApplicationComponent.inject(this);
-
-        Fabric.with(this, new Crashlytics());
-
-        if (mRealmConfiguration == null) {
-            Realm.init(this);
-            mRealmConfiguration = new RealmConfiguration.Builder()
-                    .deleteRealmIfMigrationNeeded() // TODO
-                    .build();
-            Realm.setDefaultConfiguration(mRealmConfiguration);
-        }
-
-        try {
-            mDatabaseUtils.ensureUserDataIsSetup();
-        } catch (RealmException e) {
-            Crashlytics.logException(e);
-        }
-
-        mAccountUtils.ensureAccountExists();
-        mSyncAdapterUtils.ensureSyncAdapterIsSetup();
-    }
+//    @Override
+//    public void onCreate() {
+//        super.onCreate();
+//
+//        if (BuildConfig.DEBUG) {
+//            if (LeakCanary.isInAnalyzerProcess(this)) {
+//                // This process is dedicated to LeakCanary for heap analysis.
+//                return;
+//            }
+//            LeakCanary.install(this);
+//        }
+//
+//        this.mApplicationComponent = DaggerApplicationComponent.builder()
+//                .applicationModule(new ApplicationModule(getApplicationContext(), EventBus.getDefault()))
+//                .utilsModule(new UtilsModule())
+//                .build();
+//        this.mApplicationComponent.inject(this);
+//
+//        Fabric.with(this, new Crashlytics());
+//
+//        if (mRealmConfiguration == null) {
+//            Realm.init(this);
+//            mRealmConfiguration = new RealmConfiguration.Builder()
+//                    .deleteRealmIfMigrationNeeded() // TODO
+//                    .build();
+//            Realm.setDefaultConfiguration(mRealmConfiguration);
+//        }
+//
+//        try {
+//            mDatabaseUtils.ensureUserDataIsSetup();
+//        } catch (RealmException e) {
+//            Crashlytics.logException(e);
+//        }
+//
+//        mAccountUtils.ensureAccountExists();
+//        mSyncAdapterUtils.ensureSyncAdapterIsSetup();
+//    }
 
     public ApplicationComponent getApplicationComponent() {
         return this.mApplicationComponent;

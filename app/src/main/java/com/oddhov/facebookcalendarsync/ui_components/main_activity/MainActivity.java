@@ -185,11 +185,11 @@ public class MainActivity extends AppCompatActivity implements DialogInterface.O
     }
 
     private void initializeInjector() {
-        mMainActivityComponent = DaggerMainActivityComponent.builder()
-                .applicationComponent(((FacebookCalendarSyncApplication) getApplication()).getApplicationComponent())
-                .activityModule(new ActivityModule(this))
-                .build();
-        mMainActivityComponent.inject(this);
+//        mMainActivityComponent = DaggerMainActivityComponent.builder()
+//                .applicationComponent(((FacebookCalendarSyncApplication) getApplication()).getApplicationComponent())
+//                .activityModule(new ActivityModule(this))
+//                .build();
+//        mMainActivityComponent.inject(this);
     }
     // endregion
 
