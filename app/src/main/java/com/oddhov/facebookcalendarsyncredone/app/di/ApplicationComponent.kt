@@ -1,6 +1,7 @@
 package com.oddhov.facebookcalendarsyncredone.app.di
 
-import com.oddhov.facebookcalendarsyncredone.app.FacebookCalendarSyncApplication
+import com.oddhov.facebookcalendarsync.utils.UtilsModule
+import com.oddhov.facebookcalendarsyncredone.app.view.FacebookCalendarSyncApplication
 import com.oddhov.facebookcalendarsyncredone.data.dagger.PerApp
 import dagger.Component
 
@@ -9,7 +10,7 @@ import dagger.Component
  */
 @PerApp
 @Component(
-        modules = [ApplicationModule::class]
+        modules = [ApplicationModule::class, UtilsModule::class]
 )
 interface ApplicationComponent {
     fun inject(application: FacebookCalendarSyncApplication)

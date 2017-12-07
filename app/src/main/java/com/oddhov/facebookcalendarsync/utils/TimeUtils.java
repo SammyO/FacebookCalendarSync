@@ -34,7 +34,7 @@ public class TimeUtils {
         return null;
     }
 
-    static String addOneHourToTimeStamp(String dateAndTime) throws ParseException {
+    public String addOneHourToTimeStamp(String dateAndTime) throws ParseException {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"); // TODO
         Date date;
 

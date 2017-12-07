@@ -12,7 +12,7 @@ import com.facebook.internal.CallbackManagerImpl
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import com.oddhov.facebookcalendarsync.R
-import com.oddhov.facebookcalendarsyncredone.app.FacebookCalendarSyncApplication
+import com.oddhov.facebookcalendarsyncredone.app.view.FacebookCalendarSyncApplication
 import com.oddhov.facebookcalendarsyncredone.ui.main.MainContract
 import com.oddhov.facebookcalendarsyncredone.ui.main.di.DaggerMainComponent
 import com.oddhov.facebookcalendarsyncredone.ui.main.di.MainModule
@@ -56,7 +56,6 @@ class MainActivity : AppCompatActivity(), MainContract.View, FacebookCallback<Lo
     }
 
     override fun onStop() {
-        LoginManager.getInstance().unregisterCallback(mCallbackManager)
         presenter.unsubscribe()
         super.onStop()
     }
@@ -99,20 +98,22 @@ class MainActivity : AppCompatActivity(), MainContract.View, FacebookCallback<Lo
         LoginManager.getInstance().logInWithReadPermissions(
                 this, Arrays.asList("email", "public_profile", "user_events"))
     }
-
     //endregion
 
     //region FacebookCallback<LoginResult> Methods
     override fun onError(error: FacebookException?) {
+        LoginManager.getInstance().unregisterCallback(mCallbackManager)
         toast(R.string.login_again)
         Timber.e(error.toString())
     }
 
     override fun onCancel() {
+        LoginManager.getInstance().unregisterCallback(mCallbackManager)
         toast(R.string.login_again)
     }
 
     override fun onSuccess(result: LoginResult?) {
+        LoginManager.getInstance().unregisterCallback(mCallbackManager)
         presenter.facebookLoginSuccess(result)
     }
     //endregion

@@ -1,11 +1,11 @@
-package com.oddhov.facebookcalendarsyncredone.app
+package com.oddhov.facebookcalendarsyncredone.app.view
 
 import android.app.Application
 import com.oddhov.facebookcalendarsync.BuildConfig
+import com.oddhov.facebookcalendarsyncredone.app.FacebookCalendarSyncContract
 import com.oddhov.facebookcalendarsyncredone.app.di.ApplicationComponent
 import com.oddhov.facebookcalendarsyncredone.app.di.ApplicationModule
 import com.oddhov.facebookcalendarsyncredone.app.di.DaggerApplicationComponent
-import com.oddhov.facebookcalendarsyncredone.app.di.FacebookCalendarSyncContract
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -26,6 +26,7 @@ class FacebookCalendarSyncApplication : Application(), FacebookCalendarSyncContr
 
         setupDi()
         setupTimber()
+        presenter.setup()
     }
     //endregion
 

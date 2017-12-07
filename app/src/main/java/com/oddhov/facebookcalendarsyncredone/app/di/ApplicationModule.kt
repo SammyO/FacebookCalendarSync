@@ -1,6 +1,8 @@
 package com.oddhov.facebookcalendarsyncredone.app.di
 
-import com.oddhov.facebookcalendarsyncredone.app.FacebookCalendarSyncPresenter
+import com.oddhov.facebookcalendarsyncredone.app.FacebookCalendarSyncContract
+import com.oddhov.facebookcalendarsyncredone.app.model.FacebookCalendarSyncRepo
+import com.oddhov.facebookcalendarsyncredone.app.presenter.FacebookCalendarSyncPresenter
 import com.oddhov.facebookcalendarsyncredone.data.dagger.PerApp
 import dagger.Module
 import dagger.Provides
@@ -20,5 +22,10 @@ constructor(private val application : FacebookCalendarSyncContract.View) {
     @Provides
     fun providePresenter(presenter: FacebookCalendarSyncPresenter): FacebookCalendarSyncContract.Presenter {
         return presenter
+    }
+
+    @Provides
+    fun provideRepo(repo: FacebookCalendarSyncRepo) : FacebookCalendarSyncContract.Repo {
+        return repo
     }
 }

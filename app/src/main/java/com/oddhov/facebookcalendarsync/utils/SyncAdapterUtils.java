@@ -14,6 +14,8 @@ import com.oddhov.facebookcalendarsync.data.models.CustomTime;
 
 import java.util.List;
 
+import timber.log.Timber;
+
 public class SyncAdapterUtils {
 
     DatabaseUtils mDatabaseUtils;
@@ -29,13 +31,13 @@ public class SyncAdapterUtils {
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         List<PeriodicSync> periodicSyncsList = ContentResolver.getPeriodicSyncs(account, "com.android.calendar");
         if (periodicSyncsList.size() == 0) {
-            Log.e("SyncAdapterUtils", "setting up new adapter");
+            Timber.i("Setting up new adapter");
             setupSyncAdapter();
         } else if (periodicSyncsList.size() > 1) {
             Crashlytics.logException(new UnexpectedException("SyncAdapterUtils",
                     "More than one SyncAdapter set up for this account"));
         } else {
-            Log.e("SyncAdapterUtils", "adapter exists");
+            Timber.i("Adapter already setup");
         }
     }
 
@@ -49,7 +51,7 @@ public class SyncAdapterUtils {
         } else {
             ContentResolver.setIsSyncable(account, "com.android.calendar", 0);
         }
-        Log.i("SyncAdapter", "SyncAdapter is syncable: " + ContentResolver.getIsSyncable(account, "com.android.calendar"));
+        Timber.i("SyncAdapter is syncable: " + ContentResolver.getIsSyncable(account, "com.android.calendar"));
     }
 
     public void runSyncAdapterNow() {
@@ -66,7 +68,6 @@ public class SyncAdapterUtils {
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         ContentResolver.addPeriodicSync(account, "com.android.calendar", Bundle.EMPTY, interval.getTimeInMinutes());
-
     }
 
     private void setupSyncAdapter() {

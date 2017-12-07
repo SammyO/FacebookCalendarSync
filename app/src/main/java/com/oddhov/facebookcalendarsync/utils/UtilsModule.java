@@ -2,6 +2,8 @@ package com.oddhov.facebookcalendarsync.utils;
 
 import android.content.Context;
 
+import com.oddhov.facebookcalendarsyncredone.data.dagger.ApplicationContext;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -11,13 +13,14 @@ import dagger.Provides;
 public class UtilsModule {
     @Provides
     @Singleton
-    AccountUtils provideAccountUtils(Context context) {
+    AccountUtils provideAccountUtils(@ApplicationContext  Context context) {
         return new AccountUtils(context);
     }
 
     @Provides
     @Singleton
-    CalendarUtils provideCalendarUtils(Context context, NotificationUtils notificationUtils,
+    CalendarUtils provideCalendarUtils(@ApplicationContext Context context,
+                                       NotificationUtils notificationUtils,
                                        DatabaseUtils databaseUtils, TimeUtils timeUtils,
                                        ColorUtils colorUtils) {
         return new CalendarUtils(context, notificationUtils, databaseUtils, timeUtils, colorUtils);
@@ -25,13 +28,13 @@ public class UtilsModule {
 
     @Provides
     @Singleton
-    DatabaseUtils provideDatabaseUtils(Context context) {
+    DatabaseUtils provideDatabaseUtils(@ApplicationContext Context context) {
         return new DatabaseUtils(context);
     }
 
     @Provides
     @Singleton
-    NavigationDrawerUtils provideNavigationDrawerUtils(Context context,
+    NavigationDrawerUtils provideNavigationDrawerUtils(@ApplicationContext Context context,
                                                        DatabaseUtils databaseUtils,
                                                        SyncAdapterUtils syncAdapterUtils) {
         return new NavigationDrawerUtils(context, databaseUtils, syncAdapterUtils);
@@ -39,20 +42,21 @@ public class UtilsModule {
 
     @Provides
     @Singleton
-    NetworkUtils provideNetworkUtils(Context context, NotificationUtils notificationUtils,
+    NetworkUtils provideNetworkUtils(@ApplicationContext Context context,
+                                     NotificationUtils notificationUtils,
                                      DatabaseUtils databaseUtils) {
         return new NetworkUtils(context, notificationUtils, databaseUtils);
     }
 
     @Provides
     @Singleton
-    NotificationUtils provideNotificationUtils(Context context) {
+    NotificationUtils provideNotificationUtils(@ApplicationContext Context context) {
         return new NotificationUtils(context);
     }
 
     @Provides
     @Singleton
-    PermissionUtils providePermissionUtils(Context context) {
+    PermissionUtils providePermissionUtils(@ApplicationContext Context context) {
         return new PermissionUtils(context);
     }
 
